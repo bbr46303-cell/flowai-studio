@@ -2,431 +2,343 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>FlowAI Studio</title>
-
 <style>
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
-
+*{box-sizing:border-box}
 body{
-  font-family:Inter,Arial,sans-serif;
-  min-height:100vh;
-  color:#eeeaff;
-  background:
-    radial-gradient(circle at 15% 10%,rgba(168,55,255,.22),transparent 30%),
-    radial-gradient(circle at 90% 30%,rgba(255,40,180,.16),transparent 32%),
-    linear-gradient(145deg,#080611,#10071d 55%,#090611);
+ margin:0;
+ font-family:Inter,Arial,sans-serif;
+ color:#f5edff;
+ background:
+ radial-gradient(circle at 15% 0%,#6410a8 0,transparent 30%),
+ radial-gradient(circle at 100% 30%,#32005e 0,transparent 35%),
+ #0b0714;
+ min-height:100vh;
 }
-
-body:before{
-  content:"";
-  position:fixed;
-  width:420px;
-  height:420px;
-  left:-180px;
-  bottom:-180px;
-  background:#9b2cff;
-  filter:blur(150px);
-  opacity:.18;
-  pointer-events:none;
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.top{
+ display:flex;align-items:center;justify-content:space-between;
+ padding:24px 26px 18px;
+ max-width:900px;margin:auto
 }
-
-.container{
-  width:min(760px,100%);
-  margin:auto;
-  padding:22px 18px 45px;
-}
-
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:28px;
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
+.brand{display:flex;align-items:center;gap:16px}
 .logo{
-  width:58px;
-  height:58px;
-  border-radius:18px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:29px;
-  background:linear-gradient(135deg,#8b2cff,#d927ff);
-  box-shadow:0 0 35px rgba(190,40,255,.45);
+ width:70px;height:70px;border-radius:22px;
+ display:flex;align-items:center;justify-content:center;
+ font-size:38px;
+ background:linear-gradient(135deg,#9b24ff,#d82be9);
+ box-shadow:0 0 35px #a626ff66
 }
-
-.brand h1{
-  font-size:25px;
-  line-height:1.05;
-}
-
-.brand span{
-  display:block;
-  margin-top:6px;
-  color:#bc91ff;
-  font-size:19px;
-  font-weight:700;
-}
-
+.brand h1{margin:0;font-size:31px}
+.brand p{margin:3px 0;color:#c38cff;font-size:20px}
 .credits{
-  padding:12px 20px;
-  border-radius:30px;
-  background:rgba(47,25,72,.75);
-  border:1px solid rgba(191,103,255,.25);
-  font-weight:700;
-  color:#f2ddff;
+ padding:13px 22px;border:1px solid #a83aff88;
+ border-radius:30px;background:#241035;
+ font-weight:bold;font-size:17px
 }
-
+.login{
+ border:0;color:white;background:linear-gradient(135deg,#8d28ff,#d327df);
+ padding:12px 20px;border-radius:25px;font-weight:bold;
+ margin-left:8px
+}
+.wrap{max-width:900px;margin:auto;padding:10px 25px 50px}
 .card{
-  border:1px solid rgba(180,120,255,.13);
-  border-radius:28px;
-  padding:25px;
-  background:rgba(17,13,30,.88);
-  box-shadow:0 25px 70px rgba(0,0,0,.35);
-  backdrop-filter:blur(15px);
+ border:1px solid #3d254f;border-radius:30px;
+ background:#100b1bdb;padding:32px;
+ box-shadow:0 0 50px #6c0c9b20
 }
-
-.create-title{
-  display:flex;
-  align-items:center;
-  gap:15px;
-  margin-bottom:24px;
+.create{display:flex;align-items:center;gap:18px;margin-bottom:28px}
+.magic{
+ width:90px;height:90px;border-radius:25px;
+ display:flex;align-items:center;justify-content:center;
+ font-size:45px;background:linear-gradient(135deg,#8d27ff,#d72ae8)
 }
-
-.create-icon{
-  width:56px;
-  height:56px;
-  border-radius:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:27px;
-  background:linear-gradient(135deg,#822bff,#d42bdf);
-}
-
-.create-title h2{
-  font-size:23px;
-}
-
-.create-title p{
-  color:#8d849e;
-  margin-top:4px;
-}
-
-.tabs{
-  display:flex;
-  padding:4px;
-  border-radius:18px;
-  background:#151222;
-  margin-bottom:28px;
-}
-
+h2{font-size:38px;margin:0}
+.sub{color:#9c91a9;font-size:23px;margin-top:4px}
+.tabs{display:flex;background:#171321;border-radius:24px;padding:6px;margin-bottom:35px}
 .tab{
-  flex:1;
-  border:0;
-  padding:17px;
-  border-radius:14px;
-  color:#9c94ae;
-  background:transparent;
-  font-size:17px;
-  font-weight:700;
-  cursor:pointer;
+ flex:1;border:0;background:transparent;color:#aaa0b7;
+ padding:19px;border-radius:19px;font-size:23px;font-weight:bold
 }
-
 .tab.active{
-  color:white;
-  background:linear-gradient(100deg,#7b28db,#c126c8);
-  box-shadow:0 8px 25px rgba(165,37,220,.3);
+ color:white;background:linear-gradient(100deg,#7829dc,#d027d4);
+ box-shadow:0 8px 25px #a423db55
 }
-
 .label{
-  display:block;
-  margin:20px 0 10px;
-  color:#a49ab8;
-  font-size:14px;
-  font-weight:700;
-  letter-spacing:1px;
+ color:#aaa0b8;font-weight:bold;letter-spacing:1px;
+ font-size:18px;margin:22px 0 13px
 }
-
 textarea{
-  width:100%;
-  height:190px;
-  resize:none;
-  outline:none;
-  color:#f4efff;
-  font-size:17px;
-  line-height:1.5;
-  padding:20px;
-  border-radius:22px;
-  border:1px solid #2d263c;
-  background:#0e0c18;
+ width:100%;height:220px;resize:none;
+ background:#0d0915;color:white;border:1px solid #33253e;
+ border-radius:25px;padding:25px;font-size:21px;outline:none
 }
-
-textarea:focus{
-  border-color:#a832e8;
-  box-shadow:0 0 0 3px rgba(168,50,232,.1);
+textarea:focus{border-color:#b22cff}
+.counter{text-align:right;color:#777080;margin-top:-35px;margin-right:20px}
+.ideas{display:flex;gap:12px;margin:28px 0;flex-wrap:wrap}
+.idea,.option{
+ border:1px solid #33253f;background:#110d19;color:#d9d0df;
+ border-radius:25px;padding:14px 22px;font-weight:bold
 }
-
-.counter{
-  text-align:right;
-  margin-top:-30px;
-  margin-right:18px;
-  position:relative;
-  color:#6f687b;
-  font-size:13px;
-}
-
-.ideas{
-  display:flex;
-  gap:10px;
-  margin:25px 0 32px;
-  overflow-x:auto;
-}
-
-.idea{
-  white-space:nowrap;
-  border:1px solid #29223a;
-  background:#131020;
-  color:#aaa0ba;
-  border-radius:30px;
-  padding:12px 17px;
-  cursor:pointer;
-}
-
-.idea:hover{
-  border-color:#a331e7;
-  color:#e6caff;
-}
-
-.options{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-}
-
+.idea:hover,.option:hover{border-color:#b52cff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 .option{
-  border:1px solid #29243a;
-  background:#100e19;
-  border-radius:20px;
-  padding:19px;
-  cursor:pointer;
-  transition:.2s;
+ text-align:left;padding:20px;border-radius:25px
 }
-
+.option strong{display:block;font-size:23px;color:#eee}
+.option span{color:#94899d;font-size:17px}
 .option.selected{
-  border-color:#a839ef;
-  background:linear-gradient(145deg,#24133a,#171021);
-  box-shadow:0 0 25px rgba(165,45,240,.13);
+ border-color:#c02cff;
+ background:linear-gradient(135deg,#25123b,#17101f);
+ box-shadow:0 0 25px #a928ff22
 }
-
-.option-title{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-
-.option-icon{
-  font-size:29px;
-}
-
-.option strong{
-  display:block;
-  font-size:18px;
-}
-
-.option small{
-  color:#80768e;
-  display:block;
-  margin-top:4px;
-  font-size:14px;
-}
-
-.duration{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-}
-
+.duration{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .duration button{
-  padding:18px 10px;
-  border-radius:17px;
-  border:1px solid #29243a;
-  background:#100e19;
-  color:#aaa1b8;
-  font-size:17px;
-  cursor:pointer;
+ border:1px solid #33253f;background:#110d19;
+ color:#c8bfce;padding:18px;border-radius:18px;font-weight:bold
 }
-
 .duration button.selected{
-  color:#fff;
-  border-color:#a536e8;
-  background:#251437;
+ background:linear-gradient(100deg,#7829dc,#c827d6);
+ color:white;border-color:#c52aff
 }
-
 .generate{
-  width:100%;
-  margin-top:30px;
-  padding:19px;
-  border:0;
-  border-radius:19px;
-  color:white;
-  font-size:18px;
-  font-weight:800;
-  cursor:pointer;
-  background:linear-gradient(100deg,#7e28dc,#bd26d4,#ef39bd);
-  box-shadow:0 12px 35px rgba(190,39,215,.3);
+ width:100%;margin-top:30px;padding:20px;
+ border:0;border-radius:22px;color:white;
+ font-size:22px;font-weight:bold;
+ background:linear-gradient(100deg,#7928dc,#d128d7);
+ box-shadow:0 10px 35px #a127d94d
 }
-
-.generate:hover{
-  transform:translateY(-1px);
-}
-
-.generate:disabled{
-  opacity:.55;
-  cursor:not-allowed;
-}
-
+.generate:disabled{opacity:.6}
 .status{
-  display:none;
-  margin-top:20px;
-  padding:15px;
-  border-radius:15px;
-  background:#171222;
-  border:1px solid #312440;
-  color:#bcaacb;
-  text-align:center;
+ display:none;margin-top:20px;padding:18px;border-radius:18px;
+ background:#181020;border:1px solid #432650;text-align:center;color:#d7c5e5
 }
-
-.footer{
-  text-align:center;
-  color:#625a6e;
-  margin-top:30px;
-  font-size:13px;
+.history{margin-top:25px}
+.history h3{font-size:22px}
+.item{
+ padding:15px;border:1px solid #30203b;border-radius:16px;
+ margin-top:10px;color:#a99faf
 }
-
+.modal{
+ display:none;position:fixed;inset:0;background:#000b;
+ align-items:center;justify-content:center;padding:20px;z-index:10
+}
+.modalbox{
+ width:100%;max-width:430px;background:#130c1e;
+ border:1px solid #7333a1;border-radius:25px;padding:28px;
+ box-shadow:0 0 60px #8c1bd955
+}
+.modalbox h2{font-size:28px;margin-bottom:20px}
+.modalbox input{
+ width:100%;padding:15px;margin:8px 0;
+ border-radius:13px;border:1px solid #3b2948;
+ background:#0c0812;color:white;outline:none
+}
+.modalbox .mainbtn{
+ width:100%;padding:15px;border:0;border-radius:14px;
+ background:linear-gradient(100deg,#7d27df,#d22bd8);
+ color:white;font-weight:bold;margin-top:12px
+}
+.close{float:right;background:none;border:0;color:#aaa;font-size:25px}
+.switch{color:#b66cff;text-align:center;margin-top:18px;cursor:pointer}
 @media(max-width:600px){
-  .container{
-    padding:18px 14px 35px;
-  }
-
-  .card{
-    padding:19px;
-    border-radius:24px;
-  }
-
-  .credits{
-    padding:10px 13px;
-    font-size:13px;
-  }
-
-  .brand h1{
-    font-size:21px;
-  }
-
-  .brand span{
-    font-size:16px;
-  }
-
-  .logo{
-    width:50px;
-    height:50px;
-  }
-
-  .options{
-    grid-template-columns:1fr;
-  }
+ .top{padding:18px 18px 10px}
+ .brand h1{font-size:27px}
+ .brand p{font-size:18px}
+ .logo{width:62px;height:62px}
+ .credits{font-size:14px;padding:10px 13px}
+ .login{padding:9px 13px;font-size:13px}
+ .wrap{padding:8px 15px 35px}
+ .card{padding:22px 18px;border-radius:25px}
+ .create{gap:13px}
+ .magic{width:72px;height:72px;font-size:35px}
+ h2{font-size:32px}
+ .sub{font-size:18px}
+ .tab{font-size:18px;padding:16px 8px}
+ textarea{height:200px;font-size:18px}
+ .grid2{grid-template-columns:1fr}
 }
 </style>
 </head>
-
 <body>
 
-<div class="container">
+<header class="top">
+ <div class="brand">
+  <div class="logo">✦</div>
+  <div><h1>FlowAI</h1><p>Studio</p></div>
+ </div>
+ <div>
+  <span class="credits">⚡ <span id="credits">50</span> credits</span>
+  <button class="login" onclick="openLogin()">Login</button>
+ </div>
+</header>
 
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">✦</div>
-      <div>
-        <h1>FlowAI</h1>
-        <span>Studio</span>
-      </div>
-    </div>
+<main class="wrap">
+<section class="card">
 
-    <div class="credits">
-      ⚡ <span id="credits">50</span> credits
-    </div>
+ <div class="create">
+  <div class="magic">🪄</div>
+  <div><h2>Create</h2><div class="sub">Describe your vision</div></div>
+ </div>
+
+ <div class="tabs">
+  <button class="tab active" id="videoTab" onclick="setMode('Video')">🎞️ Video</button>
+  <button class="tab" id="audioTab" onclick="setMode('Audio')">♪ Audio</button>
+ </div>
+
+ <div class="label">PROMPT</div>
+ <textarea id="prompt" maxlength="500"
+ placeholder="A cinematic shot of..." oninput="countText()"></textarea>
+ <div class="counter"><span id="count">0</span>/500</div>
+
+ <div class="ideas">
+  <button class="idea" onclick="idea(1)">✦ Idea 1</button>
+  <button class="idea" onclick="idea(2)">✦ Idea 2</button>
+  <button class="idea" onclick="idea(3)">✦ Idea 3</button>
+ </div>
+
+ <div class="label">ASPECT RATIO</div>
+ <div class="grid2">
+  <button class="option selected" id="r169" onclick="ratio('16:9')">
+   <strong>▭ 16:9</strong><span>Landscape</span>
+  </button>
+  <button class="option" id="r916" onclick="ratio('9:16')">
+   <strong>▯ 9:16</strong><span>Portrait</span>
+  </button>
+ </div>
+
+ <div class="label">DURATION</div>
+ <div class="duration">
+  <button onclick="duration(5)" id="d5">5s</button>
+  <button onclick="duration(10)" id="d10" class="selected">10s</button>
+  <button onclick="duration(15)" id="d15">15s</button>
+ </div>
+
+ <button class="generate" onclick="generate()">⚡ Generate Video</button>
+
+ <div class="status" id="status"></div>
+
+ <div class="history">
+  <h3>🕘 Recent Generations</h3>
+  <div id="historyList">
+   <div class="item">No generations yet</div>
   </div>
+ </div>
 
-  <div class="card">
+</section>
+</main>
 
-    <div class="create-title">
-      <div class="create-icon">🪄</div>
-      <div>
-        <h2>Create</h2>
-        <p>Describe your vision</p>
-      </div>
-    </div>
+<!-- LOGIN -->
+<div class="modal" id="loginModal">
+ <div class="modalbox">
+  <button class="close" onclick="closeLogin()">×</button>
+  <h2>Welcome to FlowAI</h2>
+  <input id="name" placeholder="Your name">
+  <input id="email" type="email" placeholder="Email address">
+  <input id="password" type="password" placeholder="Password">
+  <button class="mainbtn" onclick="login()">Login / Sign Up</button>
+  <div class="switch" onclick="closeLogin()">Continue as guest</div>
+ </div>
+</div>
 
-    <div class="tabs">
-      <button class="tab active" id="videoTab" onclick="setMode('Video')">
-        🎞️ Video
-      </button>
-      <button class="tab" id="audioTab" onclick="setMode('Audio')">
-        ♪ Audio
-      </button>
-    </div>
+<script>
+let mode="Video",selectedRatio="16:9",selectedDuration=10;
+let credits=50;
 
-    <label class="label">PROMPT</label>
+function setMode(x){
+ mode=x;
+ document.getElementById("videoTab").classList.toggle("active",x==="Video");
+ document.getElementById("audioTab").classList.toggle("active",x==="Audio");
+ document.querySelector(".generate").textContent=
+ x==="Video"?"⚡ Generate Video":"🎵 Generate Audio";
+}
 
-    <textarea
-      id="prompt"
-      maxlength="500"
-      placeholder="A cinematic shot of..."
-      oninput="updateCounter()"></textarea>
+function countText(){
+ document.getElementById("count").textContent=
+ document.getElementById("prompt").value.length;
+}
 
-    <div class="counter">
-      <span id="counter">0</span>/500
-    </div>
+function idea(n){
+ let text=[
+  "A cinematic drone shot over a futuristic city at sunset, ultra realistic, dramatic lighting",
+  "A mysterious ancient temple hidden inside a beautiful jungle, cinematic atmosphere",
+  "A magical night sky above the mountains with glowing stars, epic cinematic scene"
+ ][n-1];
+ document.getElementById("prompt").value=text;
+ countText();
+}
 
-    <div class="ideas">
-      <button class="idea" onclick="useIdea(1)">✦ Idea 1</button>
-      <button class="idea" onclick="useIdea(2)">✦ Idea 2</button>
-      <button class="idea" onclick="useIdea(3)">✦ Idea 3</button>
-    </div>
+function ratio(x){
+ selectedRatio=x;
+ document.getElementById("r169").classList.toggle("selected",x==="16:9");
+ document.getElementById("r916").classList.toggle("selected",x==="9:16");
+}
 
-    <label class="label">ASPECT RATIO</label>
+function duration(x){
+ selectedDuration=x;
+ [5,10,15].forEach(n=>{
+  document.getElementById("d"+n).classList.toggle("selected",n===x);
+ });
+}
 
-    <div class="options">
-      <div class="option selected" id="landscape"
-           onclick="selectRatio('16:9')">
-        <div class="option-title">
-          <div class="option-icon">▭</div>
-          <div>
-            <strong>16:9</strong>
-            <small>Landscape</small>
-          </div>
-        </div>
-      </div>
+function generate(){
+ let prompt=document.getElementById("prompt").value.trim();
+ if(!prompt){
+  showStatus("⚠️ Please enter a prompt first.");
+  return;
+ }
+ if(credits<=0){
+  showStatus("❌ Not enough credits.");
+  return;
+ }
 
-      <div class="option" id="portrait"
-           onclick="selectRatio('9:16')">
-        <div class="option-title">
-          <div class="option-icon">▯</div>
-          <div>
-            <strong>9:16</strong>
-            <small>Portrait</small>
-          </div>
-        </div>
-      </div>
-    </div>
+ credits--;
+ document.getElementById("credits").textContent=credits;
+
+ let text="✨ Your "+mode.toLowerCase()+" request has been created! "+
+ "("+selectedDuration+"s • "+selectedRatio+")";
+
+ showStatus(text);
+
+ let list=document.getElementById("historyList");
+ if(list.children.length===1 &&
+    list.children[0].textContent==="No generations yet") list.innerHTML="";
+
+ let item=document.createElement("div");
+ item.className="item";
+ item.textContent="✨ "+mode+" • "+selectedDuration+"s • "+selectedRatio+" — "+prompt;
+ list.prepend(item);
+}
+
+function showStatus(text){
+ let s=document.getElementById("status");
+ s.style.display="block";
+ s.textContent=text;
+}
+
+function openLogin(){
+ document.getElementById("loginModal").style.display="flex";
+}
+function closeLogin(){
+ document.getElementById("loginModal").style.display="none";
+}
+function login(){
+ let name=document.getElementById("name").value.trim();
+ if(!name){
+  alert("Please enter your name");
+  return;
+ }
+ localStorage.setItem("flowaiUser",name);
+ closeLogin();
+ document.querySelector(".login").textContent="👤 "+name;
+}
+
+window.onload=function(){
+ let user=localStorage.getItem("flowaiUser");
+ if(user) document.querySelector(".login").textContent="👤 "+user;
+}
+</script>
+</body>
+</html>
