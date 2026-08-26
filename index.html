@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowAI Studio</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Inter,Arial,sans-serif;
+  min-height:100vh;
+  color:#eeeaff;
+  background:
+    radial-gradient(circle at 15% 10%,rgba(168,55,255,.22),transparent 30%),
+    radial-gradient(circle at 90% 30%,rgba(255,40,180,.16),transparent 32%),
+    linear-gradient(145deg,#080611,#10071d 55%,#090611);
+}
+
+body:before{
+  content:"";
+  position:fixed;
+  width:420px;
+  height:420px;
+  left:-180px;
+  bottom:-180px;
+  background:#9b2cff;
+  filter:blur(150px);
+  opacity:.18;
+  pointer-events:none;
+}
+
+.container{
+  width:min(760px,100%);
+  margin:auto;
+  padding:22px 18px 45px;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:28px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo{
+  width:58px;
+  height:58px;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:29px;
+  background:linear-gradient(135deg,#8b2cff,#d927ff);
+  box-shadow:0 0 35px rgba(190,40,255,.45);
+}
+
+.brand h1{
+  font-size:25px;
+  line-height:1.05;
+}
+
+.brand span{
+  display:block;
+  margin-top:6px;
+  color:#bc91ff;
+  font-size:19px;
+  font-weight:700;
+}
+
+.credits{
+  padding:12px 20px;
+  border-radius:30px;
+  background:rgba(47,25,72,.75);
+  border:1px solid rgba(191,103,255,.25);
+  font-weight:700;
+  color:#f2ddff;
+}
+
+.card{
+  border:1px solid rgba(180,120,255,.13);
+  border-radius:28px;
+  padding:25px;
+  background:rgba(17,13,30,.88);
+  box-shadow:0 25px 70px rgba(0,0,0,.35);
+  backdrop-filter:blur(15px);
+}
+
+.create-title{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  margin-bottom:24px;
+}
+
+.create-icon{
+  width:56px;
+  height:56px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:27px;
+  background:linear-gradient(135deg,#822bff,#d42bdf);
+}
+
+.create-title h2{
+  font-size:23px;
+}
+
+.create-title p{
+  color:#8d849e;
+  margin-top:4px;
+}
+
+.tabs{
+  display:flex;
+  padding:4px;
+  border-radius:18px;
+  background:#151222;
+  margin-bottom:28px;
+}
+
+.tab{
+  flex:1;
+  border:0;
+  padding:17px;
+  border-radius:14px;
+  color:#9c94ae;
+  background:transparent;
+  font-size:17px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.tab.active{
+  color:white;
+  background:linear-gradient(100deg,#7b28db,#c126c8);
+  box-shadow:0 8px 25px rgba(165,37,220,.3);
+}
+
+.label{
+  display:block;
+  margin:20px 0 10px;
+  color:#a49ab8;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:1px;
+}
+
+textarea{
+  width:100%;
+  height:190px;
+  resize:none;
+  outline:none;
+  color:#f4efff;
+  font-size:17px;
+  line-height:1.5;
+  padding:20px;
+  border-radius:22px;
+  border:1px solid #2d263c;
+  background:#0e0c18;
+}
+
+textarea:focus{
+  border-color:#a832e8;
+  box-shadow:0 0 0 3px rgba(168,50,232,.1);
+}
+
+.counter{
+  text-align:right;
+  margin-top:-30px;
+  margin-right:18px;
+  position:relative;
+  color:#6f687b;
+  font-size:13px;
+}
+
+.ideas{
+  display:flex;
+  gap:10px;
+  margin:25px 0 32px;
+  overflow-x:auto;
+}
+
+.idea{
+  white-space:nowrap;
+  border:1px solid #29223a;
+  background:#131020;
+  color:#aaa0ba;
+  border-radius:30px;
+  padding:12px 17px;
+  cursor:pointer;
+}
+
+.idea:hover{
+  border-color:#a331e7;
+  color:#e6caff;
+}
+
+.options{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.option{
+  border:1px solid #29243a;
+  background:#100e19;
+  border-radius:20px;
+  padding:19px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.option.selected{
+  border-color:#a839ef;
+  background:linear-gradient(145deg,#24133a,#171021);
+  box-shadow:0 0 25px rgba(165,45,240,.13);
+}
+
+.option-title{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.option-icon{
+  font-size:29px;
+}
+
+.option strong{
+  display:block;
+  font-size:18px;
+}
+
+.option small{
+  color:#80768e;
+  display:block;
+  margin-top:4px;
+  font-size:14px;
+}
+
+.duration{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.duration button{
+  padding:18px 10px;
+  border-radius:17px;
+  border:1px solid #29243a;
+  background:#100e19;
+  color:#aaa1b8;
+  font-size:17px;
+  cursor:pointer;
+}
+
+.duration button.selected{
+  color:#fff;
+  border-color:#a536e8;
+  background:#251437;
+}
+
+.generate{
+  width:100%;
+  margin-top:30px;
+  padding:19px;
+  border:0;
+  border-radius:19px;
+  color:white;
+  font-size:18px;
+  font-weight:800;
+  cursor:pointer;
+  background:linear-gradient(100deg,#7e28dc,#bd26d4,#ef39bd);
+  box-shadow:0 12px 35px rgba(190,39,215,.3);
+}
+
+.generate:hover{
+  transform:translateY(-1px);
+}
+
+.generate:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.status{
+  display:none;
+  margin-top:20px;
+  padding:15px;
+  border-radius:15px;
+  background:#171222;
+  border:1px solid #312440;
+  color:#bcaacb;
+  text-align:center;
+}
+
+.footer{
+  text-align:center;
+  color:#625a6e;
+  margin-top:30px;
+  font-size:13px;
+}
+
+@media(max-width:600px){
+  .container{
+    padding:18px 14px 35px;
+  }
+
+  .card{
+    padding:19px;
+    border-radius:24px;
+  }
+
+  .credits{
+    padding:10px 13px;
+    font-size:13px;
+  }
+
+  .brand h1{
+    font-size:21px;
+  }
+
+  .brand span{
+    font-size:16px;
+  }
+
+  .logo{
+    width:50px;
+    height:50px;
+  }
+
+  .options{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">✦</div>
+      <div>
+        <h1>FlowAI</h1>
+        <span>Studio</span>
+      </div>
+    </div>
+
+    <div class="credits">
+      ⚡ <span id="credits">50</span> credits
+    </div>
+  </div>
+
+  <div class="card">
+
+    <div class="create-title">
+      <div class="create-icon">🪄</div>
+      <div>
+        <h2>Create</h2>
+        <p>Describe your vision</p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" id="videoTab" onclick="setMode('Video')">
+        🎞️ Video
+      </button>
+      <button class="tab" id="audioTab" onclick="setMode('Audio')">
+        ♪ Audio
+      </button>
+    </div>
+
+    <label class="label">PROMPT</label>
+
+    <textarea
+      id="prompt"
+      maxlength="500"
+      placeholder="A cinematic shot of..."
+      oninput="updateCounter()"></textarea>
+
+    <div class="counter">
+      <span id="counter">0</span>/500
+    </div>
+
+    <div class="ideas">
+      <button class="idea" onclick="useIdea(1)">✦ Idea 1</button>
+      <button class="idea" onclick="useIdea(2)">✦ Idea 2</button>
+      <button class="idea" onclick="useIdea(3)">✦ Idea 3</button>
+    </div>
+
+    <label class="label">ASPECT RATIO</label>
+
+    <div class="options">
+      <div class="option selected" id="landscape"
+           onclick="selectRatio('16:9')">
+        <div class="option-title">
+          <div class="option-icon">▭</div>
+          <div>
+            <strong>16:9</strong>
+            <small>Landscape</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="option" id="portrait"
+           onclick="selectRatio('9:16')">
+        <div class="option-title">
+          <div class="option-icon">▯</div>
+          <div>
+            <strong>9:16</strong>
+            <small>Portrait</small>
+          </div>
+        </div>
+      </div>
+    </div>
