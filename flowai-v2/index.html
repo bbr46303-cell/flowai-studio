@@ -1,4 +1,1423 @@
-flowai-v2
-   └── index.html
-        ↑
-        इसमें पूरा code paste करना है
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FlowAI Studio</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ font-family:Inter,Arial,sans-serif;
+ color:#f7efff;
+ background:
+ radial-gradient(circle at 15% 0%,#6810ad 0,transparent 30%),
+ radial-gradient(circle at 100% 30%,#360061 0,transparent 35%),
+ #0b0714;
+ min-height:100vh;
+}
+
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+
+.hidden{display:none!important}
+
+.login-page{
+ min-height:100vh;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ padding:25px;
+}
+
+.login-card{
+ width:100%;
+ max-width:540px;
+ background:#100a1b;
+ border:1px solid #8b36bd;
+ border-radius:32px;
+ padding:42px 35px;
+ box-shadow:0 0 70px #8c20d955;
+ text-align:center;
+}
+
+.big-logo{
+ width:140px;
+ height:140px;
+ margin:0 auto 28px;
+ border-radius:38px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:75px;
+ background:linear-gradient(135deg,#9b24ff,#d82be9);
+ box-shadow:0 0 45px #a626ff66;
+}
+
+.login-card h1{
+ font-size:43px;
+ margin:0;
+}
+
+.login-card p{
+ color:#a99daf;
+ font-size:21px;
+ line-height:1.45;
+ margin:10px 0 30px;
+}
+
+.auth-tabs{
+ display:flex;
+ background:#181321;
+ padding:5px;
+ border-radius:18px;
+ margin-bottom:20px;
+}
+
+.auth-tab{
+ flex:1;
+ padding:14px;
+ border:0;
+ background:transparent;
+ color:#9d94a7;
+ border-radius:14px;
+ font-weight:bold;
+}
+
+.auth-tab.active{
+ color:white;
+ background:linear-gradient(100deg,#7928dc,#d128d7);
+}
+
+.auth-input{
+ width:100%;
+ padding:17px 18px;
+ margin:7px 0;
+ border-radius:15px;
+ border:1px solid #3b2948;
+ background:#0b0811;
+ color:white;
+ outline:none;
+}
+
+.auth-input:focus{
+ border-color:#bd2dff;
+}
+
+.main-btn{
+ width:100%;
+ padding:17px;
+ border:0;
+ border-radius:16px;
+ margin-top:12px;
+ color:white;
+ font-weight:bold;
+ background:linear-gradient(100deg,#7928dc,#d128d7);
+ box-shadow:0 10px 30px #a127d944;
+}
+
+.google-btn{
+ width:100%;
+ padding:16px;
+ border:0;
+ border-radius:16px;
+ margin-top:12px;
+ background:white;
+ color:#222;
+ font-weight:bold;
+}
+
+.or{
+ color:#777080;
+ margin:18px 0;
+}
+
+.auth-message{
+ min-height:24px;
+ margin-top:15px;
+ color:#ff86a8;
+ font-size:15px;
+}
+
+.guest{
+ margin-top:20px;
+ color:#bd6cff;
+ cursor:pointer;
+}
+
+.top{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ padding:24px 26px 18px;
+ max-width:900px;
+ margin:auto;
+}
+
+.brand{
+ display:flex;
+ align-items:center;
+ gap:16px;
+}
+
+.logo{
+ width:70px;
+ height:70px;
+ border-radius:22px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:38px;
+ background:linear-gradient(135deg,#9b24ff,#d82be9);
+ box-shadow:0 0 35px #a626ff66;
+}
+
+.brand h1{
+ margin:0;
+ font-size:31px;
+}
+
+.brand p{
+ margin:3px 0;
+ color:#c38cff;
+ font-size:20px;
+}
+
+.user-area{
+ display:flex;
+ align-items:center;
+ gap:10px;
+ flex-wrap:wrap;
+ justify-content:flex-end;
+}
+
+.credits{
+ padding:13px 20px;
+ border:1px solid #a83aff88;
+ border-radius:30px;
+ background:#241035;
+ font-weight:bold;
+}
+
+.user-name{
+ color:#d2a4ff;
+ font-weight:bold;
+ font-size:18px;
+}
+
+.logout{
+ border:1px solid #753b91;
+ background:#160d20;
+ color:#ddd;
+ padding:10px 16px;
+ border-radius:22px;
+}
+
+.wrap{
+ max-width:900px;
+ margin:auto;
+ padding:10px 25px 50px;
+}
+
+.card{
+ border:1px solid #3d254f;
+ border-radius:30px;
+ background:#100b1bdb;
+ padding:32px;
+ box-shadow:0 0 50px #6c0c9b20;
+}
+
+.create{
+ display:flex;
+ align-items:center;
+ gap:18px;
+ margin-bottom:28px;
+}
+
+.magic{
+ width:90px;
+ height:90px;
+ border-radius:25px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:45px;
+ background:linear-gradient(135deg,#8d27ff,#d72ae8);
+}
+
+h2{
+ font-size:38px;
+ margin:0;
+}
+
+.sub{
+ color:#9c91a9;
+ font-size:23px;
+ margin-top:4px;
+}
+
+.tabs{
+ display:flex;
+ background:#171321;
+ border-radius:24px;
+ padding:6px;
+ margin-bottom:35px;
+}
+
+.tab{
+ flex:1;
+ border:0;
+ background:transparent;
+ color:#aaa0b7;
+ padding:19px;
+ border-radius:19px;
+ font-size:23px;
+ font-weight:bold;
+}
+
+.tab.active{
+ color:white;
+ background:linear-gradient(100deg,#7829dc,#d027d4);
+ box-shadow:0 8px 25px #a423db55;
+}
+
+.label{
+ color:#aaa0b8;
+ font-weight:bold;
+ letter-spacing:1px;
+ font-size:18px;
+ margin:22px 0 13px;
+}
+
+textarea{
+ width:100%;
+ height:220px;
+ resize:none;
+ background:#0d0915;
+ color:white;
+ border:1px solid #33253e;
+ border-radius:25px;
+ padding:25px;
+ font-size:21px;
+ outline:none;
+}
+
+textarea:focus{
+ border-color:#b22cff;
+}
+
+.counter{
+ text-align:right;
+ color:#777080;
+ margin-top:-35px;
+ margin-right:20px;
+}
+
+.ideas{
+ display:flex;
+ gap:12px;
+ margin:28px 0;
+ flex-wrap:wrap;
+}
+
+.idea,.option{
+ border:1px solid #33253f;
+ background:#110d19;
+ color:#d9d0df;
+ border-radius:25px;
+ padding:14px 22px;
+ font-weight:bold;
+}
+
+.idea:hover,.option:hover{
+ border-color:#b52cff;
+}
+
+.grid2{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:15px;
+}
+
+.option{
+ text-align:left;
+ padding:20px;
+ border-radius:25px;
+}
+
+.option strong{
+ display:block;
+ font-size:23px;
+ color:#eee;
+}
+
+.option span{
+ color:#94899d;
+ font-size:17px;
+}
+
+.option.selected{
+ border-color:#c02cff;
+ background:linear-gradient(135deg,#25123b,#17101f);
+ box-shadow:0 0 25px #a928ff22;
+}
+
+.duration{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:12px;
+}
+
+.duration button{
+ border:1px solid #33253f;
+ background:#110d19;
+ color:#c8bfce;
+ padding:18px;
+ border-radius:18px;
+ font-weight:bold;
+}
+
+.duration button.selected{
+ background:linear-gradient(100deg,#7829dc,#c827d6);
+ color:white;
+ border-color:#c52aff;
+}
+
+.generate{
+ width:100%;
+ margin-top:30px;
+ padding:20px;
+ border:0;
+ border-radius:22px;
+ color:white;
+ font-size:22px;
+ font-weight:bold;
+ background:linear-gradient(100deg,#7928dc,#d128d7);
+ box-shadow:0 10px 35px #a127d94d;
+}
+
+.generate:disabled{
+ opacity:.6;
+}
+
+.status{
+ display:none;
+ margin-top:20px;
+ padding:18px;
+ border-radius:18px;
+ background:#181020;
+ border:1px solid #432650;
+ text-align:center;
+ color:#d7c5e5;
+}
+
+.history{
+ margin-top:25px;
+}
+
+.history h3{
+ font-size:22px;
+}
+
+.item{
+ padding:15px;
+ border:1px solid #30203b;
+ border-radius:16px;
+ margin-top:10px;
+ color:#a99faf;
+ word-break:break-word;
+}
+
+@media(max-width:600px){
+
+ .login-page{
+  padding:15px;
+ }
+
+ .login-card{
+  padding:32px 20px;
+  border-radius:28px;
+ }
+
+ .big-logo{
+  width:115px;
+  height:115px;
+  font-size:60px;
+ }
+
+ .login-card h1{
+  font-size:35px;
+ }
+
+ .login-card p{
+  font-size:18px;
+ }
+
+ .top{
+  padding:18px 18px 10px;
+  align-items:flex-start;
+ }
+
+ .brand h1{
+  font-size:27px;
+ }
+
+ .brand p{
+  font-size:18px;
+ }
+
+ .logo{
+  width:62px;
+  height:62px;
+ }
+
+ .user-area{
+  gap:6px;
+ }
+
+ .credits{
+  font-size:14px;
+  padding:10px 13px;
+ }
+
+ .user-name{
+  font-size:14px;
+ }
+
+ .logout{
+  padding:8px 12px;
+  font-size:13px;
+ }
+
+ .wrap{
+  padding:8px 15px 35px;
+ }
+
+ .card{
+  padding:22px 18px;
+  border-radius:25px;
+ }
+
+ .create{
+  gap:13px;
+ }
+
+ .magic{
+  width:72px;
+  height:72px;
+  font-size:35px;
+ }
+
+ h2{
+  font-size:32px;
+ }
+
+ .sub{
+  font-size:18px;
+ }
+
+ .tab{
+  font-size:18px;
+  padding:16px 8px;
+ }
+
+ textarea{
+  height:200px;
+  font-size:18px;
+ }
+
+ .grid2{
+  grid-template-columns:1fr;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= LOGIN PAGE ================= -->
+
+<section id="loginPage" class="login-page">
+
+ <div class="login-card">
+
+  <div class="big-logo">✦</div>
+
+  <h1>Welcome to FlowAI</h1>
+
+  <p>
+   पहले Login / Sign Up करें,<br>
+   फिर Video Studio इस्तेमाल करें।
+  </p>
+
+  <div class="auth-tabs">
+   <button id="loginTab" class="auth-tab active" onclick="setAuthMode('login')">
+    Login
+   </button>
+
+   <button id="signupTab" class="auth-tab" onclick="setAuthMode('signup')">
+    Sign Up
+   </button>
+  </div>
+
+  <input
+   id="authName"
+   class="auth-input"
+   placeholder="Your name"
+   style="display:none"
+  >
+
+  <input
+   id="authEmail"
+   class="auth-input"
+   type="email"
+   placeholder="Email address"
+  >
+
+  <input
+   id="authPassword"
+   class="auth-input"
+   type="password"
+   placeholder="Password"
+  >
+
+  <button id="authButton" class="main-btn" onclick="handleAuth()">
+   Login
+  </button>
+
+  <div class="or">OR</div>
+
+  <button class="google-btn" onclick="googleLogin()">
+   🔵 Continue with Google
+  </button>
+
+  <div id="authMessage" class="auth-message"></div>
+
+  <div class="guest" onclick="guestMode()">
+   Continue as guest
+  </div>
+
+ </div>
+
+</section>
+
+
+<!-- ================= STUDIO ================= -->
+
+<section id="studioPage" style="display:none">
+
+<header class="top">
+
+ <div class="brand">
+
+  <div class="logo">✦</div>
+
+  <div>
+   <h1>FlowAI</h1>
+   <p>Studio</p>
+  </div>
+
+ </div>
+
+ <div class="user-area">
+
+  <span class="credits">
+   ⚡ <span id="credits">50</span> credits
+  </span>
+
+  <span class="user-name" id="userName">
+   👤 User
+  </span>
+
+  <button class="logout" onclick="logout()">
+   Logout
+  </button>
+
+ </div>
+
+</header>
+
+
+<main class="wrap">
+
+<section class="card">
+
+ <div class="create">
+
+  <div class="magic">
+   🪄
+  </div>
+
+  <div>
+   <h2>Create</h2>
+   <div class="sub">
+    Describe your vision
+   </div>
+  </div>
+
+ </div>
+
+
+ <div class="tabs">
+
+  <button
+   class="tab active"
+   id="videoTab"
+   onclick="setMode('Video')">
+   🎞️ Video
+  </button>
+
+  <button
+   class="tab"
+   id="audioTab"
+   onclick="setMode('Audio')">
+   ♪ Audio
+  </button>
+
+ </div>
+
+
+ <div class="label">
+  PROMPT
+ </div>
+
+ <textarea
+  id="prompt"
+  maxlength="500"
+  placeholder="A cinematic shot of..."
+  oninput="countText()">
+ </textarea>
+
+ <div class="counter">
+  <span id="count">0</span>/500
+ </div>
+
+
+ <div class="ideas">
+
+  <button class="idea" onclick="idea(1)">
+   ✦ Idea 1
+  </button>
+
+  <button class="idea" onclick="idea(2)">
+   ✦ Idea 2
+  </button>
+
+  <button class="idea" onclick="idea(3)">
+   ✦ Idea 3
+  </button>
+
+ </div>
+
+
+ <div class="label">
+  ASPECT RATIO
+ </div>
+
+ <div class="grid2">
+
+  <button
+   class="option selected"
+   id="r169"
+   onclick="ratio('16:9')">
+
+   <strong>▭ 16:9</strong>
+   <span>Landscape</span>
+
+  </button>
+
+
+  <button
+   class="option"
+   id="r916"
+   onclick="ratio('9:16')">
+
+   <strong>▯ 9:16</strong>
+   <span>Portrait</span>
+
+  </button>
+
+ </div>
+
+
+ <div class="label">
+  DURATION
+ </div>
+
+ <div class="duration">
+
+  <button
+   id="d5"
+   onclick="duration(5)">
+   5s
+  </button>
+
+  <button
+   id="d10"
+   class="selected"
+   onclick="duration(10)">
+   10s
+  </button>
+
+  <button
+   id="d15"
+   onclick="duration(15)">
+   15s
+  </button>
+
+ </div>
+
+
+ <button
+  id="generateButton"
+  class="generate"
+  onclick="generate()">
+
+  ⚡ Generate Video
+
+ </button>
+
+
+ <div
+  class="status"
+  id="status">
+ </div>
+
+
+ <div class="history">
+
+  <h3>
+   🕘 Recent Generations
+  </h3>
+
+  <div id="historyList">
+
+   <div class="item">
+    No generations yet
+   </div>
+
+  </div>
+
+ </div>
+
+</section>
+
+</main>
+
+</section>
+
+
+<!-- ================= FIREBASE ================= -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+
+<script>
+
+const firebaseConfig = {
+ apiKey: "AIzaSyBp_2OzwhX39EP6GIYpSR6WbFBqHNGKwqY",
+ authDomain: "flowai-studio.firebaseapp.com",
+ projectId: "flowai-studio",
+ storageBucket: "flowai-studio.firebasestorage.app",
+ messagingSenderId: "990645093332",
+ appId: "1:990645093332:web:27b88ffc3ee92d8b248c41",
+ measurementId: "G-X3Z5XL1QLK"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+
+
+let authMode = "login";
+let mode = "Video";
+let selectedRatio = "16:9";
+let selectedDuration = 10;
+let credits = 50;
+
+
+/* ================= AUTH MODE ================= */
+
+function setAuthMode(type){
+
+ authMode = type;
+
+ const loginTab = document.getElementById("loginTab");
+ const signupTab = document.getElementById("signupTab");
+ const name = document.getElementById("authName");
+ const button = document.getElementById("authButton");
+ const message = document.getElementById("authMessage");
+
+ message.textContent = "";
+
+ if(type === "login"){
+
+  loginTab.classList.add("active");
+  signupTab.classList.remove("active");
+
+  name.style.display = "none";
+
+  button.textContent = "Login";
+
+ }else{
+
+  signupTab.classList.add("active");
+  loginTab.classList.remove("active");
+
+  name.style.display = "block";
+
+  button.textContent = "Create Account";
+ }
+}
+
+
+/* ================= EMAIL AUTH ================= */
+
+async function handleAuth(){
+
+ const email =
+  document.getElementById("authEmail").value.trim();
+
+ const password =
+  document.getElementById("authPassword").value;
+
+ const name =
+  document.getElementById("authName").value.trim();
+
+ const message =
+  document.getElementById("authMessage");
+
+ message.textContent = "";
+
+ if(!email || !password){
+
+  message.textContent =
+   "⚠️ Email और password डालें।";
+
+  return;
+ }
+
+ if(authMode === "signup" && !name){
+
+  message.textContent =
+   "⚠️ अपना नाम डालें।";
+
+  return;
+ }
+
+ try{
+
+  if(authMode === "login"){
+
+   await auth.signInWithEmailAndPassword(
+    email,
+    password
+   );
+
+  }else{
+
+   const result =
+    await auth.createUserWithEmailAndPassword(
+     email,
+     password
+    );
+
+   await result.user.updateProfile({
+    displayName:name
+   });
+
+  }
+
+ }catch(error){
+
+  console.error(error);
+
+  let text = error.message;
+
+  if(error.code === "auth/invalid-credential"){
+   text = "❌ Email या password गलत है।";
+  }
+
+  if(error.code === "auth/email-already-in-use"){
+   text = "❌ यह email पहले से registered है। Login करें।";
+  }
+
+  if(error.code === "auth/weak-password"){
+   text = "❌ Password कम से कम 6 characters का होना चाहिए।";
+  }
+
+  if(error.code === "auth/invalid-email"){
+   text = "❌ Email सही नहीं है।";
+  }
+
+  message.textContent = text;
+ }
+}
+
+
+/* ================= GOOGLE ================= */
+
+async function googleLogin(){
+
+ const message =
+  document.getElementById("authMessage");
+
+ try{
+
+  const provider =
+   new firebase.auth.GoogleAuthProvider();
+
+  await auth.signInWithPopup(provider);
+
+ }catch(error){
+
+  console.error(error);
+
+  message.textContent =
+   "❌ Google Login: " + error.message;
+ }
+}
+
+
+/* ================= GUEST ================= */
+
+function guestMode(){
+
+ localStorage.setItem(
+  "flowaiGuest",
+  "true"
+ );
+
+ showStudio({
+  displayName:"Guest"
+ });
+}
+
+
+/* ================= AUTH STATE ================= */
+
+auth.onAuthStateChanged(function(user){
+
+ if(user){
+
+  localStorage.removeItem("flowaiGuest");
+
+  showStudio(user);
+
+ }else{
+
+  if(localStorage.getItem("flowaiGuest") === "true"){
+
+   showStudio({
+    displayName:"Guest"
+   });
+
+  }else{
+
+   document.getElementById("loginPage").style.display="flex";
+
+   document.getElementById("studioPage").style.display="none";
+  }
+ }
+});
+
+
+/* ================= SHOW STUDIO ================= */
+
+function showStudio(user){
+
+ document.getElementById("loginPage").style.display="none";
+
+ document.getElementById("studioPage").style.display="block";
+
+ const displayName =
+  user.displayName ||
+  user.email?.split("@")[0] ||
+  "Guest";
+
+ document.getElementById("userName").textContent =
+  "👤 " + displayName;
+
+ loadCredits(user);
+
+ loadHistory(user);
+}
+
+
+/* ================= LOGOUT ================= */
+
+async function logout(){
+
+ try{
+
+  localStorage.removeItem("flowaiGuest");
+
+  await auth.signOut();
+
+ }catch(error){
+
+  console.error(error);
+ }
+}
+
+
+/* ================= CREDITS ================= */
+
+function getUserKey(user){
+
+ if(user && user.uid){
+  return "flowaiCredits_" + user.uid;
+ }
+
+ return "flowaiGuestCredits";
+}
+
+
+function loadCredits(user){
+
+ const key = getUserKey(user);
+
+ const saved =
+  localStorage.getItem(key);
+
+ if(saved === null){
+
+  credits = 50;
+
+  localStorage.setItem(
+   key,
+   "50"
+  );
+
+ }else{
+
+  credits = parseInt(saved);
+
+  if(isNaN(credits)){
+   credits = 50;
+  }
+ }
+
+ document.getElementById("credits").textContent =
+  credits;
+}
+
+
+function saveCredits(user){
+
+ localStorage.setItem(
+  getUserKey(user),
+  String(credits)
+ );
+}
+
+
+/* ================= MODE ================= */
+
+function setMode(x){
+
+ mode = x;
+
+ document
+  .getElementById("videoTab")
+  .classList.toggle(
+   "active",
+   x === "Video"
+  );
+
+ document
+  .getElementById("audioTab")
+  .classList.toggle(
+   "active",
+   x === "Audio"
+  );
+
+ document.getElementById(
+  "generateButton"
+ ).textContent =
+  x === "Video"
+   ? "⚡ Generate Video"
+   : "🎵 Generate Audio";
+}
+
+
+/* ================= COUNTER ================= */
+
+function countText(){
+
+ document.getElementById("count").textContent =
+  document.getElementById("prompt").value.length;
+}
+
+
+/* ================= IDEAS ================= */
+
+function idea(n){
+
+ const text = [
+
+  "A cinematic drone shot over a futuristic city at sunset, ultra realistic, dramatic lighting",
+
+  "A mysterious ancient temple hidden inside a beautiful jungle, cinematic atmosphere, realistic details",
+
+  "A magical night sky above the mountains with glowing stars, epic cinematic scene, ultra realistic"
+
+ ][n-1];
+
+ document.getElementById("prompt").value =
+  text;
+
+ countText();
+}
+
+
+/* ================= RATIO ================= */
+
+function ratio(x){
+
+ selectedRatio = x;
+
+ document
+  .getElementById("r169")
+  .classList.toggle(
+   "selected",
+   x === "16:9"
+  );
+
+ document
+  .getElementById("r916")
+  .classList.toggle(
+   "selected",
+   x === "9:16"
+  );
+}
+
+
+/* ================= DURATION ================= */
+
+function duration(x){
+
+ selectedDuration = x;
+
+ [5,10,15].forEach(function(n){
+
+  document
+   .getElementById("d"+n)
+   .classList.toggle(
+    "selected",
+    n === x
+   );
+ });
+}
+
+
+/* ================= STATUS ================= */
+
+function showStatus(text){
+
+ const status =
+  document.getElementById("status");
+
+ status.style.display = "block";
+
+ status.textContent = text;
+}
+
+
+/* ================= HISTORY ================= */
+
+function getHistoryKey(user){
+
+ if(user && user.uid){
+  return "flowaiHistory_" + user.uid;
+ }
+
+ return "flowaiGuestHistory";
+}
+
+
+function loadHistory(user){
+
+ const list =
+  document.getElementById("historyList");
+
+ list.innerHTML = "";
+
+ const saved =
+  localStorage.getItem(
+   getHistoryKey(user)
+  );
+
+ if(!saved){
+
+  list.innerHTML =
+   '<div class="item">No generations yet</div>';
+
+  return;
+ }
+
+ try{
+
+  const history =
+   JSON.parse(saved);
+
+  if(!history.length){
+
+   list.innerHTML =
+    '<div class="item">No generations yet</div>';
+
+   return;
+  }
+
+  history.forEach(function(item){
+
+   addHistoryItem(item,false);
+  });
+
+ }catch(error){
+
+  list.innerHTML =
+   '<div class="item">No generations yet</div>';
+ }
+}
+
+
+function saveHistory(user,item){
+
+ const key =
+  getHistoryKey(user);
+
+ let history = [];
+
+ try{
+
+  history =
+   JSON.parse(
+    localStorage.getItem(key) || "[]"
+   );
+
+ }catch(e){
+
+  history=[];
+ }
+
+ history.unshift(item);
+
+ history =
+  history.slice(0,20);
+
+ localStorage.setItem(
+  key,
+  JSON.stringify(history)
+ );
+}
+
+
+function addHistoryItem(item,save){
+
+ const list =
+  document.getElementById("historyList");
+
+ if(
+  list.children.length === 1 &&
+  list.children[0].textContent ===
+  "No generations yet"
+ ){
+
+  list.innerHTML="";
+ }
+
+ const div =
+  document.createElement("div");
+
+ div.className="item";
+
+ div.textContent =
+  "✨ " +
+  item.mode +
+  " • " +
+  item.duration +
+  "s • " +
+  item.ratio +
+  " — " +
+  item.prompt;
+
+ list.prepend(div);
+}
+
+
+/* ================= GENERATE ================= */
+
+async function generate(){
+
+ const prompt =
+  document
+   .getElementById("prompt")
+   .value
+   .trim();
+
+ if(!prompt){
+
+  showStatus(
+   "⚠️ Please enter a prompt first."
+  );
+
+  return;
+ }
+
+ if(credits <= 0){
+
+  showStatus(
+   "❌ Not enough credits."
+  );
+
+  return;
+ }
+
+ const button =
+  document.getElementById(
+   "generateButton"
+  );
+
+ button.disabled=true;
+
+ button.textContent =
+  "⏳ Processing...";
+
+ showStatus(
+  "⏳ Your request is being processed..."
+ );
+
+ try{
+
+  const response =
+   await fetch(
+    "/api/generate",
+    {
+     method:"POST",
+
+     headers:{
+      "Content-Type":
+       "application/json"
+     },
+
+     body:JSON.stringify({
+
+      prompt:prompt,
+
+      mode:mode,
+
+      ratio:selectedRatio,
+
+      duration:selectedDuration
+
+     })
+    }
+   );
+
+  const d
