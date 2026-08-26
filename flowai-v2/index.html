@@ -1396,28 +1396,105 @@ async function generate(){
  try{
 
   const response =
-   await fetch(
+  await fetch(
     "/api/generate",
     {
-     method:"POST",
+      method: "POST",
 
-     headers:{
-      "Content-Type":
-       "application/json"
-     },
+      headers: {
+        "Content-Type": "application/json"
+      },
 
-     body:JSON.stringify({
-
-      prompt:prompt,
-
-      mode:mode,
-
-      ratio:selectedRatio,
-
-      duration:selectedDuration
-
-     })
+      body: JSON.stringify({
+        prompt: prompt,
+        mode: mode,
+        ratio: selectedRatio,
+        duration: selectedDuration
+      })
     }
-   );
+  );
 
-  const d
+const data = await response.json();
+
+if (!response.ok) {
+  throw new Error(
+    data.error || "Generation failed"
+  );
+}
+
+credits--;
+
+document.getElementById("credits").textContent =
+  credits;
+
+const user = auth.currentUser || {
+  displayName: "Guest"
+};
+
+saveCredits(user);
+
+const item = {
+  prompt: prompt,
+  mode: mode,
+  ratio: selectedRatio,
+  duration: selectedDuration
+};
+
+saveHistory(user, item);
+
+addHistoryItem(item, false);
+
+showStatus(
+  "✅ Request successfully submitted!"
+);
+
+if (data.videoUrl) {
+
+  showStatus(
+    "✅ Video generated successfully!"
+  );
+
+  const video =
+    document.createElement("video");
+
+  video.controls = true;
+  video.playsInline = true;
+
+  video.style.width = "100%";
+  video.style.marginTop = "15px";
+  video.style.borderRadius = "18px";
+
+  video.src = data.videoUrl;
+
+  document
+    .getElementById("status")
+    .appendChild(video);
+}
+
+} catch (error) {
+
+  console.error(error);
+
+  showStatus(
+    "❌ " +
+    (
+      error.message ||
+      "Something went wrong."
+    )
+  );
+
+} finally {
+
+  button.disabled = false;
+
+  button.textContent =
+    mode === "Video"
+      ? "⚡ Generate Video"
+      : "🎵 Generate Audio";
+}
+
+}
+</script>
+
+</body>
+</html>
