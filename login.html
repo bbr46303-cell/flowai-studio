@@ -6,11 +6,7 @@
 <title>FlowAI Studio - Login</title>
 
 <style>
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
+*{box-sizing:border-box;margin:0;padding:0}
 
 body{
   font-family:Arial,Helvetica,sans-serif;
@@ -34,175 +30,57 @@ body{
   box-shadow:0 20px 60px rgba(0,0,0,.5);
 }
 
-.logo{
-  text-align:center;
-  color:#a855f7;
-  font-size:27px;
-  font-weight:bold;
-  margin-bottom:10px;
-}
-
-h1{
-  text-align:center;
-  font-size:25px;
-  margin-bottom:8px;
-}
-
-.subtitle{
-  text-align:center;
-  color:#777;
-  font-size:13px;
-  margin-bottom:25px;
-}
+.logo{text-align:center;color:#a855f7;font-size:27px;font-weight:bold;margin-bottom:10px}
+h1{text-align:center;font-size:25px;margin-bottom:8px}
+.subtitle{text-align:center;color:#777;font-size:13px;margin-bottom:25px}
 
 .google{
-  width:100%;
-  height:48px;
-  border:0;
-  border-radius:8px;
-  background:#fff;
-  color:#222;
-  font-size:14px;
-  font-weight:bold;
-  cursor:pointer;
+  width:100%;height:48px;border:0;border-radius:8px;background:#fff;color:#222;
+  font-size:14px;font-weight:bold;cursor:pointer;
 }
+.google:hover{background:#eee}
+.google:disabled{opacity:.6;cursor:not-allowed}
 
-.google:hover{
-  background:#eee;
-}
-
-.google:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
-
-.divider{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin:22px 0;
-  color:#666;
-  font-size:12px;
-}
-
-.divider span{
-  height:1px;
-  background:#292932;
-  flex:1;
-}
+.divider{display:flex;align-items:center;gap:10px;margin:22px 0;color:#666;font-size:12px}
+.divider span{height:1px;background:#292932;flex:1}
 
 input{
-  width:100%;
-  height:47px;
-  margin-bottom:12px;
-  padding:0 13px;
-  background:#0b0b10;
-  border:1px solid #30303a;
-  border-radius:8px;
-  color:#fff;
-  outline:none;
-  font-size:14px;
+  width:100%;height:47px;margin-bottom:12px;padding:0 13px;
+  background:#0b0b10;border:1px solid #30303a;border-radius:8px;
+  color:#fff;outline:none;font-size:14px;
 }
-
-input:focus{
-  border-color:#8b5cf6;
-  box-shadow:0 0 0 2px rgba(139,92,246,.15);
-}
+input:focus{border-color:#8b5cf6;box-shadow:0 0 0 2px rgba(139,92,246,.15)}
 
 .primary{
-  width:100%;
-  height:47px;
-  border:0;
-  border-radius:8px;
+  width:100%;height:47px;border:0;border-radius:8px;
   background:linear-gradient(135deg,#7c3aed,#9333ea);
-  color:#fff;
-  font-size:14px;
-  font-weight:bold;
-  cursor:pointer;
+  color:#fff;font-size:14px;font-weight:bold;cursor:pointer;
 }
-
-.primary:hover{
-  opacity:.92;
-}
-
-.primary:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
+.primary:hover{opacity:.92}
+.primary:disabled{opacity:.6;cursor:not-allowed}
 
 .message{
-  display:none;
-  padding:11px;
-  border-radius:7px;
-  margin-bottom:15px;
-  font-size:12px;
-  line-height:1.4;
+  display:none;padding:11px;border-radius:7px;margin-bottom:15px;
+  font-size:12px;line-height:1.4;
 }
+.error{background:#351719;border:1px solid #7f1d1d;color:#fca5a5}
+.success{background:#12301f;border:1px solid #166534;color:#86efac}
 
-.error{
-  background:#351719;
-  border:1px solid #7f1d1d;
-  color:#fca5a5;
-}
+.signup{text-align:center;margin-top:22px;color:#777;font-size:12px}
+.signup a{color:#a970ff;font-weight:bold;cursor:pointer;text-decoration:none}
+.signup a:hover{color:#fff}
 
-.success{
-  background:#12301f;
-  border:1px solid #166534;
-  color:#86efac;
-}
+.back-login{text-align:center;margin-top:18px;color:#777;font-size:12px}
+.back-login a{color:#a970ff;font-weight:bold;cursor:pointer;text-decoration:none}
+.back-login a:hover{color:#fff}
 
-.signup{
-  text-align:center;
-  margin-top:22px;
-  color:#777;
-  font-size:12px;
-}
-
-.signup a{
-  color:#a970ff;
-  font-weight:bold;
-  cursor:pointer;
-  text-decoration:none;
-}
-
-.signup a:hover{
-  color:#fff;
-}
-
-.back-login{
-  display:none;
-  text-align:center;
-  margin-top:18px;
-  color:#aaa;
-  font-size:12px;
-  cursor:pointer;
-}
-
-.back-login:hover{
-  color:#fff;
-}
-
-#signupForm{
-  display:none;
-}
+#signupForm{display:none}
 
 @media(max-width:500px){
-
-  body{
-    padding:14px;
-  }
-
-  .card{
-    padding:25px 18px;
-  }
-
-  .logo{
-    font-size:24px;
-  }
-
-  h1{
-    font-size:23px;
-  }
+  body{padding:14px}
+  .card{padding:25px 18px}
+  .logo{font-size:24px}
+  h1{font-size:23px}
 }
 </style>
 </head>
@@ -212,8 +90,6 @@ input:focus{
 <div class="card">
 
   <div class="logo">FlowAI Studio</div>
-
-  <!-- LOGIN -->
 
   <div id="loginForm">
 
@@ -225,11 +101,7 @@ input:focus{
 
     <div id="loginMessage" class="message"></div>
 
-    <button
-      id="googleLogin"
-      class="google"
-      onclick="googleLogin()"
-    >
+    <button id="googleLogin" class="google" onclick="googleLogin()">
       🔵 Continue with Google
     </button>
 
@@ -239,25 +111,13 @@ input:focus{
       <span></span>
     </div>
 
-    <input
-      type="email"
-      id="loginEmail"
-      placeholder="Email address"
-      autocomplete="email"
-    >
+    <input type="email" id="loginEmail"
+      placeholder="Email address" autocomplete="email">
 
-    <input
-      type="password"
-      id="loginPassword"
-      placeholder="Password"
-      autocomplete="current-password"
-    >
+    <input type="password" id="loginPassword"
+      placeholder="Password" autocomplete="current-password">
 
-    <button
-      id="loginButton"
-      class="primary"
-      onclick="loginUser()"
-    >
+    <button id="loginButton" class="primary" onclick="loginUser()">
       Login
     </button>
 
@@ -267,9 +127,6 @@ input:focus{
     </div>
 
   </div>
-
-
-  <!-- SIGNUP -->
 
   <div id="signupForm">
 
@@ -281,39 +138,19 @@ input:focus{
 
     <div id="signupMessage" class="message"></div>
 
-    <input
-      type="text"
-      id="signupName"
-      placeholder="Your name"
-      autocomplete="name"
-    >
+    <input type="text" id="signupName"
+      placeholder="Your name" autocomplete="name">
 
-    <input
-      type="email"
-      id="signupEmail"
-      placeholder="Email address"
-      autocomplete="email"
-    >
+    <input type="email" id="signupEmail"
+      placeholder="Email address" autocomplete="email">
 
-    <input
-      type="password"
-      id="signupPassword"
-      placeholder="Password (minimum 6 characters)"
-      autocomplete="new-password"
-    >
+    <input type="password" id="signupPassword"
+      placeholder="Password (minimum 6 characters)" autocomplete="new-password">
 
-    <input
-      type="password"
-      id="signupConfirm"
-      placeholder="Confirm password"
-      autocomplete="new-password"
-    >
+    <input type="password" id="signupConfirm"
+      placeholder="Confirm password" autocomplete="new-password">
 
-    <button
-      id="signupButton"
-      class="primary"
-      onclick="signupUser()"
-    >
+    <button id="signupButton" class="primary" onclick="signupUser()">
       Create Account
     </button>
 
@@ -326,14 +163,10 @@ input:focus{
 
 </div>
 
-
-<!-- Firebase -->
-
 <script type="module">
 
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
 import {
   getAuth,
@@ -342,120 +175,81 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-
-
-/* =========================
-   FIREBASE CONFIG
-========================= */
+}
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 const firebaseConfig = {
-
-  apiKey:
-    "AIzaSyBp_2OzwhX39EP6GIYpSR6WbFBqHNGKwqY",
-
-  authDomain:
-    "flowai-studio.firebaseapp.com",
-
-  projectId:
-    "flowai-studio",
-
-  storageBucket:
-    "flowai-studio.firebasestorage.app",
-
-  messagingSenderId:
-    "990645093332",
-
-  appId:
-    "1:990645093332:web:27b88ffc3ee92d8b248c41",
-
-  measurementId:
-    "G-X3Z5XL1QLK"
-
+  apiKey: "AIzaSyBp_2OzwhX39EP6GIYpSR6WbFBqHNGKwqY",
+  authDomain: "flowai-studio.firebaseapp.com",
+  projectId: "flowai-studio",
+  storageBucket: "flowai-studio.firebasestorage.app",
+  messagingSenderId: "990645093332",
+  appId: "1:990645093332:web:27b88ffc3ee92d8b248c41",
+  measurementId: "G-X3Z5XL1QLK"
 };
 
-
-/* =========================
-   INITIALIZE FIREBASE
-========================= */
-
 const app = initializeApp(firebaseConfig);
-
 const auth = getAuth(app);
-
 const provider = new GoogleAuthProvider();
 
-
-/* =========================
-   MESSAGE
-========================= */
-
 function showMessage(id,message,type){
-
-  const box =
-    document.getElementById(id);
-
+  const box = document.getElementById(id);
   box.innerText = message;
-
-  box.className =
-    "message " + type;
-
-  box.style.display =
-    "block";
+  box.className = "message " + type;
+  box.style.display = "block";
 }
-
 
 function hideMessage(id){
-
-  const box =
-    document.getElementById(id);
-
-  box.style.display =
-    "none";
+  const box = document.getElementById(id);
+  box.style.display = "none";
 }
 
+function getFirebaseError(error){
+  switch(error.code){
+    case "auth/invalid-credential":
+      return "Email or password is incorrect.";
+    case "auth/invalid-email":
+      return "Please enter a valid email address.";
+    case "auth/user-not-found":
+      return "No account found with this email.";
+    case "auth/wrong-password":
+      return "Incorrect password.";
+    case "auth/email-already-in-use":
+      return "An account already exists with this email.";
+    case "auth/weak-password":
+      return "Password is too weak. Use at least 6 characters.";
+    case "auth/popup-closed-by-user":
+      return "Google login was cancelled.";
+    case "auth/popup-blocked":
+      return "Google popup was blocked. Please allow popups and try again.";
+    case "auth/unauthorized-domain":
+      return "This website domain is not authorized in Firebase.";
+    case "auth/network-request-failed":
+      return "Network error. Check your internet connection.";
+    default:
+      return error.message || "Something went wrong. Please try again.";
+  }
+}
 
-/* =========================
-   GOOGLE LOGIN
-========================= */
+function openStudio(){
+  // IMPORTANT: The app is index.html, not "/".
+  window.location.replace("/index.html");
+}
 
 window.googleLogin = async function(){
-
-  const button =
-    document.getElementById("googleLogin");
+  const button = document.getElementById("googleLogin");
 
   button.disabled = true;
-
-  button.innerText =
-    "Connecting to Google...";
-
+  button.innerText = "Connecting to Google...";
   hideMessage("loginMessage");
 
   try{
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
 
-    const result =
-      await signInWithPopup(
-        auth,
-        provider
-      );
-
-    const user =
-      result.user;
-
-    localStorage.setItem(
-      "user",
-      user.email || ""
-    );
-
-    localStorage.setItem(
-      "uid",
-      user.uid
-    );
-
-    localStorage.setItem(
-      "displayName",
-      user.displayName || ""
-    );
+    localStorage.setItem("user", user.email || "");
+    localStorage.setItem("uid", user.uid);
+    localStorage.setItem("displayName", user.displayName || "");
 
     showMessage(
       "loginMessage",
@@ -463,14 +257,9 @@ window.googleLogin = async function(){
       "success"
     );
 
-    setTimeout(function(){
-
-      window.location.href = "/";
-
-    },800);
+    setTimeout(openStudio, 500);
 
   }catch(error){
-
     console.error(error);
 
     showMessage(
@@ -480,97 +269,40 @@ window.googleLogin = async function(){
     );
 
     button.disabled = false;
-
-    button.innerText =
-      "🔵 Continue with Google";
+    button.innerText = "🔵 Continue with Google";
   }
 };
-
-
-/* =========================
-   EMAIL LOGIN
-========================= */
 
 window.loginUser = async function(){
 
-  const email =
-    document
-      .getElementById("loginEmail")
-      .value
-      .trim();
-
-  const password =
-    document
-      .getElementById("loginPassword")
-      .value;
-
-  const button =
-    document.getElementById(
-      "loginButton"
-    );
-
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const button = document.getElementById("loginButton");
 
   hideMessage("loginMessage");
 
-
   if(!email){
-
-    showMessage(
-      "loginMessage",
-      "Please enter your email address.",
-      "error"
-    );
-
+    showMessage("loginMessage","Please enter your email address.","error");
     return;
   }
-
 
   if(!password){
-
-    showMessage(
-      "loginMessage",
-      "Please enter your password.",
-      "error"
-    );
-
+    showMessage("loginMessage","Please enter your password.","error");
     return;
   }
 
-
   button.disabled = true;
-
-  button.innerText =
-    "Logging in...";
-
+  button.innerText = "Logging in...";
 
   try{
-
     const result =
-      await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      await signInWithEmailAndPassword(auth,email,password);
 
-    const user =
-      result.user;
+    const user = result.user;
 
-
-    localStorage.setItem(
-      "user",
-      user.email || ""
-    );
-
-    localStorage.setItem(
-      "uid",
-      user.uid
-    );
-
-    localStorage.setItem(
-      "displayName",
-      user.displayName || ""
-    );
-
+    localStorage.setItem("user", user.email || "");
+    localStorage.setItem("uid", user.uid);
+    localStorage.setItem("displayName", user.displayName || "");
 
     showMessage(
       "loginMessage",
@@ -578,16 +310,9 @@ window.loginUser = async function(){
       "success"
     );
 
-
-    setTimeout(function(){
-
-      window.location.href = "/";
-
-    },800);
-
+    setTimeout(openStudio, 500);
 
   }catch(error){
-
     console.error(error);
 
     showMessage(
@@ -597,141 +322,63 @@ window.loginUser = async function(){
     );
 
     button.disabled = false;
-
-    button.innerText =
-      "Login";
+    button.innerText = "Login";
   }
 };
 
-
-/* =========================
-   SIGNUP
-========================= */
-
 window.signupUser = async function(){
 
-  const name =
-    document
-      .getElementById("signupName")
-      .value
-      .trim();
-
-  const email =
-    document
-      .getElementById("signupEmail")
-      .value
-      .trim();
-
-  const password =
-    document
-      .getElementById("signupPassword")
-      .value;
-
-  const confirm =
-    document
-      .getElementById("signupConfirm")
-      .value;
-
-  const button =
-    document.getElementById(
-      "signupButton"
-    );
-
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
+  const confirm = document.getElementById("signupConfirm").value;
+  const button = document.getElementById("signupButton");
 
   hideMessage("signupMessage");
 
-
   if(!name){
-
-    showMessage(
-      "signupMessage",
-      "Please enter your name.",
-      "error"
-    );
-
+    showMessage("signupMessage","Please enter your name.","error");
     return;
   }
-
 
   if(!email){
-
-    showMessage(
-      "signupMessage",
-      "Please enter your email address.",
-      "error"
-    );
-
+    showMessage("signupMessage","Please enter your email address.","error");
     return;
   }
 
-
   if(password.length < 6){
-
     showMessage(
       "signupMessage",
       "Password must be at least 6 characters.",
       "error"
     );
-
     return;
   }
 
-
   if(password !== confirm){
-
     showMessage(
       "signupMessage",
       "Passwords do not match.",
       "error"
     );
-
     return;
   }
 
-
   button.disabled = true;
-
-  button.innerText =
-    "Creating account...";
-
+  button.innerText = "Creating account...";
 
   try{
 
     const result =
-      await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      await createUserWithEmailAndPassword(auth,email,password);
 
+    const user = result.user;
 
-    const user =
-      result.user;
+    await updateProfile(user,{displayName:name});
 
-
-    await updateProfile(
-      user,
-      {
-        displayName:name
-      }
-    );
-
-
-    localStorage.setItem(
-      "user",
-      user.email || ""
-    );
-
-    localStorage.setItem(
-      "uid",
-      user.uid
-    );
-
-    localStorage.setItem(
-      "displayName",
-      name
-    );
-
+    localStorage.setItem("user", user.email || "");
+    localStorage.setItem("uid", user.uid);
+    localStorage.setItem("displayName", name);
 
     showMessage(
       "signupMessage",
@@ -739,16 +386,9 @@ window.signupUser = async function(){
       "success"
     );
 
-
-    setTimeout(function(){
-
-      window.location.href = "/";
-
-    },1000);
-
+    setTimeout(openStudio, 700);
 
   }catch(error){
-
     console.error(error);
 
     showMessage(
@@ -758,90 +398,21 @@ window.signupUser = async function(){
     );
 
     button.disabled = false;
-
-    button.innerText =
-      "Create Account";
+    button.innerText = "Create Account";
   }
 };
-
-
-/* =========================
-   SWITCH FORMS
-========================= */
 
 window.showSignup = function(){
-
-  document
-    .getElementById("loginForm")
-    .style.display =
-    "none";
-
-  document
-    .getElementById("signupForm")
-    .style.display =
-    "block";
-
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("signupForm").style.display = "block";
+  hideMessage("loginMessage");
 };
-
 
 window.showLogin = function(){
-
-  document
-    .getElementById("signupForm")
-    .style.display =
-    "none";
-
-  document
-    .getElementById("loginForm")
-    .style.display =
-    "block";
-
+  document.getElementById("signupForm").style.display = "none";
+  document.getElementById("loginForm").style.display = "block";
+  hideMessage("signupMessage");
 };
-
-
-/* =========================
-   FIREBASE ERRORS
-========================= */
-
-function getFirebaseError(error){
-
-  switch(error.code){
-
-    case "auth/invalid-credential":
-      return "Email or password is incorrect.";
-
-    case "auth/invalid-email":
-      return "Please enter a valid email address.";
-
-    case "auth/user-not-found":
-      return "No account found with this email.";
-
-    case "auth/wrong-password":
-      return "Incorrect password.";
-
-    case "auth/email-already-in-use":
-      return "An account already exists with this email.";
-
-    case "auth/weak-password":
-      return "Password is too weak. Use at least 6 characters.";
-
-    case "auth/popup-closed-by-user":
-      return "Google login was cancelled.";
-
-    case "auth/popup-blocked":
-      return "Google popup was blocked. Please allow popups and try again.";
-
-    case "auth/unauthorized-domain":
-      return "This website domain is not authorized in Firebase.";
-
-    case "auth/network-request-failed":
-      return "Network error. Check your internet connection.";
-
-    default:
-      return error.message ||
-        "Something went wrong. Please try again.";
-  }
-}
 
 </script>
 
