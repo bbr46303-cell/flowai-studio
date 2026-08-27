@@ -1,3 +1,29 @@
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
+app.use(express.json());
+app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.post('/generate-media', async (req, res) => {
   const { prompt, mode } = req.body;
   if (!prompt) return res.status(400).json({ error: "Prompt is required" });
@@ -7,11 +33,9 @@ app.post('/generate-media', async (req, res) => {
     const randomSeed = Math.floor(Math.random() * 100000);
 
     if (mode === 'video') {
-      // Video / Animated Mode URL
       const videoStreamUrl = `https://image.pollinations.ai/prompt/animated%20loop%20${encodedPrompt}?width=576&height=1024&nologo=true&seed=${randomSeed}`;
       return res.json({ type: 'video', url: videoStreamUrl });
     } else {
-      // Image Mode URL (Using Pollinations to avoid Hugging Face deprecation errors)
       const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${randomSeed}`;
       return res.json({ type: 'image', url: imageUrl });
     }
@@ -19,4 +43,8 @@ app.post('/generate-media', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message || "Server Error" });
   }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
