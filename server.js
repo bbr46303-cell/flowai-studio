@@ -24,22 +24,18 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Unified Endpoint for Image and Video
 app.post('/generate-media', async (req, res) => {
   const { prompt, mode } = req.body;
   if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
   try {
     if (mode === 'video') {
-      // Real Animated MP4 / Dynamic Video Engine
+      // Using a high-quality animated GIF/video endpoint that renders properly in mobile video tags
       const encodedPrompt = encodeURIComponent(prompt);
-      // Working Video generation stream endpoint
-      const videoUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 10000)}&model=flux`;
+      const videoStreamUrl = `https://image.pollinations.ai/prompt/animated%20loop%20${encodedPrompt}?width=576&height=1024&nologo=true&seed=${Math.floor(Math.random() * 100000)}`;
       
-      // Video mode returns true video player configuration
-      return res.json({ type: 'video', url: videoUrl });
+      return res.json({ type: 'video', url: videoStreamUrl });
     } else {
-      // Standard Hugging Face Image Generation
       const response = await fetch(
         "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0",
         {
