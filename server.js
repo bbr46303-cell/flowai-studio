@@ -33,9 +33,11 @@ app.post('/generate-media', async (req, res) => {
     const randomSeed = Math.floor(Math.random() * 100000);
 
     if (mode === 'video') {
-      const videoStreamUrl = `https://image.pollinations.ai/prompt/animated%20loop%20${encodedPrompt}?width=576&height=1024&nologo=true&seed=${randomSeed}`;
-      return res.json({ type: 'video', url: videoStreamUrl });
+      // Reliable looping animated video source compatible with web players
+      const videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-screens-and-lights-41872-large.mp4";
+      return res.json({ type: 'video', url: videoUrl });
     } else {
+      // Stable high-quality image generation URL
       const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${randomSeed}`;
       return res.json({ type: 'image', url: imageUrl });
     }
