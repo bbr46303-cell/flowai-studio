@@ -3,235 +3,307 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0b0714">
 <title>FlowAI Studio</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,Arial,sans-serif;color:#f5edff;background:radial-gradient(circle at 15% 0%,#6410a8 0,transparent 30%),radial-gradient(circle at 100% 30%,#32005e 0,transparent 35%),#0b0714;min-height:100vh}
-button,input,textarea{font:inherit}button{cursor:pointer}
+html,body{margin:0;padding:0;min-height:100%;background:#0b0714}
+body{
+font-family:Arial,Inter,sans-serif;color:#f7efff;
+background:
+radial-gradient(circle at 15% 0%,#6810ad 0,transparent 30%),
+radial-gradient(circle at 100% 30%,#360061 0,transparent 35%),#0b0714
+}
+button,input,textarea{font:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .hidden{display:none!important}
-.top{display:flex;align-items:center;justify-content:space-between;padding:24px 26px 18px;max-width:900px;margin:auto}
-.brand{display:flex;align-items:center;gap:16px}.logo{width:70px;height:70px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:38px;background:linear-gradient(135deg,#9b24ff,#d82be9);box-shadow:0 0 35px #a626ff66}.brand h1{margin:0;font-size:31px}.brand p{margin:3px 0;color:#c38cff;font-size:20px}
-.credits{padding:13px 22px;border:1px solid #a83aff88;border-radius:30px;background:#241035;font-weight:bold;font-size:17px}.login,.mainbtn{border:0;color:white;background:linear-gradient(135deg,#8d28ff,#d327df);padding:12px 20px;border-radius:25px;font-weight:bold;margin-left:8px}
-.wrap{max-width:900px;margin:auto;padding:10px 25px 50px}.card{border:1px solid #3d254f;border-radius:30px;background:#100b1bdb;padding:32px;box-shadow:0 0 50px #6c0c9b20}
-.create{display:flex;align-items:center;gap:18px;margin-bottom:28px}.magic{width:90px;height:90px;border-radius:25px;display:flex;align-items:center;justify-content:center;font-size:45px;background:linear-gradient(135deg,#8d27ff,#d72ae8)}h2{font-size:38px;margin:0}.sub{color:#9c91a9;font-size:23px;margin-top:4px}
-.tabs{display:flex;background:#171321;border-radius:24px;padding:6px;margin-bottom:35px}.tab{flex:1;border:0;background:transparent;color:#aaa0b7;padding:19px;border-radius:19px;font-size:23px;font-weight:bold}.tab.active{color:white;background:linear-gradient(100deg,#7829dc,#d027d4);box-shadow:0 8px 25px #a423db55}
-.label{color:#aaa0b8;font-weight:bold;letter-spacing:1px;font-size:18px;margin:22px 0 13px}textarea{width:100%;height:220px;resize:none;background:#0d0915;color:white;border:1px solid #33253e;border-radius:25px;padding:25px;font-size:21px;outline:none}textarea:focus{border-color:#b22cff}.counter{text-align:right;color:#777080;margin-top:-35px;margin-right:20px}
-.ideas{display:flex;gap:12px;margin:28px 0;flex-wrap:wrap}.idea,.option{border:1px solid #33253f;background:#110d19;color:#d9d0df;border-radius:25px;padding:14px 22px;font-weight:bold}.idea:hover,.option:hover{border-color:#b52cff}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}.option{text-align:left;padding:20px;border-radius:25px}.option strong{display:block;font-size:23px;color:#eee}.option span{color:#94899d;font-size:17px}.option.selected{border-color:#c02cff;background:linear-gradient(135deg,#25123b,#17101f);box-shadow:0 0 25px #a928ff22}
-.duration{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.duration button{border:1px solid #33253f;background:#110d19;color:#c8bfce;padding:18px;border-radius:18px;font-weight:bold}.duration button.selected{background:linear-gradient(100deg,#7829dc,#c827d6);color:white;border-color:#c52aff}
-.generate{width:100%;margin-top:30px;padding:20px;border:0;border-radius:22px;color:white;font-size:22px;font-weight:bold;background:linear-gradient(100deg,#7928dc,#d128d7);box-shadow:0 10px 35px #a127d94d}.status{display:none;margin-top:20px;padding:18px;border-radius:18px;background:#181020;border:1px solid #432650;text-align:center;color:#d7c5e5}.history{margin-top:25px}.history h3{font-size:22px}.item{padding:15px;border:1px solid #30203b;border-radius:16px;margin-top:10px;color:#a99faf}
-.authScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.authBox{width:100%;max-width:460px;background:#130c1e;border:1px solid #7333a1;border-radius:30px;padding:30px;box-shadow:0 0 60px #8c1bd955}.authLogo{width:80px;height:80px;border-radius:24px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:42px;background:linear-gradient(135deg,#9b24ff,#d82be9)}.authBox h1{text-align:center;font-size:34px;margin:0}.authBox p{text-align:center;color:#aa9bb4;font-size:17px;margin:8px 0 25px}.authBox input{width:100%;padding:16px;margin:7px 0;border-radius:14px;border:1px solid #3b2948;background:#0c0812;color:white;outline:none}.authBox input:focus{border-color:#b22cff}.authBtn{width:100%;padding:16px;border:0;border-radius:14px;background:linear-gradient(100deg,#7d27df,#d22bd8);color:white;font-weight:bold;margin-top:12px}.googleBtn{width:100%;padding:16px;border:0;border-radius:14px;background:white;color:#222;font-weight:bold;margin-top:12px}.or{text-align:center;color:#766b7d;margin:16px 0}.authMsg{text-align:center;color:#ff9fbd;min-height:22px;margin-top:12px;font-size:14px}.small{text-align:center;color:#a56bff;margin-top:18px;cursor:pointer}.userbar{display:flex;align-items:center;gap:8px;justify-content:flex-end}.logout{border:1px solid #66318b;background:#1c1028;color:#e8d9f3;border-radius:20px;padding:10px 15px;margin-left:8px}
-@media(max-width:600px){.top{padding:18px}.brand h1{font-size:27px}.brand p{font-size:18px}.logo{width:62px;height:62px}.credits{font-size:14px;padding:10px 13px}.login{padding:9px 13px;font-size:13px}.wrap{padding:8px 15px 35px}.card{padding:22px 18px;border-radius:25px}.create{gap:13px}.magic{width:72px;height:72px;font-size:35px}h2{font-size:32px}.sub{font-size:18px}.tab{font-size:18px;padding:16px 8px}textarea{height:200px;font-size:18px}.grid2{grid-template-columns:1fr}.top{gap:8px}.userbar{flex-wrap:wrap}.logout{font-size:12px;padding:8px 10px}}
+
+/* LOGIN */
+.login-page{
+min-height:100vh;display:flex;align-items:center;
+justify-content:center;padding:15px
+}
+.login-card{
+width:100%;max-width:520px;background:#100a1b;
+border:1px solid #8b36bd;border-radius:30px;
+padding:35px 25px;text-align:center;
+box-shadow:0 0 70px #8c20d955
+}
+.big-logo{
+width:115px;height:115px;margin:0 auto 22px;
+border-radius:32px;display:flex;align-items:center;
+justify-content:center;font-size:65px;
+background:linear-gradient(135deg,#9b24ff,#d82be9)
+}
+.login-card h1{font-size:38px;margin:0}
+.login-card p{color:#aaa0b0;font-size:18px;line-height:1.5}
+.auth-tabs{
+display:flex;background:#181321;padding:5px;
+border-radius:17px;margin:22px 0
+}
+.auth-tab{
+flex:1;padding:15px;border:0;background:transparent;
+color:#aaa0b7;border-radius:13px;font-weight:bold
+}
+.auth-tab.active{
+color:white;background:linear-gradient(100deg,#7928dc,#d128d7)
+}
+.auth-input{
+width:100%;padding:16px;margin:6px 0;
+border-radius:14px;border:1px solid #3b2948;
+background:#0b0811;color:white;outline:none
+}
+.auth-input:focus{border-color:#bd2dff}
+.main-btn,.google-btn{
+width:100%;padding:16px;border:0;border-radius:14px;
+margin-top:12px;font-weight:bold
+}
+.main-btn{
+color:white;background:linear-gradient(100deg,#7928dc,#d128d7)
+}
+.google-btn{background:white;color:#222}
+.auth-message{
+min-height:24px;margin-top:15px;color:#ff86a8;
+font-size:14px
+}
+.or{color:#777080;margin:17px 0}
+
+/* HEADER */
+.top{
+display:flex;align-items:center;justify-content:space-between;
+padding:20px 18px;max-width:900px;margin:auto;gap:10px
+}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{
+width:62px;height:62px;border-radius:20px;
+display:flex;align-items:center;justify-content:center;
+font-size:34px;background:linear-gradient(135deg,#9b24ff,#d82be9);
+box-shadow:0 0 35px #a626ff66
+}
+.brand h1{margin:0;font-size:29px}
+.brand p{margin:2px 0;color:#c38cff;font-size:18px}
+.user-area{
+display:flex;align-items:center;gap:7px;
+justify-content:flex-end;flex-wrap:wrap
+}
+.credits{
+padding:10px 14px;border:1px solid #a83aff88;
+border-radius:25px;background:#241035;font-weight:bold;
+font-size:14px
+}
+.user-name{color:#d2a4ff;font-weight:bold}
+.logout{
+border:1px solid #753b91;background:#160d20;
+color:#ddd;padding:9px 13px;border-radius:20px
+}
+
+/* CARD */
+.wrap{max-width:900px;margin:auto;padding:8px 14px 40px}
+.card{
+border:1px solid #3d254f;border-radius:28px;
+background:#100b1bdb;padding:25px 20px;
+box-shadow:0 0 50px #6c0c9b20
+}
+.create{
+display:flex;align-items:center;gap:14px;margin-bottom:25px
+}
+.magic{
+width:75px;height:75px;border-radius:23px;
+display:flex;align-items:center;justify-content:center;
+font-size:38px;background:linear-gradient(135deg,#8d27ff,#d72ae8)
+}
+h2{font-size:34px;margin:0}
+.sub{color:#9c91a9;font-size:19px}
+.tabs{
+display:flex;background:#171321;border-radius:22px;
+padding:5px;margin-bottom:28px
+}
+.tab{
+flex:1;border:0;background:transparent;color:#aaa0b7;
+padding:16px;border-radius:17px;font-size:20px;font-weight:bold
+}
+.tab.active{
+color:white;background:linear-gradient(100deg,#7829dc,#d027d4)
+}
+.label{
+color:#aaa0b8;font-weight:bold;letter-spacing:1px;
+font-size:17px;margin:20px 0 11px
+}
+textarea{
+width:100%;height:190px;resize:none;
+background:#0d0915;color:white;border:1px solid #33253e;
+border-radius:23px;padding:20px;font-size:18px;outline:none
+}
+textarea:focus{border-color:#b22cff}
+.counter{
+text-align:right;color:#777080;margin-top:-32px;margin-right:17px
+}
+.ideas{
+display:flex;gap:10px;margin:25px 0;flex-wrap:wrap
+}
+.idea,.option{
+border:1px solid #33253f;background:#110d19;
+color:#d9d0df;border-radius:23px;
+padding:13px 19px;font-weight:bold
+}
+.grid2{
+display:grid;grid-template-columns:1fr 1fr;gap:12px
+}
+.option{text-align:left;padding:18px}
+.option strong{display:block;font-size:21px;color:#eee}
+.option span{color:#94899d;font-size:16px}
+.option.selected{
+border-color:#c02cff;
+background:linear-gradient(135deg,#25123b,#17101f)
+}
+.duration{
+display:grid;grid-template-columns:repeat(3,1fr);gap:10px
+}
+.duration button{
+border:1px solid #33253f;background:#110d19;
+color:#c8bfce;padding:17px;border-radius:17px;
+font-weight:bold
+}
+.duration button.selected{
+background:linear-gradient(100deg,#7829dc,#c827d6);
+color:white;border-color:#c52aff
+}
+.generate{
+width:100%;margin-top:28px;padding:19px;
+border:0;border-radius:20px;color:white;
+font-size:21px;font-weight:bold;
+background:linear-gradient(100deg,#7928dc,#d128d7);
+box-shadow:0 10px 35px #a127d94d
+}
+.generate:disabled{opacity:.6;cursor:not-allowed}
+.status{
+display:none;margin-top:18px;padding:18px;
+border-radius:18px;background:#181020;
+border:1px solid #432650;text-align:center;
+color:#d7c5e5;line-height:1.5
+}
+.video-result{
+width:100%;margin-top:15px;border-radius:18px;
+background:#000;max-height:600px
+}
+.download-btn{
+display:inline-block;margin-top:14px;
+padding:12px 18px;border-radius:15px;
+background:#7928dc;color:white;text-decoration:none;
+font-weight:bold
+}
+.history{margin-top:25px}
+.history h3{font-size:22px}
+.item{
+padding:15px;border:1px solid #30203b;
+border-radius:16px;margin-top:10px;
+color:#a99faf;word-break:break-word
+}
+
+@media(max-width:600px){
+.top{padding:16px 12px;align-items:flex-start}
+.brand h1{font-size:25px}
+.brand p{font-size:16px}
+.logo{width:57px;height:57px}
+.credits{font-size:12px;padding:8px 10px}
+.user-name{font-size:12px}
+.logout{font-size:12px;padding:7px 10px}
+.card{padding:22px 16px}
+.grid2{grid-template-columns:1fr}
+}
 </style>
 </head>
+
 <body>
 
-<!-- LOGIN SCREEN: users must authenticate before seeing the generator -->
-<section id="authScreen" class="authScreen">
-  <div class="authBox">
-    <div class="authLogo">✦</div>
-    <h1>Welcome to FlowAI</h1>
-    <p>पहले Login / Sign Up करें, फिर Video Studio इस्तेमाल करें।</p>
+<!-- LOGIN -->
+<section id="loginPage" class="login-page">
+<div class="login-card">
 
-    <input id="name" placeholder="Your name">
-    <input id="email" type="email" placeholder="Email address">
-    <input id="password" type="password" placeholder="Password (minimum 6 characters)">
+<div class="big-logo">✦</div>
 
-    <button class="authBtn" id="emailBtn">Login / Sign Up</button>
-    <div class="or">OR</div>
-    <button class="googleBtn" id="googleBtn">🔵 Continue with Google</button>
+<h1>Welcome to FlowAI</h1>
 
-    <div id="authMsg" class="authMsg"></div>
-  </div>
-</section>
+<p>
+Login या Sign Up करें और<br>
+FlowAI Studio इस्तेमाल करें।
+</p>
 
-<!-- APP: hidden until Firebase confirms login -->
-<div id="app" class="hidden">
-<header class="top">
- <div class="brand"><div class="logo">✦</div><div><h1>FlowAI</h1><p>Studio</p></div></div>
- <div class="userbar">
-   <span class="credits">⚡ <span id="credits">50</span> credits</span>
-   <span id="userName" style="color:#d7b6ff;font-weight:bold"></span>
-   <button class="logout" id="logoutBtn">Logout</button>
- </div>
-</header>
-
-<main class="wrap"><section class="card">
- <div class="create"><div class="magic">🪄</div><div><h2>Create</h2><div class="sub">Describe your vision</div></div></div>
-
- <div class="tabs">
-  <button class="tab active" id="videoTab">🎞️ Video</button>
-  <button class="tab" id="audioTab">♪ Audio</button>
- </div>
-
- <div class="label">PROMPT</div>
- <textarea id="prompt" maxlength="500" placeholder="A cinematic shot of..."></textarea>
- <div class="counter"><span id="count">0</span>/500</div>
-
- <div class="ideas">
-  <button class="idea" data-idea="1">✦ Idea 1</button>
-  <button class="idea" data-idea="2">✦ Idea 2</button>
-  <button class="idea" data-idea="3">✦ Idea 3</button>
- </div>
-
- <div class="label">ASPECT RATIO</div>
- <div class="grid2">
-  <button class="option selected" id="r169"><strong>▭ 16:9</strong><span>Landscape</span></button>
-  <button class="option" id="r916"><strong>▯ 9:16</strong><span>Portrait</span></button>
- </div>
-
- <div class="label">DURATION</div>
- <div class="duration">
-  <button id="d5">5s</button><button id="d10" class="selected">10s</button><button id="d15">15s</button>
- </div>
-
- <button class="generate" id="generateBtn">⚡ Generate Video</button>
- <div class="status" id="status"></div>
-
- <div class="history"><h3>🕘 Recent Generations</h3><div id="historyList"><div class="item">No generations yet</div></div></div>
-</section></main>
+<div class="auth-tabs">
+<button type="button" id="loginTab" class="auth-tab active">Login</button>
+<button type="button" id="signupTab" class="auth-tab">Sign Up</button>
 </div>
 
-<!-- Firebase Compat SDK: works directly in a normal HTML file -->
-<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth-compat.js"></script>
+<input id="authName" class="auth-input"
+placeholder="Your name"
+style="display:none">
 
-<script>
-const firebaseConfig={
- apiKey:"AIzaSyBp_2OzwhX39EP6GIYpSR6WbFBqHNGKwqY",
- authDomain:"flowai-studio.firebaseapp.com",
- projectId:"flowai-studio",
- storageBucket:"flowai-studio.firebasestorage.app",
- messagingSenderId:"990645093332",
- appId:"1:990645093332:web:27b88ffc3ee92d8b248c41"
-};
+<input id="authEmail" class="auth-input"
+type="email"
+placeholder="Email address">
 
-let auth=null, mode="Video", selectedRatio="16:9", selectedDuration=10, credits=50;
+<input id="authPassword" class="auth-input"
+type="password"
+placeholder="Password">
 
-function setMsg(t,ok=false){
- const e=document.getElementById("authMsg"); e.textContent=t; e.style.color=ok?"#8ff0b2":"#ff9fbd";
-}
-function showApp(user){
- document.getElementById("authScreen").classList.add("hidden");
- document.getElementById("app").classList.remove("hidden");
- const name=user.displayName || localStorage.getItem("flowaiName") || (user.email?user.email.split("@")[0]:"User");
- document.getElementById("userName").textContent="👤 "+name;
-}
-function showAuth(){
- document.getElementById("app").classList.add("hidden");
- document.getElementById("authScreen").classList.remove("hidden");
-}
-function authError(e){
- const map={
-  "auth/invalid-credential":"Email या password गलत है।",
-  "auth/user-not-found":"Account नहीं मिला। Sign Up के लिए यही button फिर दबाएँ।",
-  "auth/wrong-password":"Password गलत है।",
-  "auth/email-already-in-use":"यह email पहले से registered है। Login करें।",
-  "auth/weak-password":"Password कम से कम 6 characters का रखें।",
-  "auth/invalid-email":"Email address सही डालें।",
-  "auth/popup-closed-by-user":"Google login बंद कर दिया गया।"
- };
- setMsg(map[e.code] || ("Login error: "+e.message));
-}
+<button type="button" id="authButton" class="main-btn">
+Login
+</button>
 
-document.addEventListener("DOMContentLoaded",()=>{
- try{
-  firebase.initializeApp(firebaseConfig);
-  auth=firebase.auth();
+<div class="or">OR</div>
 
-  auth.onAuthStateChanged(user=>{
-    if(user) showApp(user); else showAuth();
-  });
+<button type="button" id="googleButton" class="google-btn">
+🔵 Continue with Google
+</button>
 
-  document.getElementById("emailBtn").onclick=async()=>{
-    const name=document.getElementById("name").value.trim();
-    const email=document.getElementById("email").value.trim();
-    const password=document.getElementById("password").value;
-    if(!name){setMsg("अपना नाम डालें।");return}
-    if(!email){setMsg("Email डालें।");return}
-    if(password.length<6){setMsg("Password कम से कम 6 characters का रखें।");return}
-    setMsg("Login / Sign Up हो रहा है...",true);
-    try{
-      let result;
-      try{
-        result=await auth.signInWithEmailAndPassword(email,password);
-      }catch(err){
-        if(err.code==="auth/user-not-found" || err.code==="auth/invalid-credential"){
-          result=await auth.createUserWithEmailAndPassword(email,password);
-        }else throw err;
-      }
-      if(result.user && !result.user.displayName){
-        await result.user.updateProfile({displayName:name});
-      }
-      localStorage.setItem("flowaiName",name);
-      showApp(auth.currentUser);
-    }catch(e){authError(e)}
-  };
+<div id="authMessage" class="auth-message"></div>
 
-  document.getElementById("googleBtn").onclick=async()=>{
-    setMsg("Google login खुल रहा है...",true);
-    try{
-      const provider=new firebase.auth.GoogleAuthProvider();
-      await auth.signInWithPopup(provider);
-    }catch(e){
-      // Mobile browsers sometimes block popups; fall back to redirect.
-      if(e.code==="auth/popup-blocked" || e.code==="auth/operation-not-supported-in-this-environment"){
-        try{await auth.signInWithRedirect(provider)}catch(x){authError(x)}
-      }else authError(e);
-    }
-  };
+</div>
+</section>
 
-  document.getElementById("logoutBtn").onclick=()=>auth.signOut();
- }catch(e){
-  document.getElementById("authScreen").innerHTML='<div class="authBox"><h1>FlowAI Error</h1><p>Firebase load नहीं हुआ। Internet connection check करके page refresh करें.</p></div>';
- }
-});
+<!-- STUDIO -->
+<section id="studioPage" style="display:none">
 
-document.getElementById("prompt").addEventListener("input",()=>{
- document.getElementById("count").textContent=document.getElementById("prompt").value.length;
-});
-document.getElementById("videoTab").onclick=()=>setMode("Video");
-document.getElementById("audioTab").onclick=()=>setMode("Audio");
-function setMode(x){
- mode=x;
- document.getElementById("videoTab").classList.toggle("active",x==="Video");
- document.getElementById("audioTab").classList.toggle("active",x==="Audio");
- document.getElementById("generateBtn").textContent=x==="Video"?"⚡ Generate Video":"🎵 Generate Audio";
-}
-const ideas=[
-"A cinematic drone shot over a futuristic city at sunset, ultra realistic, dramatic lighting",
-"A mysterious ancient temple hidden inside a beautiful jungle, cinematic atmosphere",
-"A magical night sky above the mountains with glowing stars, epic cinematic scene"
-];
-document.querySelectorAll(".idea").forEach(b=>b.onclick=()=>{
- const n=Number(b.dataset.idea);
- document.getElementById("prompt").value=ideas[n-1];
- document.getElementById("count").textContent=ideas[n-1].length;
-});
-function selectRatio(x){
- selectedRatio=x;
- document.getElementById("r169").classList.toggle("selected",x==="16:9");
- document.getElementById("r916").classList.toggle("selected",x==="9:16");
-}
-document.getElementById("r169").onclick=()=>selectRatio("16:9");
-document.getElementById("r916").onclick=()=>selectRatio("9:16");
-[5,10,15].forEach(n=>document.getElementById("d"+n).onclick=()=>{
- selectedDuration=n;
- [5,10,15].forEach(x=>document.getElementById("d"+x).classList.toggle("selected",x===n));
-});
-document.getElementById("generateBtn").onclick=()=>{
- const p=document.getElementById("prompt").value.trim();
- if(!p){showStatus("⚠️ Please enter a prompt first.");return}
- if(credits<=0){showStatus("❌ Not enough credits.");return}
- credits--;document.getElementById("credits").textContent=credits;
- showStatus("✨ "+mode+" request created! ("+selectedDuration+"s • "+selectedRatio+")");
- const list=document.getElementById("historyList");
- if(list.children.length===1 && list.children[0].textContent==="No generations yet")list.innerHTML="";
- const item=document.createElement("div");item.className="item";
- item.textContent="✨ "+mode+" • "+selectedDuration+"s • "+selectedRatio+" — "+p;
- list.prepend(item);
-};
-function showStatus(t){const s=document.getElementById("status");s.style.display="block";s.textContent=t}
-</script>
-</body>
-</html>
+<header class="top">
+
+<div class="brand">
+<div class="logo">✦</div>
+<div>
+<h1>FlowAI</h1>
+<p>Studio</p>
+</div>
+</div>
+
+<div class="user-area">
+
+<span class="credits">
+⚡ <span id="credits">50</span> credits
+</span>
+
+<span class="user-name" id="userName">
+👤 User
+</span>
+
+<button type="button" class="logout" id="logoutButton">
+Logout
+</button>
+
+</div>
+</header>
+
+<main class="wrap">
+
+<section class="card">
+
+<div class="create">
+<div class="magic">🪄</div>
+<div>
+<h2>Create</h2>
+<div class="sub">Describe your vision</div>
+</div>
+</div>
+
+<div class="tabs">
+<button type="button" class="tab active" id="videoTab">
+🎞️
