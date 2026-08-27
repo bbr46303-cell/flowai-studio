@@ -60,11 +60,17 @@ app.post("/api/generate", async (req, res) => {
 
     const data = await response.json();
 
-    console.log("Replicate response:", JSON.stringify(data));
+    console.log(
+      "Replicate response:",
+      JSON.stringify(data)
+    );
 
     if (!response.ok) {
       return res.status(response.status).json({
-        error: data.detail || data.error || "Replicate API error."
+        error:
+          data.detail ||
+          data.error ||
+          "Replicate API error."
       });
     }
 
@@ -72,7 +78,10 @@ app.post("/api/generate", async (req, res) => {
 
     if (typeof data.output === "string") {
       videoUrl = data.output;
-    } else if (Array.isArray(data.output) && data.output.length > 0) {
+    } else if (
+      Array.isArray(data.output) &&
+      data.output.length > 0
+    ) {
       videoUrl = data.output[0];
     }
 
@@ -80,7 +89,7 @@ app.post("/api/generate", async (req, res) => {
       return res.json({
         success: true,
         status: data.status,
-        videoUrl,
+        videoUrl: videoUrl,
         predictionId: data.id
       });
     }
@@ -90,18 +99,28 @@ app.post("/api/generate", async (req, res) => {
       status: data.status,
       predictionId: data.id,
       message: "Video is still processing.",
-      predictionUrl: data.urls?.web || null
+      predictionUrl:
+        data.urls && data.urls.web
+          ? data.urls.web
+          : null
     });
 
   } catch (error) {
-    console.error("GENERATION ERROR:", error);
+    console.error(
+      "GENERATION ERROR:",
+      error
+    );
 
     return res.status(500).json({
-      error: error.message || "Video generation failed."
+      error:
+        error.message ||
+        "Video generation failed."
     });
   }
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`FlowAI Studio running on port ${PORT}`);
+  console.log(
+    `FlowAI Studio running on port ${PORT}`
+  );
 });
