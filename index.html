@@ -3,30 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FlowAI Studio</title>
+  <title>FlowAI Generator</title>
   <style>
     body { font-family: sans-serif; padding: 20px; background: #121212; color: #fff; text-align: center; }
     textarea { width: 90%; max-width: 500px; height: 100px; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e1e1e; color: #fff; border: 1px solid #333; }
     button { padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 6px; border: none; background: #6200ee; color: white; font-weight: bold; }
     button:disabled { background: #555; cursor: not-allowed; }
     #status { margin-top: 15px; font-weight: bold; color: #ffeb3b; }
-    video { margin-top: 20px; width: 90%; max-width: 500px; border-radius: 10px; }
+    img { margin-top: 20px; width: 90%; max-width: 500px; border-radius: 10px; border: 2px solid #333; }
   </style>
 </head>
 <body>
 
-  <h2>FlowAI Video Generator</h2>
+  <h2>FlowAI Image Studio</h2>
   <textarea id="promptInput" placeholder="Enter your prompt here..."></textarea><br>
-  <button id="genBtn" onclick="generateVideo()">Generate Video</button>
+  <button id="genBtn" onclick="generateImage()">Generate</button>
 
   <div id="status"></div>
-  <div id="videoContainer"></div>
+  <div id="resultContainer"></div>
 
   <script>
-    async function generateVideo() {
+    async function generateImage() {
       const prompt = document.getElementById('promptInput').value;
       const statusDiv = document.getElementById('status');
-      const videoContainer = document.getElementById('videoContainer');
+      const resultContainer = document.getElementById('resultContainer');
       const btn = document.getElementById('genBtn');
 
       if (!prompt) {
@@ -34,8 +34,8 @@
         return;
       }
 
-      statusDiv.innerText = "Processing... (Model may take 20-30s to load)";
-      videoContainer.innerHTML = "";
+      statusDiv.innerText = "Generating...";
+      resultContainer.innerHTML = "";
       btn.disabled = true;
 
       try {
@@ -45,20 +45,13 @@
           body: JSON.stringify({ prompt: prompt })
         });
 
-        const contentType = response.headers.get("content-type");
+        const data = await response.json();
 
-        if (contentType && contentType.includes("application/json")) {
-          const data = await response.json();
-          if (data.error) {
-            statusDiv.innerText = "Error: " + data.error;
-          } else if (data.videoUrl) {
-            statusDiv.innerText = "Done! Video generated successfully.";
-            videoContainer.innerHTML = `<video controls autoplay loop src="${data.videoUrl}"></video>`;
-          } else {
-            statusDiv.innerText = "Unexpected response from server.";
-          }
-        } else {
-          statusDiv.innerText = "Server Error: Invalid response format.";
+        if (data.error) {
+          statusDiv.innerText = "Error: " + data.error;
+        } else if (data.videoUrl) {
+          statusDiv.innerText = "Success!";
+          resultContainer.innerHTML = `<img src="${data.videoUrl}" alt="Generated Image"/>`;
         }
       } catch (err) {
         statusDiv.innerText = "Error: " + err.message;
