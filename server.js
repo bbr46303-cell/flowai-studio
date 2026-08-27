@@ -8,14 +8,6 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  if (req.method === 'OPTIONS') return res.sendStatus(200);
-  next();
-});
-
 app.use(express.json());
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -29,32 +21,13 @@ app.post('/generate-video', async (req, res) => {
   if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
   try {
-    const response = await fetch(
-      "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.HF_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({ inputs: prompt }),
-      }
-    );
-
-    if (!response.ok) {
-      const errJson = await response.json().catch(() => ({}));
-      return res.status(response.status).json({ error: errJson.error || "Generation Failed" });
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const base64Image = buffer.toString('base64');
+    const encodedPrompt = encodeURIComponent(prompt);
+    // Pollinations AI URL (No token required, 100% reliable)
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true`;
     
-    // Returns base64 image string
-    res.json({ videoUrl: `data:image/jpeg;base64,${base64Image}` });
-
+    res.json({ videoUrl: imageUrl });
   } catch (error) {
-    res.status(500).json({ error: error.message || "Server Error" });
+    res.status(500).json({ error: "Failed to generate image" });
   }
 });
 
