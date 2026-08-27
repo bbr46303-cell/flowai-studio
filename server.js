@@ -30,7 +30,7 @@ app.post('/generate-video', async (req, res) => {
 
   try {
     const response = await fetch(
-      "https://router.huggingface.co/hf-inference/models/damo-vilab/text-to-video-ms-1.7b",
+      "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
       {
         headers: {
           Authorization: `Bearer ${process.env.HF_TOKEN}`,
@@ -41,23 +41,20 @@ app.post('/generate-video', async (req, res) => {
       }
     );
 
-    const contentType = response.headers.get("content-type");
-
-    if (contentType && contentType.includes("application/json")) {
-      const jsonResponse = await response.json();
-      return res.status(response.status).json({ 
-        error: jsonResponse.error || "Model busy/loading. Please click again!" 
-      });
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => ({}));
+      return res.status(response.status).json({ error: errJson.error || "Generation Failed" });
     }
 
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const base64Video = buffer.toString('base64');
+    const base64Image = buffer.toString('base64');
     
-    res.json({ videoUrl: `data:video/mp4;base64,${base64Video}` });
+    // Returns base64 image string
+    res.json({ videoUrl: `data:image/jpeg;base64,${base64Image}` });
 
   } catch (error) {
-    res.status(500).json({ error: "API connection timeout. Try again!" });
+    res.status(500).json({ error: error.message || "Server Error" });
   }
 });
 
