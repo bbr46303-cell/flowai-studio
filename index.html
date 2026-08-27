@@ -3,26 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FlowAI Generator</title>
+  <title>FlowAI Studio</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #121212; color: #fff; text-align: center; }
-    textarea { width: 90%; max-width: 500px; height: 100px; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e1e1e; color: #fff; border: 1px solid #333; }
-    button { padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 6px; border: none; background: #6200ee; color: white; font-weight: bold; }
-    button:disabled { background: #555; cursor: not-allowed; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #121212; color: #fff; text-align: center; }
+    
+    /* Header & Payment Bar */
+    .header-bar { display: flex; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto 20px; }
+    .credits { background: #1e1e1e; padding: 8px 15px; border-radius: 20px; font-size: 14px; border: 1px solid #333; }
+    .pay-btn { background: #00c853; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+
+    textarea { width: 100%; max-width: 500px; height: 100px; padding: 12px; margin-bottom: 15px; border-radius: 10px; background: #1e1e1e; color: #fff; border: 1px solid #333; box-sizing: border-box; font-size: 14px; }
+    
+    .gen-btn { padding: 12px 30px; font-size: 16px; cursor: pointer; border-radius: 8px; border: none; background: #6200ee; color: white; font-weight: bold; width: 100%; max-width: 500px; }
+    .gen-btn:disabled { background: #555; cursor: not-allowed; }
+    
     #status { margin-top: 15px; font-weight: bold; color: #ffeb3b; }
-    img { margin-top: 20px; width: 90%; max-width: 500px; border-radius: 10px; border: 2px solid #333; }
+    
+    /* Result Box */
+    .result-box { margin-top: 20px; display: inline-block; position: relative; width: 100%; max-width: 500px; }
+    img { width: 100%; border-radius: 12px; border: 1px solid #333; display: block; }
+    
+    .download-btn { display: inline-block; margin-top: 12px; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; }
+    
+    /* Payment Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
+    .modal-content { background: #1e1e1e; padding: 25px; border-radius: 12px; max-width: 350px; width: 90%; text-align: center; border: 1px solid #333; }
+    .pay-option { background: #2a2a2a; margin: 10px 0; padding: 12px; border-radius: 8px; cursor: pointer; border: 1px solid #444; font-weight: bold; }
+    .pay-option:hover { background: #6200ee; }
+    .close-btn { margin-top: 15px; background: #ff5252; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
   </style>
 </head>
 <body>
 
+  <div class="header-bar">
+    <div class="credits">Credits: <span id="creditCount">5</span> Free</div>
+    <button class="pay-btn" onclick="openPayment()">Buy Credits / Premium</button>
+  </div>
+
   <h2>FlowAI Image Studio</h2>
   <textarea id="promptInput" placeholder="Enter your prompt here..."></textarea><br>
-  <button id="genBtn" onclick="generateImage()">Generate</button>
+  <button class="gen-btn" id="genBtn" onclick="generateImage()">Generate</button>
 
   <div id="status"></div>
-  <div id="resultContainer"></div>
+  
+  <div class="result-box" id="resultContainer"></div>
+
+  <!-- Payment Modal -->
+  <div class="modal" id="paymentModal">
+    <div class="modal-content">
+      <h3>Choose Payment Method</h3>
+      <p style="color: #aaa; font-size: 14px;">Get Unlimited AI Generations</p>
+      
+      <div class="pay-option" onclick="processPay('UPI (Google Pay / PhonePe / Paytm)')">📱 UPI / QR Code</div>
+      <div class="pay-option" onclick="processPay('Debit / Credit Card')">💳 Credit / Debit Card</div>
+      <div class="pay-option" onclick="processPay('Net Banking')">🏦 Net Banking</div>
+      
+      <button class="close-btn" onclick="closePayment()">Cancel</button>
+    </div>
+  </div>
 
   <script>
+    let credits = 5;
+
     async function generateImage() {
       const prompt = document.getElementById('promptInput').value;
       const statusDiv = document.getElementById('status');
@@ -34,7 +76,13 @@
         return;
       }
 
-      statusDiv.innerText = "Generating...";
+      if (credits <= 0) {
+        alert("Free credits finished! Please buy premium credits.");
+        openPayment();
+        return;
+      }
+
+      statusDiv.innerText = "Generating Image...";
       resultContainer.innerHTML = "";
       btn.disabled = true;
 
@@ -51,13 +99,47 @@
           statusDiv.innerText = "Error: " + data.error;
         } else if (data.videoUrl) {
           statusDiv.innerText = "Success!";
-          resultContainer.innerHTML = `<img src="${data.videoUrl}" alt="Generated Image"/>`;
+          
+          // Image + Download Button
+          resultContainer.innerHTML = `
+            <img id="generatedImg" src="${data.videoUrl}" alt="Generated Image"/>
+            <button class="download-btn" onclick="downloadImage('${data.videoUrl}')">⬇️ Download Image</button>
+          `;
+
+          // Deduct 1 credit
+          credits--;
+          document.getElementById('creditCount').innerText = credits;
         }
       } catch (err) {
         statusDiv.innerText = "Error: " + err.message;
       } finally {
         btn.disabled = false;
       }
+    }
+
+    // Download Function
+    function downloadImage(url) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `FlowAI_${Date.now()}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // Payment Modal Functions
+    function openPayment() {
+      document.getElementById('paymentModal').style.display = 'flex';
+    }
+
+    function closePayment() {
+      document.getElementById('paymentModal').style.display = 'none';
+    }
+
+    function processPay(method) {
+      alert(`Redirecting to ${method} Gateway...`);
+      // Yahan aage Razorpay / Stripe ka integration lag sakta hai
+      closePayment();
     }
   </script>
 </body>
