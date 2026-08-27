@@ -7,21 +7,24 @@
   <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #121212; color: #fff; text-align: center; }
     
-    /* Header & Payment Bar */
     .header-bar { display: flex; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto 20px; }
     .credits { background: #1e1e1e; padding: 8px 15px; border-radius: 20px; font-size: 14px; border: 1px solid #333; }
     .pay-btn { background: #00c853; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
 
-    textarea { width: 100%; max-width: 500px; height: 100px; padding: 12px; margin-bottom: 15px; border-radius: 10px; background: #1e1e1e; color: #fff; border: 1px solid #333; box-sizing: border-box; font-size: 14px; }
+    /* Mode Switcher Buttons */
+    .mode-container { display: flex; justify-content: center; gap: 10px; max-width: 500px; margin: 0 auto 15px; }
+    .mode-btn { flex: 1; padding: 10px; border: 1px solid #333; background: #1e1e1e; color: #aaa; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .mode-btn.active { background: #6200ee; color: #fff; border-color: #6200ee; }
+
+    textarea { width: 100%; max-width: 500px; height: 90px; padding: 12px; margin-bottom: 15px; border-radius: 10px; background: #1e1e1e; color: #fff; border: 1px solid #333; box-sizing: border-box; font-size: 14px; }
     
     .gen-btn { padding: 12px 30px; font-size: 16px; cursor: pointer; border-radius: 8px; border: none; background: #6200ee; color: white; font-weight: bold; width: 100%; max-width: 500px; }
     .gen-btn:disabled { background: #555; cursor: not-allowed; }
     
     #status { margin-top: 15px; font-weight: bold; color: #ffeb3b; }
     
-    /* Result Box */
     .result-box { margin-top: 20px; display: inline-block; position: relative; width: 100%; max-width: 500px; }
-    img { width: 100%; border-radius: 12px; border: 1px solid #333; display: block; }
+    img, video { width: 100%; border-radius: 12px; border: 1px solid #333; display: block; }
     
     .download-btn { display: inline-block; margin-top: 12px; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; }
     
@@ -36,16 +39,22 @@
 <body>
 
   <div class="header-bar">
-    <div class="credits">Credits: <span id="creditCount">5</span> Free</div>
+    <div class="credits">Credits: <span id="creditCount">4</span> Free</div>
     <button class="pay-btn" onclick="openPayment()">Buy Credits / Premium</button>
   </div>
 
-  <h2>FlowAI Image Studio</h2>
+  <h2>FlowAI Studio</h2>
+
+  <!-- Mode Selector -->
+  <div class="mode-container">
+    <button class="mode-btn active" id="imgModeBtn" onclick="setMode('image')">🖼️ Image Mode</button>
+    <button class="mode-btn" id="videoModeBtn" onclick="setMode('video')">🎥 Video Mode</button>
+  </div>
+
   <textarea id="promptInput" placeholder="Enter your prompt here..."></textarea><br>
-  <button class="gen-btn" id="genBtn" onclick="generateImage()">Generate</button>
+  <button class="gen-btn" id="genBtn" onclick="generateMedia()">Generate</button>
 
   <div id="status"></div>
-  
   <div class="result-box" id="resultContainer"></div>
 
   <!-- Payment Modal -->
@@ -63,9 +72,16 @@
   </div>
 
   <script>
-    let credits = 5;
+    let credits = 4;
+    let selectedMode = 'image';
 
-    async function generateImage() {
+    function setMode(mode) {
+      selectedMode = mode;
+      document.getElementById('imgModeBtn').classList.toggle('active', mode === 'image');
+      document.getElementById('videoModeBtn').classList.toggle('active', mode === 'video');
+    }
+
+    async function generateMedia() {
       const prompt = document.getElementById('promptInput').value;
       const statusDiv = document.getElementById('status');
       const resultContainer = document.getElementById('resultContainer');
@@ -82,31 +98,36 @@
         return;
       }
 
-      statusDiv.innerText = "Generating Image...";
+      statusDiv.innerText = selectedMode === 'video' ? "Generating Video..." : "Generating Image...";
       resultContainer.innerHTML = "";
       btn.disabled = true;
 
       try {
-        const response = await fetch('/generate-video', {
+        const response = await fetch('/generate-media', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: prompt })
+          body: JSON.stringify({ prompt: prompt, mode: selectedMode })
         });
 
         const data = await response.json();
 
         if (data.error) {
           statusDiv.innerText = "Error: " + data.error;
-        } else if (data.videoUrl) {
+        } else if (data.url) {
           statusDiv.innerText = "Success!";
           
-          // Image + Download Button
-          resultContainer.innerHTML = `
-            <img id="generatedImg" src="${data.videoUrl}" alt="Generated Image"/>
-            <button class="download-btn" onclick="downloadImage('${data.videoUrl}')">⬇️ Download Image</button>
-          `;
+          if (data.type === 'video') {
+            resultContainer.innerHTML = `
+              <video src="${data.url}" controls autoplay loop></video>
+              <button class="download-btn" onclick="downloadFile('${data.url}', 'video.mp4')">⬇️ Download Video</button>
+            `;
+          } else {
+            resultContainer.innerHTML = `
+              <img id="generatedImg" src="${data.url}" alt="Generated Media"/>
+              <button class="download-btn" onclick="downloadFile('${data.url}', 'image.jpg')">⬇️ Download Image</button>
+            `;
+          }
 
-          // Deduct 1 credit
           credits--;
           document.getElementById('creditCount').innerText = credits;
         }
@@ -117,30 +138,18 @@
       }
     }
 
-    // Download Function
-    function downloadImage(url) {
+    function downloadFile(url, filename) {
       const a = document.createElement('a');
       a.href = url;
-      a.download = `FlowAI_${Date.now()}.jpg`;
+      a.download = `FlowAI_${Date.now()}_${filename}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
     }
 
-    // Payment Modal Functions
-    function openPayment() {
-      document.getElementById('paymentModal').style.display = 'flex';
-    }
-
-    function closePayment() {
-      document.getElementById('paymentModal').style.display = 'none';
-    }
-
-    function processPay(method) {
-      alert(`Redirecting to ${method} Gateway...`);
-      // Yahan aage Razorpay / Stripe ka integration lag sakta hai
-      closePayment();
-    }
+    function openPayment() { document.getElementById('paymentModal').style.display = 'flex'; }
+    function closePayment() { document.getElementById('paymentModal').style.display = 'none'; }
+    function processPay(method) { alert(`Redirecting to ${method}...`); closePayment(); }
   </script>
 </body>
 </html>
