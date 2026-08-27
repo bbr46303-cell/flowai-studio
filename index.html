@@ -24,12 +24,12 @@
     #status { margin-top: 15px; font-weight: bold; color: #ffeb3b; }
     
     .result-box { margin-top: 20px; display: inline-block; position: relative; width: 100%; max-width: 500px; }
-    img, video { width: 100%; border-radius: 12px; border: 1px solid #333; display: block; }
+    img, video { width: 100%; border-radius: 12px; border: 1px solid #333; display: block; margin-bottom: 12px; }
     
-    .download-btn { display: inline-block; margin-top: 12px; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; }
+    .download-btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; width: 100%; max-width: 500px; box-sizing: border-box; }
     
     /* Payment Modal */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
     .modal-content { background: #1e1e1e; padding: 25px; border-radius: 12px; max-width: 350px; width: 90%; text-align: center; border: 1px solid #333; }
     .pay-option { background: #2a2a2a; margin: 10px 0; padding: 12px; border-radius: 8px; cursor: pointer; border: 1px solid #444; font-weight: bold; }
     .pay-option:hover { background: #6200ee; }
@@ -98,7 +98,7 @@
         return;
       }
 
-      statusDiv.innerText = selectedMode === 'video' ? "Generating Video..." : "Generating Image...";
+      statusDiv.innerText = selectedMode === 'video' ? "Generating Video... (Takes ~10s)" : "Generating Image...";
       resultContainer.innerHTML = "";
       btn.disabled = true;
 
@@ -118,13 +118,13 @@
           
           if (data.type === 'video') {
             resultContainer.innerHTML = `
-              <video src="${data.url}" controls autoplay loop></video>
-              <button class="download-btn" onclick="downloadFile('${data.url}', 'video.mp4')">⬇️ Download Video</button>
+              <video src="${data.url}" controls autoplay loop playsinline></video>
+              <button class="download-btn" onclick="downloadFile('${data.url}', 'flowai_video.mp4')">⬇️ Download Video</button>
             `;
           } else {
             resultContainer.innerHTML = `
               <img id="generatedImg" src="${data.url}" alt="Generated Media"/>
-              <button class="download-btn" onclick="downloadFile('${data.url}', 'image.jpg')">⬇️ Download Image</button>
+              <button class="download-btn" onclick="downloadFile('${data.url}', 'flowai_image.jpg')">⬇️ Download Image</button>
             `;
           }
 
@@ -141,7 +141,8 @@
     function downloadFile(url, filename) {
       const a = document.createElement('a');
       a.href = url;
-      a.download = `FlowAI_${Date.now()}_${filename}`;
+      a.download = filename;
+      a.target = "_blank";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
