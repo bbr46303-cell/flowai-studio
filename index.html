@@ -3,64 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FlowAI Studio - Dashboard</title>
+  <title>FlowAI Studio - Google Labs Style</title>
   <style>
-    :root { bg-color: #0b0b0f; card-bg: #16161d; accent: #7c3aed; text-main: #f3f4f6; text-muted: #9ca3af; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0b0b0f; color: #f3f4f6; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+    :root { bg: #0b0b0f; card: #16161d; accent: #7c3aed; text: #f3f4f6; muted: #9ca3af; border: #1f1f2e; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
     /* Sidebar */
-    .sidebar { width: 70px; background: #121218; border-right: 1px solid #1f1f2e; display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px; }
-    .sidebar-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #9ca3af; transition: 0.2s; }
-    .sidebar-icon:hover, .sidebar-icon.active { background: #7c3aed; color: #fff; }
+    .sidebar { width: 70px; background: #121218; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px; z-index: 10; }
+    .sidebar-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--muted); transition: 0.2s; font-size: 18px; }
+    .sidebar-icon:hover, .sidebar-icon.active { background: var(--accent); color: #fff; }
 
-    /* Main Content Area */
+    /* Main Content */
     .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
     
-    /* Top Navbar */
-    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; border-bottom: 1px solid #1f1f2e; background: #0b0b0f; }
+    /* Navbar */
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; border-bottom: 1px solid var(--border); background: var(--bg); }
     .logo { font-size: 20px; font-weight: bold; background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .credits-badge { background: #1f1f2e; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid #374151; }
+    .credits-badge { background: #1f1f2e; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid #374151; font-weight: 500; }
 
     /* Dashboard View */
     .dashboard-container { padding: 30px; }
-    .hero-banner { background: linear-gradient(135deg, #1e1b4b, #111827); border: 1px solid #312e81; padding: 30px; border-radius: 16px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-    .new-project-btn { background: #7c3aed; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
+    .hero-banner { background: linear-gradient(135deg, #1e1b4b, #111827); border: 1px solid #312e81; padding: 30px; border-radius: 16px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+    .new-project-btn { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
     .new-project-btn:hover { background: #6d28d9; }
 
-    /* Gallery Grid */
-    .section-title { font-size: 18px; margin-bottom: 15px; color: #e5e7eb; }
+    .section-title { font-size: 18px; margin-bottom: 15px; color: #e5e7eb; font-weight: 600; }
     .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-    .card { background: #16161d; border: 1px solid #1f1f2e; border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.2s; }
-    .card:hover { transform: translateY(-4px); border-color: #7c3aed; }
-    .card-thumbnail { height: 140px; background: #22222e; display: flex; justify-content: center; align-items: center; color: #4b5563; font-size: 14px; }
-    .card-footer { padding: 12px; font-size: 13px; color: #9ca3af; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.2s; }
+    .card:hover { transform: translateY(-4px); border-color: var(--accent); }
+    .card-thumbnail { height: 140px; background: #22222e; display: flex; justify-content: center; align-items: center; color: var(--muted); font-size: 14px; }
+    .card-footer { padding: 12px; font-size: 13px; color: var(--muted); }
 
-    /* Studio / Generator Workspace (Hidden by default) */
-    #studioView { display: none; flex: 1; flex-direction: column; justify-content: space-between; padding: 20px; height: 100%; box-sizing: border-box; }
-    .workspace-preview { flex: 1; display: flex; justify-content: center; align-items: center; border: 2px dashed #1f1f2e; border-radius: 16px; margin-bottom: 20px; color: #6b7280; font-size: 16px; }
-    .prompt-box-container { display: flex; flex-direction: column; max-width: 700px; margin: 0 auto; width: 100%; background: #16161d; border: 1px solid #2d2d3d; border-radius: 16px; padding: 15px; }
-    .prompt-input { background: transparent; border: none; color: #fff; font-size: 15px; resize: none; outline: none; height: 50px; }
+    /* Studio / Generator Workspace */
+    #studioView { display: none; flex: 1; flex-direction: column; justify-content: space-between; padding: 25px; height: 100%; box-sizing: border-box; }
+    .workspace-preview { flex: 1; display: flex; justify-content: center; align-items: center; border: 2px dashed var(--border); border-radius: 16px; margin-bottom: 20px; color: var(--muted); font-size: 16px; background: rgba(22, 22, 29, 0.5); position: relative; overflow: hidden; max-height: 60vh; }
+    .workspace-preview img, .workspace-preview video { max-height: 100%; max-width: 100%; border-radius: 12px; object-fit: contain; }
+
+    /* Controls Bar (Google Labs Style Toolbar) */
+    .workspace-controls { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+    .ctrl-pill { background: var(--card); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; color: var(--muted); font-size: 13px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+    .ctrl-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* Prompt Input Box */
+    .prompt-box-container { display: flex; flex-direction: column; max-width: 700px; margin: 0 auto; width: 100%; background: var(--card); border: 1px solid #2d2d3d; border-radius: 16px; padding: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+    .prompt-input { background: transparent; border: none; color: #fff; font-size: 15px; resize: none; outline: none; height: 60px; font-family: inherit; }
     .prompt-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid #22222e; padding-top: 10px; }
-    .generate-action-btn { background: #7c3aed; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .generate-action-btn { background: var(--accent); color: white; border: none; padding: 10px 24px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .generate-action-btn:hover { background: #6d28d9; }
+    .generate-action-btn:disabled { background: #4b5563; cursor: not-allowed; }
+
+    .back-dashboard { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-bottom: 10px; align-self: flex-start; }
+    .back-dashboard:hover { background: var(--border); }
   </style>
 </head>
 <body>
 
   <!-- Left Sidebar -->
   <div class="sidebar">
-    <div class="sidebar-icon active" onclick="switchView('dashboard')" title="Home">🏠</div>
+    <div class="sidebar-icon active" onclick="switchView('dashboard')" title="Dashboard">🏠</div>
     <div class="sidebar-icon" onclick="switchView('studio')" title="Create Studio">✨</div>
-    <div class="sidebar-icon" title="Explore">🔍</div>
+    <div class="sidebar-icon" title="Explore Community">🔍</div>
     <div class="sidebar-icon" title="Settings">⚙️</div>
   </div>
 
-  <!-- Main Workspace -->
+  <!-- Main Content -->
   <div class="main-content">
     
     <!-- Navbar -->
     <div class="navbar">
       <div class="logo">FlowAI Studio</div>
-      <div class="credits-badge">⚡ Credits: 50 Free</div>
+      <div class="credits-badge">⚡ Credits: <span id="creditCount">50</span> Free</div>
     </div>
 
     <!-- VIEW 1: Dashboard Home -->
@@ -68,7 +80,7 @@
       <div class="hero-banner">
         <div>
           <h2>Create Cinematic AI Media</h2>
-          <p style="color: #9ca3af; margin: 5px 0 0 0;">Transform your imagination into high-quality images and videos instantly.</p>
+          <p style="color: var(--muted); margin: 5px 0 0 0;">Transform your imagination into high-quality images and videos instantly.</p>
         </div>
         <button class="new-project-btn" onclick="switchView('studio')">+ New Project</button>
       </div>
@@ -83,24 +95,28 @@
           <div class="card-thumbnail">🏎️ Scorpio N Desert</div>
           <div class="card-footer">Aug 27, 03:50 PM</div>
         </div>
-        <div class="card" onclick="switchView('studio')">
-          <div class="card-thumbnail">🐉 Crystal Dragon</div>
-          <div class="card-footer">Aug 26, 11:20 PM</div>
-        </div>
       </div>
     </div>
 
-    <!-- VIEW 2: Creation Studio (Like Google Flow) -->
+    <!-- VIEW 2: Creation Studio (Google Labs / Flow Style) -->
     <div id="studioView">
+      <button class="back-dashboard" onclick="switchView('dashboard')">← Back to Dashboard</button>
+      
       <div class="workspace-preview" id="previewArea">
-        Start creating or drop media here...
+        Type a prompt below and hit generate to create media...
+      </div>
+
+      <!-- Mode Selector (Image / Video) -->
+      <div class="workspace-controls">
+        <div class="ctrl-pill active" id="modeImgBtn" onclick="setStudioMode('image')">🖼️ Image Mode</div>
+        <div class="ctrl-pill" id="modeVidBtn" onclick="setStudioMode('video')">🎥 Video Mode</div>
       </div>
 
       <div class="prompt-box-container">
-        <textarea class="prompt-input" id="userPrompt" placeholder="What do you want to create? (e.g. Cinematic drone shot...)"></textarea>
+        <textarea class="prompt-input" id="userPrompt" placeholder="Describe what you want to create (e.g. Cinematic drone shot through a misty forest)..."></textarea>
         <div class="prompt-actions">
-          <div style="font-size: 13px; color: #9ca3af;">Mode: AI Video / Image Generator</div>
-          <button class="generate-action-btn" onclick="startGeneration()">Generate 🚀</button>
+          <div id="statusText" style="font-size: 13px; color: var(--muted);">Ready to generate</div>
+          <button class="generate-action-btn" id="genBtn" onclick="startGeneration()">Generate 🚀</button>
         </div>
       </div>
     </div>
@@ -108,6 +124,9 @@
   </div>
 
   <script>
+    let currentMode = 'image';
+    let credits = 50;
+
     function switchView(viewName) {
       const dashboard = document.getElementById('dashboardView');
       const studio = document.getElementById('studioView');
@@ -121,32 +140,67 @@
       }
     }
 
+    function setStudioMode(mode) {
+      currentMode = mode;
+      document.getElementById('modeImgBtn').classList.toggle('active', mode === 'image');
+      document.getElementById('modeVidBtn').classList.toggle('active', mode === 'video');
+    }
+
     async function startGeneration() {
       const prompt = document.getElementById('userPrompt').value;
       const previewArea = document.getElementById('previewArea');
+      const statusText = document.getElementById('statusText');
+      const genBtn = document.getElementById('genBtn');
 
       if (!prompt) {
         alert("Please enter a prompt!");
         return;
       }
 
-      previewArea.innerHTML = "Generating your AI creation... Please wait ⏳";
+      if (credits <= 0) {
+        alert("Free credits finished!");
+        return;
+      }
+
+      statusText.innerText = currentMode === 'video' ? "Generating Video (Takes ~10s)..." : "Generating Image...";
+      previewArea.innerHTML = "Creating your AI masterpiece... ⏳";
+      genBtn.disabled = true;
 
       try {
         const response = await fetch('/generate-media', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: prompt, mode: 'image' })
+          body: JSON.stringify({ prompt: prompt, mode: currentMode })
         });
 
         const data = await response.json();
-        if (data.url) {
-          previewArea.innerHTML = `<img src="${data.url}" style="max-height:100%; max-width:100%; border-radius:12px;" />`;
-        } else {
-          previewArea.innerHTML = "Error generating media.";
+
+        if (data.error) {
+          statusText.innerText = "Error: " + data.error;
+          previewArea.innerHTML = "Generation Failed.";
+        } else if (data.url) {
+          statusText.innerText = "Success! Generated successfully.";
+          
+          if (data.type === 'video') {
+            previewArea.innerHTML = `
+              <video src="${data.url}" controls autoplay loop muted playsinline></video>
+              <a href="${data.url}" target="_blank" style="position: absolute; bottom: 10px; right: 10px; background: #7c3aed; color: #fff; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold;">Download 📥</a>
+            `;
+          } else {
+            previewArea.innerHTML = `
+              <img src="${data.url}" alt="AI Generated" />
+              <a href="${data.url}" target="_blank" style="position: absolute; bottom: 10px; right: 10px; background: #7c3aed; color: #fff; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold;">Download 📥</a>
+            `;
+          }
+
+          credits--;
+          document.getElementById('creditCount').innerText = credits;
         }
       } catch (err) {
+        statusText.innerText = "Error occurred";
         previewArea.innerHTML = "Server Error: " + err.message;
+      } finally {
+        genBtn.disabled = false;
       }
     }
   </script>
