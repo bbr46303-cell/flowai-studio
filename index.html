@@ -54,13 +54,20 @@
     /* Full Screen Login Overlay */
     #authOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; padding: 20px; box-sizing: border-box; }
     .auth-card { background: var(--card); padding: 25px; border-radius: 20px; width: 100%; max-width: 340px; border: 1px solid var(--border); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); margin: auto; }
-    .auth-input { width: 100%; padding: 12px; margin: 10px 0; background: #0b0b0f; border: 1px solid var(--border); color: #fff; border-radius: 10px; box-sizing: border-box; font-size: 14px; outline: none; }
+    .auth-input { width: 100%; padding: 12px; margin: 8px 0; background: #0b0b0f; border: 1px solid var(--border); color: #fff; border-radius: 10px; box-sizing: border-box; font-size: 14px; outline: none; }
     
-    /* 🔵 Bright Blue Button */
-    .auth-submit-btn { width: 100%; padding: 14px; background: #2563eb; color: #ffffff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
-    .auth-submit-btn:hover { background: #1d4ed8; }
+    /* Google Login Button Style */
+    .google-btn { width: 100%; padding: 12px; background: #ffffff; color: #1f1f2e; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 15px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 12px rgba(255,255,255,0.1); transition: 0.2s; }
+    .google-btn:hover { background: #f3f4f6; }
 
-    .auth-toggle { margin-top: 18px; font-size: 13px; color: #93c5fd; cursor: pointer; text-decoration: underline; display: inline-block; }
+    .divider { display: flex; align-items: center; text-align: center; color: var(--muted); font-size: 12px; margin: 12px 0; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
+    .divider::before { margin-right: 10px; }
+    .divider::after { margin-left: 10px; }
+
+    /* 🔵 Bright Blue Button */
+    .auth-submit-btn { width: 100%; padding: 12px; background: #2563eb; color: #ffffff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
+    .auth-submit-btn:hover { background: #1d4ed8; }
   </style>
 </head>
 <body>
@@ -68,14 +75,22 @@
   <!-- Mandatory Login / Signup Overlay -->
   <div id="authOverlay">
     <div class="auth-card">
-      <h2 id="modalTitle" style="margin-top:0; background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">FlowAI Studio</h2>
-      <p style="color: var(--muted); font-size: 13px; margin-bottom: 15px;">Please login to access the AI Studio.</p>
+      <h2 style="margin-top:0; background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">FlowAI Studio</h2>
+      <p style="color: var(--muted); font-size: 13px; margin-bottom: 15px;">Please sign in to access the AI Studio.</p>
+      
+      <!-- Continue with Google Button -->
+      <button class="google-btn" onclick="handleGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.17 21.36 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.15 0 9.99 0 12s.43 3.85 1.19 5.39l4.08-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.64 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+        Continue with Google
+      </button>
+
+      <div class="divider">OR EMAIL</div>
       
       <input type="email" id="authEmail" class="auth-input" placeholder="Email address">
       <input type="password" id="authPassword" class="auth-input" placeholder="Password">
       
       <!-- 🔵 Blue Button -->
-      <button class="auth-submit-btn" id="authSubmitBtn" onclick="handleLogin()">Login / Enter</button>
+      <button class="auth-submit-btn" onclick="handleEmailLogin()">Login / Enter</button>
     </div>
   </div>
 
@@ -138,7 +153,6 @@
   <script>
     let currentMode = 'image';
 
-    // Check if already logged in via browser storage
     window.onload = function() {
       const savedUser = localStorage.getItem('flowai_user');
       if (savedUser) {
@@ -146,7 +160,14 @@
       }
     }
 
-    function handleLogin() {
+    function handleGoogleLogin() {
+      // Instant Google Login simulation with a clean user handle
+      const googleUser = "creator.ai@gmail.com";
+      localStorage.setItem('flowai_user', googleUser);
+      showApp(googleUser);
+    }
+
+    function handleEmailLogin() {
       const email = document.getElementById('authEmail').value;
       const password = document.getElementById('authPassword').value;
 
@@ -155,7 +176,6 @@
         return;
       }
 
-      // Save session locally and enter app
       localStorage.setItem('flowai_user', email);
       showApp(email);
     }
