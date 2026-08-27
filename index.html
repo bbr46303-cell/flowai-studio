@@ -6,332 +6,415 @@
 <title>FlowAI Studio</title>
 
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
+*{box-sizing:border-box;margin:0;padding:0}
 
 body{
-    font-family:Arial,Helvetica,sans-serif;
-    background:#09090d;
-    color:#fff;
-    min-height:100vh;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#09090d;
+  color:#fff;
+  min-height:100vh
 }
 
 .topbar{
-    height:58px;
-    background:#111116;
-    border-bottom:1px solid #24242d;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 18px;
+  height:58px;
+  background:#111116;
+  border-bottom:1px solid #24242d;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 18px
 }
 
 .logo{
-    color:#9b5cff;
-    font-size:16px;
-    font-weight:bold;
+  color:#9b5cff;
+  font-size:16px;
+  font-weight:bold
 }
 
 .user-area{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-size:11px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:11px
 }
 
 .credits{
-    background:#24232d;
-    padding:7px 12px;
-    border-radius:20px;
-    color:#fff;
+  background:#24232d;
+  padding:7px 12px;
+  border-radius:20px
 }
 
 .logout{
-    border:0;
-    background:#ef4444;
-    color:#fff;
-    padding:7px 12px;
-    border-radius:6px;
-    font-size:11px;
+  border:0;
+  background:#ef4444;
+  color:#fff;
+  padding:7px 12px;
+  border-radius:6px;
+  font-size:11px;
+  cursor:pointer
 }
 
 .layout{
-    display:flex;
-    min-height:calc(100vh - 58px);
+  display:flex;
+  min-height:calc(100vh - 58px)
 }
 
 .sidebar{
-    width:52px;
-    background:#111116;
-    border-right:1px solid #24242d;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding-top:10px;
-    gap:8px;
+  width:52px;
+  background:#111116;
+  border-right:1px solid #24242d;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-top:10px;
+  gap:8px
 }
 
 .side-btn{
-    width:38px;
-    height:38px;
-    border:0;
-    background:transparent;
-    color:#aaa;
-    border-radius:8px;
-    font-size:19px;
+  width:38px;
+  height:38px;
+  border:0;
+  background:transparent;
+  color:#aaa;
+  border-radius:8px;
+  font-size:19px;
+  cursor:pointer
 }
 
 .side-btn.active{
-    background:#7c3aed;
-    color:#fff;
+  background:#7c3aed;
+  color:#fff
 }
 
 .main{
-    flex:1;
-    padding:18px;
-    max-width:1100px;
-    margin:auto;
+  flex:1;
+  padding:18px;
+  max-width:1100px;
+  margin:auto
 }
 
 .back{
-    border:1px solid #292934;
-    background:#121218;
-    color:#ddd;
-    padding:8px 14px;
-    border-radius:7px;
-    font-size:12px;
-    cursor:pointer;
-    margin-bottom:18px;
+  border:1px solid #292934;
+  background:#121218;
+  color:#ddd;
+  padding:8px 14px;
+  border-radius:7px;
+  font-size:12px;
+  cursor:pointer;
+  margin-bottom:18px
 }
 
 .title{
-    font-size:22px;
-    font-weight:bold;
-    margin-bottom:5px;
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:5px
 }
 
 .subtitle{
-    color:#777;
-    font-size:13px;
-    margin-bottom:18px;
+  color:#777;
+  font-size:13px;
+  margin-bottom:18px
 }
 
 .editor{
-    border:1px solid #272731;
-    background:#101015;
-    border-radius:12px;
-    overflow:hidden;
+  border:1px solid #272731;
+  background:#101015;
+  border-radius:12px;
+  overflow:hidden
 }
 
 .prompt-area{
-    padding:18px;
+  padding:18px
 }
 
 label{
-    display:block;
-    color:#aaa;
-    font-size:13px;
-    margin-bottom:8px;
+  display:block;
+  color:#aaa;
+  font-size:13px;
+  margin-bottom:8px
 }
 
 textarea{
-    width:100%;
-    min-height:150px;
-    resize:vertical;
-    background:#0b0b10;
-    border:1px solid #30303a;
-    color:#fff;
-    border-radius:9px;
-    padding:15px;
-    font-size:14px;
-    line-height:1.5;
-    outline:none;
+  width:100%;
+  min-height:150px;
+  resize:vertical;
+  background:#0b0b10;
+  border:1px solid #30303a;
+  color:#fff;
+  border-radius:9px;
+  padding:15px;
+  font-size:14px;
+  line-height:1.5;
+  outline:none
 }
 
 textarea:focus{
-    border-color:#8b5cf6;
-    box-shadow:0 0 0 2px rgba(139,92,246,.15);
+  border-color:#8b5cf6;
+  box-shadow:0 0 0 2px rgba(139,92,246,.15)
+}
+
+/* Reference Image */
+
+.reference-box{
+  margin-top:15px;
+  border:1px dashed #363641;
+  background:#0c0c11;
+  border-radius:10px;
+  padding:14px
+}
+
+.reference-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px
+}
+
+.reference-title{
+  font-size:13px;
+  color:#ddd
+}
+
+.reference-info{
+  color:#777;
+  font-size:11px
+}
+
+.upload-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  background:#1b1b23;
+  border:1px solid #34343f;
+  color:#ddd;
+  padding:9px 14px;
+  border-radius:7px;
+  font-size:12px;
+  cursor:pointer
+}
+
+.upload-btn:hover{
+  border-color:#8b5cf6
+}
+
+#imageInput{
+  display:none
+}
+
+.preview-wrap{
+  display:none;
+  margin-top:12px;
+  position:relative;
+  width:180px
+}
+
+.preview{
+  width:180px;
+  height:120px;
+  object-fit:cover;
+  border-radius:8px;
+  border:1px solid #383842;
+  display:block
+}
+
+.remove-image{
+  position:absolute;
+  right:-8px;
+  top:-8px;
+  width:25px;
+  height:25px;
+  border:0;
+  border-radius:50%;
+  background:#ef4444;
+  color:white;
+  cursor:pointer;
+  font-weight:bold
 }
 
 .controls{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    padding:15px 18px;
-    border-top:1px solid #25252e;
-    flex-wrap:wrap;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:15px 18px;
+  border-top:1px solid #25252e;
+  flex-wrap:wrap
 }
 
 .modes{
-    display:flex;
-    gap:8px;
+  display:flex;
+  gap:8px
 }
 
 .mode{
-    border:1px solid #30303a;
-    background:#19191f;
-    color:#aaa;
-    padding:9px 15px;
-    border-radius:20px;
-    cursor:pointer;
-    font-size:12px;
+  border:1px solid #30303a;
+  background:#19191f;
+  color:#aaa;
+  padding:9px 15px;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:12px
 }
 
 .mode.active{
-    background:#7c3aed;
-    border-color:#8b5cf6;
-    color:white;
+  background:#7c3aed;
+  border-color:#8b5cf6;
+  color:white
 }
 
 .generate{
-    border:0;
-    background:linear-gradient(135deg,#7c3aed,#9333ea);
-    color:#fff;
-    padding:11px 24px;
-    border-radius:8px;
-    font-weight:bold;
-    cursor:pointer;
-    font-size:13px;
-}
-
-.generate:hover{
-    opacity:.9;
+  border:0;
+  background:linear-gradient(135deg,#7c3aed,#9333ea);
+  color:#fff;
+  padding:11px 24px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:13px
 }
 
 .generate:disabled{
-    opacity:.5;
-    cursor:not-allowed;
+  opacity:.5;
+  cursor:not-allowed
 }
 
 .result{
-    margin-top:18px;
-    border:1px solid #272731;
-    background:#101015;
-    border-radius:12px;
-    min-height:180px;
-    padding:18px;
+  margin-top:18px;
+  border:1px solid #272731;
+  background:#101015;
+  border-radius:12px;
+  min-height:180px;
+  padding:18px
 }
 
 .result-title{
-    font-size:14px;
-    font-weight:bold;
-    margin-bottom:12px;
+  font-size:14px;
+  font-weight:bold;
+  margin-bottom:12px
 }
 
 .placeholder{
-    min-height:130px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    color:#666;
-    font-size:13px;
+  min-height:130px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#666;
+  font-size:13px
 }
 
 .loading{
-    display:none;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    gap:12px;
-    min-height:130px;
-    color:#aaa;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:12px;
+  min-height:130px;
+  color:#aaa
 }
 
 .spinner{
-    width:32px;
-    height:32px;
-    border:3px solid #292932;
-    border-top-color:#8b5cf6;
-    border-radius:50%;
-    animation:spin 1s linear infinite;
+  width:32px;
+  height:32px;
+  border:3px solid #292932;
+  border-top-color:#8b5cf6;
+  border-radius:50%;
+  animation:spin 1s linear infinite
 }
 
 @keyframes spin{
-    to{transform:rotate(360deg);}
+  to{transform:rotate(360deg)}
 }
 
 .error{
-    display:none;
-    background:#351719;
-    border:1px solid #7f1d1d;
-    color:#fca5a5;
-    padding:12px;
-    border-radius:8px;
-    font-size:13px;
+  display:none;
+  background:#351719;
+  border:1px solid #7f1d1d;
+  color:#fca5a5;
+  padding:12px;
+  border-radius:8px;
+  font-size:13px
 }
 
 .result img,
 .result video{
-    width:100%;
-    max-height:600px;
-    object-fit:contain;
-    border-radius:8px;
-    background:#050507;
+  width:100%;
+  max-height:650px;
+  object-fit:contain;
+  border-radius:8px;
+  background:#050507
 }
 
 .download{
-    display:inline-block;
-    margin-top:12px;
-    background:#27272f;
-    color:white;
-    padding:9px 15px;
-    border-radius:7px;
-    text-decoration:none;
-    font-size:12px;
+  display:inline-block;
+  margin-top:12px;
+  background:#27272f;
+  color:white;
+  padding:9px 15px;
+  border-radius:7px;
+  text-decoration:none;
+  font-size:12px
+}
+
+.mode-note{
+  color:#777;
+  font-size:11px;
+  margin-top:8px
 }
 
 @media(max-width:600px){
 
-    .topbar{
-        padding:0 10px;
-    }
+  .topbar{
+    padding:0 10px
+  }
 
-    .user-area{
-        gap:5px;
-    }
+  .user-email{
+    display:none
+  }
 
-    .user-email{
-        display:none;
-    }
+  .sidebar{
+    width:48px
+  }
 
-    .sidebar{
-        width:48px;
-    }
+  .main{
+    padding:14px 10px
+  }
 
-    .main{
-        padding:14px 10px;
-    }
+  .title{
+    font-size:19px
+  }
 
-    .title{
-        font-size:19px;
-    }
+  .controls{
+    flex-direction:column;
+    align-items:stretch
+  }
 
-    .controls{
-        flex-direction:column;
-        align-items:stretch;
-    }
+  .modes{
+    width:100%
+  }
 
-    .modes{
-        width:100%;
-    }
+  .mode{
+    flex:1;
+    text-align:center
+  }
 
-    .mode{
-        flex:1;
-        text-align:center;
-    }
+  .generate{
+    width:100%
+  }
 
-    .generate{
-        width:100%;
-    }
+  textarea{
+    min-height:170px
+  }
 
-    textarea{
-        min-height:170px;
-    }
+  .preview,
+  .preview-wrap{
+    width:150px
+  }
+
+  .preview{
+    height:105px
+  }
 }
 </style>
 </head>
@@ -339,304 +422,727 @@ textarea:focus{
 <body>
 
 <header class="topbar">
-    <div class="logo">FlowAI Studio</div>
 
-    <div class="user-area">
-        <span class="user-email" id="userEmail">User</span>
-        <span class="credits">⚡ <span id="credits">50</span> Credits</span>
-        <button class="logout" onclick="logout()">Logout</button>
-    </div>
+  <div class="logo">FlowAI Studio</div>
+
+  <div class="user-area">
+    <span class="user-email" id="userEmail">User</span>
+
+    <span class="credits">
+      ⚡ <span id="credits">50</span> Credits
+    </span>
+
+    <button class="logout" onclick="logout()">
+      Logout
+    </button>
+  </div>
+
 </header>
+
 
 <div class="layout">
 
-    <aside class="sidebar">
-        <button class="side-btn active" onclick="goHome()">🏠</button>
-        <button class="side-btn">✨</button>
-        <button class="side-btn">🔍</button>
-        <button class="side-btn">⚙️</button>
-    </aside>
+  <aside class="sidebar">
 
-    <main class="main">
+    <button class="side-btn active" onclick="goHome()">
+      🏠
+    </button>
 
-        <button class="back" onclick="goHome()">← Back</button>
+    <button class="side-btn">
+      ✨
+    </button>
 
-        <h1 class="title">Create Cinematic AI Media</h1>
+    <button class="side-btn">
+      🔍
+    </button>
 
-        <p class="subtitle">
-            Describe what you want to create and generate high-quality AI media.
-        </p>
+    <button class="side-btn">
+      ⚙️
+    </button>
 
-        <section class="editor">
+  </aside>
 
-            <div class="prompt-area">
 
-                <label for="prompt">
-                    Describe your image or video
-                </label>
+  <main class="main">
 
-                <textarea
-                    id="prompt"
-                    placeholder="Example: A cinematic shot of a futuristic city at night, neon lights, rain, realistic, 4K..."
-                ></textarea>
+    <button class="back" onclick="goHome()">
+      ← Back
+    </button>
 
+    <h1 class="title">
+      Create Cinematic AI Media
+    </h1>
+
+    <p class="subtitle">
+      Create high-quality images and videos from your ideas.
+    </p>
+
+
+    <section class="editor">
+
+      <div class="prompt-area">
+
+        <label for="prompt">
+          Describe your image or video
+        </label>
+
+        <textarea
+          id="prompt"
+          placeholder="Example: A cinematic futuristic city at night, neon lights, rain, realistic, 4K..."
+        ></textarea>
+
+
+        <!-- REFERENCE IMAGE -->
+
+        <div class="reference-box">
+
+          <div class="reference-header">
+
+            <div class="reference-title">
+              📷 Reference Image
             </div>
 
-            <div class="controls">
-
-                <div class="modes">
-
-                    <button
-                        class="mode active"
-                        id="imageMode"
-                        onclick="setMode('image')">
-                        🖼️ Image Mode
-                    </button>
-
-                    <button
-                        class="mode"
-                        id="videoMode"
-                        onclick="setMode('video')">
-                        🎬 Video Mode
-                    </button>
-
-                </div>
-
-                <button
-                    class="generate"
-                    id="generateBtn"
-                    onclick="generateMedia()">
-                    ✨ Generate
-                </button>
-
+            <div class="reference-info">
+              Optional
             </div>
 
-        </section>
+          </div>
 
-        <section class="result">
 
-            <div class="result-title">
-                Generated Result
-            </div>
+          <label
+            for="imageInput"
+            class="upload-btn"
+          >
+            📁 Upload Image
+          </label>
 
-            <div class="placeholder" id="placeholder">
-                Type a description above and tap Generate.
-            </div>
+          <input
+            type="file"
+            id="imageInput"
+            accept="image/png,image/jpeg,image/webp"
+          >
 
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <div id="loadingText">Generating your creation...</div>
-            </div>
 
-            <div class="error" id="error"></div>
+          <div
+            class="preview-wrap"
+            id="previewWrap"
+          >
 
-            <div id="output"></div>
+            <img
+              id="imagePreview"
+              class="preview"
+              alt="Reference preview"
+            >
 
-        </section>
+            <button
+              class="remove-image"
+              onclick="removeImage()"
+              title="Remove image"
+            >
+              ×
+            </button>
 
-    </main>
+          </div>
+
+
+          <div
+            class="mode-note"
+            id="referenceNote"
+          >
+            Upload an image to animate it with Video Mode.
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="controls">
+
+        <div class="modes">
+
+          <button
+            class="mode active"
+            id="imageMode"
+            onclick="setMode('image')"
+          >
+            🖼️ Image Mode
+          </button>
+
+          <button
+            class="mode"
+            id="videoMode"
+            onclick="setMode('video')"
+          >
+            🎬 Video Mode
+          </button>
+
+        </div>
+
+
+        <button
+          class="generate"
+          id="generateBtn"
+          onclick="generateMedia()"
+        >
+          ✨ Generate
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <section class="result">
+
+      <div class="result-title">
+        Generated Result
+      </div>
+
+
+      <div
+        class="placeholder"
+        id="placeholder"
+      >
+        Type a description above and tap Generate.
+      </div>
+
+
+      <div
+        class="loading"
+        id="loading"
+      >
+
+        <div class="spinner"></div>
+
+        <div id="loadingText">
+          Generating your creation...
+        </div>
+
+      </div>
+
+
+      <div
+        class="error"
+        id="error"
+      ></div>
+
+
+      <div id="output"></div>
+
+    </section>
+
+  </main>
 
 </div>
+
 
 <script>
 
 let currentMode = "image";
+let referenceImageData = null;
+
+
+/* =========================
+   MODE
+========================= */
 
 function setMode(mode){
 
-    currentMode = mode;
+  currentMode = mode;
 
-    document
-        .getElementById("imageMode")
-        .classList.toggle("active", mode === "image");
+  document
+    .getElementById("imageMode")
+    .classList.toggle(
+      "active",
+      mode === "image"
+    );
 
-    document
-        .getElementById("videoMode")
-        .classList.toggle("active", mode === "video");
+  document
+    .getElementById("videoMode")
+    .classList.toggle(
+      "active",
+      mode === "video"
+    );
 
-    const prompt = document.getElementById("prompt");
 
-    if(mode === "video"){
-        prompt.placeholder =
-        "Example: A cinematic drone shot flying over snowy mountains at sunrise, realistic, smooth camera movement...";
-    }else{
-        prompt.placeholder =
-        "Example: A cinematic shot of a futuristic city at night, neon lights, rain, realistic, 4K...";
-    }
+  const prompt =
+    document.getElementById("prompt");
+
+  if(mode === "video"){
+
+    prompt.placeholder =
+      referenceImageData
+      ? "Describe how you want the reference image to move..."
+      : "Example: A cinematic drone shot flying over a futuristic city at sunset, smooth camera movement, realistic...";
+
+    document.getElementById(
+      "referenceNote"
+    ).innerText =
+      referenceImageData
+      ? "Reference image will be used for Image → Video."
+      : "Upload an image to create an Image → Video.";
+
+  }else{
+
+    prompt.placeholder =
+      "Example: A cinematic futuristic city at night, neon lights, rain, realistic, 4K...";
+
+    document.getElementById(
+      "referenceNote"
+    ).innerText =
+      "Reference image is used for Video Mode.";
+  }
 }
+
+
+/* =========================
+   IMAGE UPLOAD
+========================= */
+
+document
+  .getElementById("imageInput")
+  .addEventListener(
+    "change",
+    handleImageUpload
+  );
+
+
+function handleImageUpload(event){
+
+  const file =
+    event.target.files[0];
+
+  if(!file){
+    return;
+  }
+
+
+  const allowed = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+  ];
+
+  if(!allowed.includes(file.type)){
+
+    showError(
+      "Please upload JPG, PNG or WEBP image."
+    );
+
+    event.target.value = "";
+
+    return;
+  }
+
+
+  /*
+    Keep upload size reasonable.
+  */
+
+  if(file.size > 8 * 1024 * 1024){
+
+    showError(
+      "Image is too large. Please use an image under 8 MB."
+    );
+
+    event.target.value = "";
+
+    return;
+  }
+
+
+  const reader =
+    new FileReader();
+
+
+  reader.onload = function(e){
+
+    referenceImageData =
+      e.target.result;
+
+
+    document
+      .getElementById("imagePreview")
+      .src =
+      referenceImageData;
+
+
+    document
+      .getElementById("previewWrap")
+      .style.display =
+      "block";
+
+
+    document
+      .getElementById("referenceNote")
+      .innerText =
+      currentMode === "video"
+      ? "Reference image ready for Image → Video."
+      : "Image uploaded. Switch to Video Mode to animate it.";
+
+  };
+
+
+  reader.readAsDataURL(file);
+}
+
+
+/* =========================
+   REMOVE IMAGE
+========================= */
+
+function removeImage(){
+
+  referenceImageData = null;
+
+  document
+    .getElementById("imageInput")
+    .value = "";
+
+  document
+    .getElementById("imagePreview")
+    .src = "";
+
+  document
+    .getElementById("previewWrap")
+    .style.display =
+    "none";
+
+
+  document
+    .getElementById("referenceNote")
+    .innerText =
+    "Upload an image to animate it with Video Mode.";
+}
+
+
+/* =========================
+   ERROR
+========================= */
+
+function showError(message){
+
+  const error =
+    document.getElementById("error");
+
+  error.innerText = message;
+  error.style.display = "block";
+}
+
+
+/* =========================
+   GENERATE
+========================= */
 
 async function generateMedia(){
 
-    const prompt =
-        document.getElementById("prompt").value.trim();
+  const prompt =
+    document
+      .getElementById("prompt")
+      .value
+      .trim();
 
-    const button =
-        document.getElementById("generateBtn");
 
-    const placeholder =
-        document.getElementById("placeholder");
+  const button =
+    document.getElementById(
+      "generateBtn"
+    );
 
-    const loading =
-        document.getElementById("loading");
+  const placeholder =
+    document.getElementById(
+      "placeholder"
+    );
 
-    const error =
-        document.getElementById("error");
+  const loading =
+    document.getElementById(
+      "loading"
+    );
 
-    const output =
-        document.getElementById("output");
+  const error =
+    document.getElementById(
+      "error"
+    );
 
-    if(!prompt){
+  const output =
+    document.getElementById(
+      "output"
+    );
 
-        error.style.display = "block";
-        error.innerText =
-        "Please enter a description first.";
 
-        return;
-    }
+  if(!prompt){
 
-    error.style.display = "none";
-    output.innerHTML = "";
-    placeholder.style.display = "none";
-    loading.style.display = "flex";
+    showError(
+      "Please enter a description first."
+    );
 
-    button.disabled = true;
+    return;
+  }
 
-    document.getElementById("loadingText").innerText =
-        currentMode === "video"
-        ? "Generating your video..."
-        : "Generating your image...";
+
+  /*
+    Clear old result.
+  */
+
+  error.style.display = "none";
+  output.innerHTML = "";
+
+  placeholder.style.display =
+    "none";
+
+  loading.style.display =
+    "flex";
+
+  button.disabled = true;
+
+
+  if(currentMode === "video"){
+
+    document.getElementById(
+      "loadingText"
+    ).innerText =
+      referenceImageData
+      ? "Creating video from your image..."
+      : "Generating your video...";
+
+  }else{
+
+    document.getElementById(
+      "loadingText"
+    ).innerText =
+      "Generating your image...";
+  }
+
+
+  try{
+
+    /*
+      Send prompt + mode + optional
+      reference image to backend.
+    */
+
+    const response =
+      await fetch(
+        "/api/generate",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+
+            prompt: prompt,
+
+            mode: currentMode,
+
+            imageData:
+              currentMode === "video"
+              ? referenceImageData
+              : null
+
+          })
+        }
+      );
+
+
+    /*
+      Always read text first so that
+      HTML/server errors don't produce
+      "Unexpected token <" errors.
+    */
+
+    const raw =
+      await response.text();
+
+    let data;
 
     try{
 
-        /*
-         * Your backend API endpoint.
-         * The server should receive:
-         * {
-         *   prompt: "...",
-         *   mode: "image" / "video"
-         * }
-         */
+      data = JSON.parse(raw);
 
-        const response = await fetch("/api/generate", {
+    }catch(parseError){
 
-            method:"POST",
+      throw new Error(
+        "Server returned an invalid response. Please try again."
+      );
+    }
 
-            headers:{
-                "Content-Type":"application/json"
-            },
 
-            body:JSON.stringify({
-                prompt:prompt,
-                mode:currentMode
-            })
+    if(!response.ok){
 
-        });
+      throw new Error(
+        data.error ||
+        "Generation failed."
+      );
+    }
 
-        const data = await response.json();
 
-        if(!response.ok){
-            throw new Error(
-                data.error || "Generation failed."
-            );
-        }
+    if(!data.url){
 
-        loading.style.display = "none";
+      throw new Error(
+        "The AI did not return a media file."
+      );
+    }
 
-        /*
-         * Supported backend responses:
-         *
-         * Image:
-         * { "url": "https://..." }
-         *
-         * Video:
-         * { "url": "https://..." }
-         */
 
-        if(!data.url){
+    loading.style.display =
+      "none";
 
-            throw new Error(
-                "No generated media URL was returned."
-            );
-        }
 
-        if(currentMode === "image"){
+    /* =====================
+       IMAGE RESULT
+    ===================== */
 
-            output.innerHTML = `
-                <img
-                    src="${data.url}"
-                    alt="Generated AI Image"
-                >
+    if(data.type === "image"){
 
-                <a
-                    class="download"
-                    href="${data.url}"
-                    target="_blank"
-                    download
-                >
-                    ⬇ Download Image
-                </a>
-            `;
+      output.innerHTML = `
 
-        }else{
+        <img
+          src="${data.url}"
+          alt="Generated AI Image"
+          onerror="mediaLoadError(this)"
+        >
 
-            output.innerHTML = `
-                <video
-                    src="${data.url}"
-                    controls
-                    autoplay
-                    loop
-                ></video>
+        <a
+          class="download"
+          href="${data.url}"
+          target="_blank"
+          download
+        >
+          ⬇ Download Image
+        </a>
 
-                <a
-                    class="download"
-                    href="${data.url}"
-                    target="_blank"
-                    download
-                >
-                    ⬇ Download Video
-                </a>
-            `;
-        }
-
-    }catch(err){
-
-        loading.style.display = "none";
-
-        error.style.display = "block";
-
-        error.innerText =
-            err.message ||
-            "Something went wrong. Please try again.";
-
-    }finally{
-
-        button.disabled = false;
+      `;
 
     }
+
+
+    /* =====================
+       VIDEO RESULT
+    ===================== */
+
+    else if(data.type === "video"){
+
+      output.innerHTML = `
+
+        <video
+          src="${data.url}"
+          controls
+          playsinline
+          preload="metadata"
+          onerror="videoLoadError()"
+        ></video>
+
+        <br>
+
+        <a
+          class="download"
+          href="${data.url}"
+          target="_blank"
+          download
+        >
+          ⬇ Download Video
+        </a>
+
+      `;
+
+    }
+
+
+    else{
+
+      throw new Error(
+        "Unknown media type returned by server."
+      );
+    }
+
+
+  }catch(err){
+
+    loading.style.display =
+      "none";
+
+    showError(
+      err.message ||
+      "Something went wrong."
+    );
+
+  }finally{
+
+    button.disabled = false;
+
+  }
 }
 
-function goHome(){
-    window.location.href = "/";
+
+/* =========================
+   MEDIA ERRORS
+========================= */
+
+function mediaLoadError(){
+
+  showError(
+    "Generated image could not be loaded."
+  );
 }
+
+
+function videoLoadError(){
+
+  showError(
+    "The generated video could not be played. Please try generating again."
+  );
+}
+
+
+/* =========================
+   HOME
+========================= */
+
+function goHome(){
+
+  window.location.href = "/";
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
 
 function logout(){
 
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("token");
 
-    window.location.href = "/login";
+  window.location.href =
+    "/login";
 }
 
-document.addEventListener("DOMContentLoaded",function(){
+
+/* =========================
+   USER
+========================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function(){
 
     const user =
-        localStorage.getItem("user");
+      localStorage.getItem("user");
 
     if(user){
-        document.getElementById("userEmail").innerText = user;
+
+      document
+        .getElementById("userEmail")
+        .innerText =
+        user;
     }
 
-});
+  }
+);
 
 </script>
 
