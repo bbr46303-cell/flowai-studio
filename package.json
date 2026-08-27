@@ -1,12 +1,13 @@
 {
   "name": "flowai-studio",
   "version": "1.0.0",
-  "description": "Flow AI Studio",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.19.2",
+    "replicate": "^0.32.1"
   }
 }
