@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - FlowAI Studio</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:#09090d;
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.card{
+  width:100%;
+  max-width:420px;
+  background:#111116;
+  border:1px solid #292934;
+  border-radius:16px;
+  padding:30px;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+
+.logo{
+  text-align:center;
+  color:#9b5cff;
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+h1{
+  text-align:center;
+  font-size:25px;
+  margin-bottom:8px;
+}
+
+.subtitle{
+  text-align:center;
+  color:#777;
+  font-size:13px;
+  margin-bottom:25px;
+}
+
+.google{
+  width:100%;
+  height:48px;
+  background:#fff;
+  color:#222;
+  border:0;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.google:hover{
+  background:#eee;
+}
+
+.divider{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:22px 0;
+  color:#666;
+  font-size:12px;
+}
+
+.divider span{
+  flex:1;
+  height:1px;
+  background:#292934;
+}
+
+label{
+  display:block;
+  color:#aaa;
+  font-size:12px;
+  margin-bottom:7px;
+}
+
+input{
+  width:100%;
+  height:46px;
+  background:#0b0b10;
+  color:#fff;
+  border:1px solid #30303a;
+  border-radius:8px;
+  padding:0 13px;
+  margin-bottom:15px;
+  outline:none;
+}
+
+input:focus{
+  border-color:#8b5cf6;
+}
+
+.login{
+  width:100%;
+  height:47px;
+  border:0;
+  border-radius:8px;
+  background:linear-gradient(135deg,#7c3aed,#9333ea);
+  color:#fff;
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.login:disabled{
+  opacity:.6;
+}
+
+.message{
+  display:none;
+  margin-bottom:15px;
+  padding:11px;
+  border-radius:7px;
+  font-size:12px;
+}
+
+.error{
+  background:#351719;
+  border:1px solid #7f1d1d;
+  color:#fca5a5;
+}
+
+.success{
+  background:#12301f;
+  border:1px solid #166534;
+  color:#86efac;
+}
+
+.signup{
+  text-align:center;
+  margin-top:22px;
+  color:#777;
+  font-size:12px;
+}
+
+.signup a{
+  color:#a970ff;
+  cursor:pointer;
+  font-weight:bold;
+  text-decoration:none;
+}
+
+#signupForm{
+  display:none;
+}
+
+.back-login{
+  text-align:center;
+  margin-top:18px;
+  color:#aaa;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.back-login:hover{
+  color:#fff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="logo">FlowAI Studio</div>
+
+  <h1 id="title">Welcome back</h1>
+
+  <p class="subtitle" id="subtitle">
+    Sign in to continue to FlowAI Studio
+  </p>
+
+  <div id="message" class="message"></div>
+
+  <!-- GOOGLE -->
+
+  <button class="google" onclick="googleLogin()">
+    🔵 Continue with Google
+  </button>
+
+  <div class="divider">
+    <span></span>
+    OR
+    <span></
