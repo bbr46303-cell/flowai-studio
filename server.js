@@ -1,10 +1,19 @@
 import express from 'express';
-import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// Manual CORS Header Setup (Bina cors package ke)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.use(express.json());
 app.use(express.static('public'));
 
