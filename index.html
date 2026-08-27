@@ -5,30 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FlowAI Studio</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #121212; color: #fff; text-align: center; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #121212; color: #fff; text-align: center; margin: 0; }
     
     .header-bar { display: flex; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto 20px; }
     .credits { background: #1e1e1e; padding: 8px 15px; border-radius: 20px; font-size: 14px; border: 1px solid #333; }
     .pay-btn { background: #00c853; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
 
-    /* Mode Switcher Buttons */
     .mode-container { display: flex; justify-content: center; gap: 10px; max-width: 500px; margin: 0 auto 15px; }
     .mode-btn { flex: 1; padding: 10px; border: 1px solid #333; background: #1e1e1e; color: #aaa; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .mode-btn.active { background: #6200ee; color: #fff; border-color: #6200ee; }
 
-    textarea { width: 100%; max-width: 500px; height: 90px; padding: 12px; margin-bottom: 15px; border-radius: 10px; background: #1e1e1e; color: #fff; border: 1px solid #333; box-sizing: border-box; font-size: 14px; }
+    textarea { width: 100%; max-width: 500px; height: 90px; padding: 12px; margin-bottom: 15px; border-radius: 10px; background: #1e1e1e; color: #fff; border: 1px solid #333; box-sizing: border-box; font-size: 14px; resize: none; }
     
     .gen-btn { padding: 12px 30px; font-size: 16px; cursor: pointer; border-radius: 8px; border: none; background: #6200ee; color: white; font-weight: bold; width: 100%; max-width: 500px; }
     .gen-btn:disabled { background: #555; cursor: not-allowed; }
     
     #status { margin-top: 15px; font-weight: bold; color: #ffeb3b; }
     
-    .result-box { margin-top: 20px; display: inline-block; position: relative; width: 100%; max-width: 500px; }
+    .result-box { margin-top: 20px; display: inline-block; width: 100%; max-width: 500px; }
     img, video { width: 100%; border-radius: 12px; border: 1px solid #333; display: block; margin-bottom: 12px; }
     
-    .download-btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; width: 100%; max-width: 500px; box-sizing: border-box; }
+    .download-btn { display: inline-block; padding: 12px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; width: 100%; max-width: 500px; box-sizing: border-box; text-align: center; }
     
-    /* Payment Modal */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
     .modal-content { background: #1e1e1e; padding: 25px; border-radius: 12px; max-width: 350px; width: 90%; text-align: center; border: 1px solid #333; }
     .pay-option { background: #2a2a2a; margin: 10px 0; padding: 12px; border-radius: 8px; cursor: pointer; border: 1px solid #444; font-weight: bold; }
@@ -45,7 +43,6 @@
 
   <h2>FlowAI Studio</h2>
 
-  <!-- Mode Selector -->
   <div class="mode-container">
     <button class="mode-btn active" id="imgModeBtn" onclick="setMode('image')">🖼️ Image Mode</button>
     <button class="mode-btn" id="videoModeBtn" onclick="setMode('video')">🎥 Video Mode</button>
@@ -57,16 +54,13 @@
   <div id="status"></div>
   <div class="result-box" id="resultContainer"></div>
 
-  <!-- Payment Modal -->
   <div class="modal" id="paymentModal">
     <div class="modal-content">
       <h3>Choose Payment Method</h3>
       <p style="color: #aaa; font-size: 14px;">Get Unlimited AI Generations</p>
-      
-      <div class="pay-option" onclick="processPay('UPI (Google Pay / PhonePe / Paytm)')">📱 UPI / QR Code</div>
-      <div class="pay-option" onclick="processPay('Debit / Credit Card')">💳 Credit / Debit Card</div>
+      <div class="pay-option" onclick="processPay('UPI / QR Code')">📱 UPI / QR Code</div>
+      <div class="pay-option" onclick="processPay('Credit / Debit Card')">💳 Credit / Debit Card</div>
       <div class="pay-option" onclick="processPay('Net Banking')">🏦 Net Banking</div>
-      
       <button class="close-btn" onclick="closePayment()">Cancel</button>
     </div>
   </div>
@@ -98,7 +92,7 @@
         return;
       }
 
-      statusDiv.innerText = selectedMode === 'video' ? "Generating Video... (Takes ~10s)" : "Generating Image...";
+      statusDiv.innerText = selectedMode === 'video' ? "Generating Video..." : "Generating Image...";
       resultContainer.innerHTML = "";
       btn.disabled = true;
 
@@ -106,7 +100,7 @@
         const response = await fetch('/generate-media', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: prompt, mode: selectedMode })
+          body: JSON.stringify({ prompt, mode: selectedMode })
         });
 
         const data = await response.json();
@@ -118,13 +112,13 @@
           
           if (data.type === 'video') {
             resultContainer.innerHTML = `
-              <video src="${data.url}" controls autoplay loop playsinline></video>
-              <button class="download-btn" onclick="downloadFile('${data.url}', 'flowai_video.mp4')">⬇️ Download Video</button>
+              <video src="${data.url}" controls autoplay loop muted playsinline></video>
+              <a href="${data.url}" class="download-btn" target="_blank">⬇️ Download Video</a>
             `;
           } else {
             resultContainer.innerHTML = `
-              <img id="generatedImg" src="${data.url}" alt="Generated Media"/>
-              <button class="download-btn" onclick="downloadFile('${data.url}', 'flowai_image.jpg')">⬇️ Download Image</button>
+              <img src="${data.url}" alt="Generated Image"/>
+              <a href="${data.url}" class="download-btn" target="_blank" download="image.jpg">⬇️ Download Image</a>
             `;
           }
 
@@ -136,16 +130,6 @@
       } finally {
         btn.disabled = false;
       }
-    }
-
-    function downloadFile(url, filename) {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.target = "_blank";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
     }
 
     function openPayment() { document.getElementById('paymentModal').style.display = 'flex'; }
