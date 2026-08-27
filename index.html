@@ -34,12 +34,10 @@
       const userEmailDisplay = document.getElementById('userEmailDisplay');
 
       if (user) {
-        // User logged in -> Show app, hide login overlay
         appContainer.style.display = 'flex';
         authOverlay.style.display = 'none';
         userEmailDisplay.innerText = user.email;
       } else {
-        // User NOT logged in -> Hide app, show login overlay forcefully
         appContainer.style.display = 'none';
         authOverlay.style.display = 'flex';
       }
@@ -92,12 +90,12 @@
     
     .back-dashboard { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-bottom: 10px; align-self: flex-start; }
 
-    /* Full Screen Login Overlay */
-    #authOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-    .auth-card { background: var(--card); padding: 35px; border-radius: 20px; width: 340px; border: 1px solid var(--border); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-    .auth-input { width: 100%; padding: 12px; margin: 12px 0; background: #0b0b0f; border: 1px solid var(--border); color: #fff; border-radius: 10px; box-sizing: border-box; font-size: 14px; }
-    .auth-submit-btn { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
-    .auth-toggle { margin-top: 20px; font-size: 13px; color: var(--muted); cursor: pointer; text-decoration: underline; }
+    /* Full Screen Login Overlay - Fixed for Mobile & Keyboard */
+    #authOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+    .auth-card { background: var(--card); padding: 25px; border-radius: 20px; width: 100%; max-width: 340px; border: 1px solid var(--border); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); margin: auto; }
+    .auth-input { width: 100%; padding: 12px; margin: 10px 0; background: #0b0b0f; border: 1px solid var(--border); color: #fff; border-radius: 10px; box-sizing: border-box; font-size: 14px; outline: none; }
+    .auth-submit-btn { width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
+    .auth-toggle { margin-top: 18px; font-size: 13px; color: var(--muted); cursor: pointer; text-decoration: underline; display: inline-block; }
   </style>
 </head>
 <body>
@@ -106,14 +104,17 @@
   <div id="authOverlay">
     <div class="auth-card">
       <h2 id="modalTitle" style="margin-top:0; background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">FlowAI Studio</h2>
-      <p style="color: var(--muted); font-size: 13px; margin-bottom: 20px;">Please login or sign up to access the AI Studio.</p>
+      <p style="color: var(--muted); font-size: 13px; margin-bottom: 15px;">Please login or sign up to access the AI Studio.</p>
       
       <input type="email" id="authEmail" class="auth-input" placeholder="Email address">
       <input type="password" id="authPassword" class="auth-input" placeholder="Password">
       
+      <!-- Clearly visible Login/Signup Button added here -->
       <button class="auth-submit-btn" id="authSubmitBtn" onclick="handleAuthAction()">Login</button>
       
-      <div class="auth-toggle" id="toggleAuthText" onclick="toggleAuthMode()">Don't have an account? Sign up</div>
+      <div>
+        <span class="auth-toggle" id="toggleAuthText" onclick="toggleAuthMode()">Don't have an account? Sign up</span>
+      </div>
     </div>
   </div>
 
