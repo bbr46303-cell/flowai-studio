@@ -1,129 +1,102 @@
 const express = require("express");
-const cors = require("cors");
-const path = require("path");
-const Replicate = require("replicate");
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.json({ limit: "1mb" }));
+app.use(express.static("."));
 
-const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN
-});
+const PORT = process.env.PORT || 3000;
+const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(__dirname + "/index.html");
 });
 
-app.post("/api/generate", async (req, res) => {
-
+app.post("/api/generate-video", async (req, res) => {
   try {
+    if (!REPLICATE_API_TOKEN) {
+      return res.status(500).json({
+        error: "REPLICATE_API_TOKEN is missing on Render."
+      });
+    }
 
-    const {
-      prompt,
-      mode,
-      ratio,
-      duration
-    } = req.body;
+    const { prompt, aspectRatio = "16:9", duration = 5 } = req.body;
 
     if (!prompt || !prompt.trim()) {
       return res.status(400).json({
-        success: false,
         error: "Prompt is required."
       });
     }
 
-    if (!process.env.REPLICATE_API_TOKEN) {
-      return res.status(500).json({
-        success: false,
-        error: "REPLICATE_API_TOKEN is not configured on server."
-      });
-    }
-
-    if (mode === "Audio") {
-      return res.status(400).json({
-        success: false,
-        error: "Audio generation is not connected yet. Please select Video."
-      });
-    }
-
-    const finalPrompt =
-      `${prompt.trim()}, cinematic, high quality, realistic, detailed`;
-
-    console.log("Generating video...");
-    console.log("Prompt:", finalPrompt);
-    console.log("Ratio:", ratio);
-    console.log("Duration:", duration);
-
-    const output = await replicate.run(
-      "google/veo-2",
+    const response = await fetch(
+      "https://api.replicate.com/v1/models/wavespeedai/wan-2.1-t2v-720p/predictions",
       {
-        input: {
-          prompt: finalPrompt
-        }
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${REPLICATE_API_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          input: {
+            prompt: prompt.trim(),
+            aspect_ratio: aspectRatio,
+            duration: Number(duration)
+          }
+        })
       }
     );
 
-    let videoUrl = null;
+    const data = await response.json();
 
-    if (output) {
+    if (!response.ok) {
+      console.error("Replicate error:", data);
 
-      if (typeof output === "string") {
-        videoUrl = output;
-      }
-
-      else if (output.url) {
-        videoUrl = output.url();
-      }
-
-      else if (Array.isArray(output) && output.length > 0) {
-
-        const first = output[0];
-
-        if (typeof first === "string") {
-          videoUrl = first;
-        }
-
-        else if (first && first.url) {
-          videoUrl = first.url();
-        }
-      }
-    }
-
-    if (!videoUrl) {
-      console.log("Replicate output:", output);
-
-      return res.status(500).json({
-        success: false,
-        error: "Video generated but video URL was not returned."
+      return res.status(response.status).json({
+        error: data.detail || data.error || "Replicate request failed"
       });
     }
 
-    console.log("Video URL:", videoUrl);
-
-    return res.json({
+    res.json({
       success: true,
-      message: "Video generated successfully!",
-      videoUrl: videoUrl
+      id: data.id,
+      status: data.status
     });
 
   } catch (error) {
+    console.error("Generate error:", error);
 
-    console.error("VIDEO GENERATION ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      error:
-        error?.message ||
-        "Video generation failed."
+    res.status(500).json({
+      error: error.message
     });
   }
 });
 
-const PORT = process.env.PORT || 3000;
+app.get("/api/video-status/:id", async (req, res) => {
+  try {
+    const response = await fetch(
+      `https://api.replicate.com/v1/predictions/${req.params.id}`,
+      {
+        headers: {
+          "Authorization": `Bearer ${REPLICATE_API_TOKEN}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    res.json({
+      status: data.status,
+      output: data.output || null,
+      error: data.error || null
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: error.message
+    });
+  }
+});
 
 app.listen(PORT, () => {
-  console.log(`FlowAI Studio running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
