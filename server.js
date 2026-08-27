@@ -1,6 +1,5 @@
-const express = require('express');
-const cors = require('cors');
-const fetch = require('node-fetch');
+import express from 'express';
+import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,7 +29,7 @@ app.post('/generate-video', async (req, res) => {
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({}));
       return res.status(response.status).json({ error: errorData.error || "Generation failed" });
     }
 
