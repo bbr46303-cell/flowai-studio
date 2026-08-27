@@ -29,6 +29,9 @@ app.post('/generate-video', async (req, res) => {
   if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 seconds timeout
+
     const response = await fetch(
       "https://api-inference.huggingface.co/models/damo-vilab/text-to-video-ms-1.7b",
       {
@@ -38,15 +41,18 @@ app.post('/generate-video', async (req, res) => {
         },
         method: "POST",
         body: JSON.stringify({ inputs: prompt }),
+        signal: controller.signal
       }
     );
+
+    clearTimeout(timeoutId);
 
     const contentType = response.headers.get("content-type");
 
     if (contentType && contentType.includes("application/json")) {
       const jsonResponse = await response.json();
       return res.status(response.status).json({ 
-        error: jsonResponse.error || "Model loading, please try again in 20s" 
+        error: jsonResponse.error || "Model is loading. Please click Generate again in 30 seconds." 
       });
     }
 
@@ -57,7 +63,8 @@ app.post('/generate-video', async (req, res) => {
     res.json({ videoUrl: `data:video/mp4;base64,${base64Video}` });
 
   } catch (error) {
-    res.status(500).json({ error: error.message || "Internal Error" });
+    console.error("Fetch Error:", error);
+    res.status(500).json({ error: "Model is waking up from sleep. Please try generating again!" });
   }
 });
 
