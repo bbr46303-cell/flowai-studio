@@ -152,7 +152,11 @@ getRedirectResult(auth)
 
     if(result && result.user){
 
-      saveUser(result.user);
+      if(result && result.user){
+
+  openApp(result.user);
+
+};
 
       openApp(result.user);
     }
@@ -646,7 +650,11 @@ onAuthStateChanged(
 
     if(user){
 
-      saveUser(user);
+      if(user){
+
+  openApp(user);
+
+};
 
       openApp(user);
 
