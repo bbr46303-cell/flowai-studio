@@ -1,239 +1,644 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FlowAI Studio - Google Labs Style</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowAI Studio</title>
 
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0b0b0f; color: #f3f4f6; margin: 0; height: 100vh; overflow: hidden; display: flex; }
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
 
-    /* App Layout */
-    #appContainer { display: none; height: 100vh; width: 100vw; background: #0b0b0f; display: none; }
-    .sidebar { width: 70px; background: #121218; border-right: 1px solid #1f1f2e; display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px; z-index: 10; flex-shrink: 0; }
-    .sidebar-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #9ca3af; transition: 0.2s; font-size: 18px; }
-    .sidebar-icon:hover, .sidebar-icon.active { background: #7c3aed; color: #fff; }
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#09090d;
+    color:#fff;
+    min-height:100vh;
+}
 
-    .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; height: 100vh; background: #0b0b0f; }
-    
-    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid #1f1f2e; background: #121218; }
-    .logo { font-size: 18px; font-weight: bold; background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .nav-right { display: flex; align-items: center; gap: 10px; }
-    .credits-badge { background: #1f1f2e; padding: 5px 12px; border-radius: 20px; font-size: 12px; border: 1px solid #374151; font-weight: 500; color: #fff; }
-    .logout-btn { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+.topbar{
+    height:58px;
+    background:#111116;
+    border-bottom:1px solid #24242d;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 18px;
+}
 
-    .dashboard-container { padding: 30px; background: #0b0b0f; }
-    .hero-banner { background: linear-gradient(135deg, #1e1b4b, #111827); border: 1px solid #312e81; padding: 30px; border-radius: 16px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
-    .new-project-btn { background: #7c3aed; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
-    .new-project-btn:hover { background: #6d28d9; }
+.logo{
+    color:#9b5cff;
+    font-size:16px;
+    font-weight:bold;
+}
 
-    .section-title { font-size: 18px; margin-bottom: 15px; color: #e5e7eb; font-weight: 600; }
-    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-    .card { background: #16161d; border: 1px solid #1f1f2e; border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.2s; }
-    .card:hover { transform: translateY(-4px); border-color: #7c3aed; }
-    .card-thumbnail { height: 140px; background: #22222e; display: flex; justify-content: center; align-items: center; color: #9ca3af; font-size: 14px; }
-    .card-footer { padding: 12px; font-size: 13px; color: #9ca3af; }
+.user-area{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:11px;
+}
 
-    #studioView { display: none; flex: 1; flex-direction: column; justify-content: space-between; padding: 20px; height: 100%; box-sizing: border-box; background: #0b0b0f; }
-    .workspace-preview { flex: 1; display: flex; justify-content: center; align-items: center; border: 2px dashed #1f1f2e; border-radius: 16px; margin: 15px 0; color: #9ca3af; font-size: 16px; background: rgba(22, 22, 29, 0.5); position: relative; overflow: hidden; min-height: 40vh; max-height: 50vh; }
-    .workspace-preview img, .workspace-preview video { max-height: 100%; max-width: 100%; border-radius: 12px; object-fit: contain; }
+.credits{
+    background:#24232d;
+    padding:7px 12px;
+    border-radius:20px;
+    color:#fff;
+}
 
-    .workspace-controls { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; }
-    .ctrl-pill { background: #16161d; border: 1px solid #1f1f2e; padding: 8px 16px; border-radius: 20px; color: #9ca3af; font-size: 13px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-    .ctrl-pill.active { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+.logout{
+    border:0;
+    background:#ef4444;
+    color:#fff;
+    padding:7px 12px;
+    border-radius:6px;
+    font-size:11px;
+}
 
-    .prompt-box-container { display: flex; flex-direction: column; max-width: 700px; margin: 0 auto; width: 100%; background: #16161d; border: 1px solid #2d2d3d; border-radius: 16px; padding: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
-    .prompt-input { background: transparent; border: none; color: #fff; font-size: 15px; resize: none; outline: none; height: 50px; font-family: inherit; }
-    .prompt-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid #22222e; padding-top: 10px; }
-    .generate-action-btn { background: #7c3aed; color: white; border: none; padding: 10px 24px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    .generate-action-btn:hover { background: #6d28d9; }
-    
-    .back-dashboard { background: transparent; border: 1px solid #1f1f2e; color: #f3f4f6; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-bottom: 5px; align-self: flex-start; }
+.layout{
+    display:flex;
+    min-height:calc(100vh - 58px);
+}
 
-    /* Full Screen Login Overlay */
-    #authOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0b0b0f; display: flex; justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-    .auth-card { background: #16161d; padding: 25px; border-radius: 20px; width: 100%; max-width: 340px; border: 1px solid #1f1f2e; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); margin: auto; }
-    .auth-input { width: 100%; padding: 12px; margin: 8px 0; background: #0b0b0f; border: 1px solid #1f1f2e; color: #fff; border-radius: 10px; box-sizing: border-box; font-size: 14px; outline: none; }
-    
-    .google-btn { width: 100%; padding: 12px; background: #ffffff; color: #1f1f2e; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 12px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 12px rgba(255,255,255,0.1); transition: 0.2s; }
-    .google-btn:hover { background: #f3f4f6; }
+.sidebar{
+    width:52px;
+    background:#111116;
+    border-right:1px solid #24242d;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding-top:10px;
+    gap:8px;
+}
 
-    .divider { display: flex; align-items: center; text-align: center; color: #9ca3af; font-size: 12px; margin: 10px 0; }
-    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #1f1f2e; }
-    .divider::before { margin-right: 10px; }
-    .divider::after { margin-left: 10px; }
+.side-btn{
+    width:38px;
+    height:38px;
+    border:0;
+    background:transparent;
+    color:#aaa;
+    border-radius:8px;
+    font-size:19px;
+}
 
-    .auth-submit-btn { width: 100%; padding: 12px; background: #2563eb; color: #ffffff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
-    .auth-submit-btn:hover { background: #1d4ed8; }
-  </style>
+.side-btn.active{
+    background:#7c3aed;
+    color:#fff;
+}
+
+.main{
+    flex:1;
+    padding:18px;
+    max-width:1100px;
+    margin:auto;
+}
+
+.back{
+    border:1px solid #292934;
+    background:#121218;
+    color:#ddd;
+    padding:8px 14px;
+    border-radius:7px;
+    font-size:12px;
+    cursor:pointer;
+    margin-bottom:18px;
+}
+
+.title{
+    font-size:22px;
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+.subtitle{
+    color:#777;
+    font-size:13px;
+    margin-bottom:18px;
+}
+
+.editor{
+    border:1px solid #272731;
+    background:#101015;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.prompt-area{
+    padding:18px;
+}
+
+label{
+    display:block;
+    color:#aaa;
+    font-size:13px;
+    margin-bottom:8px;
+}
+
+textarea{
+    width:100%;
+    min-height:150px;
+    resize:vertical;
+    background:#0b0b10;
+    border:1px solid #30303a;
+    color:#fff;
+    border-radius:9px;
+    padding:15px;
+    font-size:14px;
+    line-height:1.5;
+    outline:none;
+}
+
+textarea:focus{
+    border-color:#8b5cf6;
+    box-shadow:0 0 0 2px rgba(139,92,246,.15);
+}
+
+.controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:15px 18px;
+    border-top:1px solid #25252e;
+    flex-wrap:wrap;
+}
+
+.modes{
+    display:flex;
+    gap:8px;
+}
+
+.mode{
+    border:1px solid #30303a;
+    background:#19191f;
+    color:#aaa;
+    padding:9px 15px;
+    border-radius:20px;
+    cursor:pointer;
+    font-size:12px;
+}
+
+.mode.active{
+    background:#7c3aed;
+    border-color:#8b5cf6;
+    color:white;
+}
+
+.generate{
+    border:0;
+    background:linear-gradient(135deg,#7c3aed,#9333ea);
+    color:#fff;
+    padding:11px 24px;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.generate:hover{
+    opacity:.9;
+}
+
+.generate:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+.result{
+    margin-top:18px;
+    border:1px solid #272731;
+    background:#101015;
+    border-radius:12px;
+    min-height:180px;
+    padding:18px;
+}
+
+.result-title{
+    font-size:14px;
+    font-weight:bold;
+    margin-bottom:12px;
+}
+
+.placeholder{
+    min-height:130px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:#666;
+    font-size:13px;
+}
+
+.loading{
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:12px;
+    min-height:130px;
+    color:#aaa;
+}
+
+.spinner{
+    width:32px;
+    height:32px;
+    border:3px solid #292932;
+    border-top-color:#8b5cf6;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg);}
+}
+
+.error{
+    display:none;
+    background:#351719;
+    border:1px solid #7f1d1d;
+    color:#fca5a5;
+    padding:12px;
+    border-radius:8px;
+    font-size:13px;
+}
+
+.result img,
+.result video{
+    width:100%;
+    max-height:600px;
+    object-fit:contain;
+    border-radius:8px;
+    background:#050507;
+}
+
+.download{
+    display:inline-block;
+    margin-top:12px;
+    background:#27272f;
+    color:white;
+    padding:9px 15px;
+    border-radius:7px;
+    text-decoration:none;
+    font-size:12px;
+}
+
+@media(max-width:600px){
+
+    .topbar{
+        padding:0 10px;
+    }
+
+    .user-area{
+        gap:5px;
+    }
+
+    .user-email{
+        display:none;
+    }
+
+    .sidebar{
+        width:48px;
+    }
+
+    .main{
+        padding:14px 10px;
+    }
+
+    .title{
+        font-size:19px;
+    }
+
+    .controls{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .modes{
+        width:100%;
+    }
+
+    .mode{
+        flex:1;
+        text-align:center;
+    }
+
+    .generate{
+        width:100%;
+    }
+
+    textarea{
+        min-height:170px;
+    }
+}
+</style>
 </head>
+
 <body>
 
-  <!-- Mandatory Login / Signup Overlay -->
-  <div id="authOverlay">
-    <div class="auth-card">
-      <h2 style="margin-top:0; background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">FlowAI Studio</h2>
-      <p style="color: #9ca3af; font-size: 13px; margin-bottom: 15px;">Please sign in to access the AI Studio.</p>
-      
-      <button class="google-btn" onclick="handleGoogleLogin()">
-        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.17 21.36 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.15 0 9.99 0 12s.43 3.85 1.19 5.39l4.08-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.64 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
-        Continue with Google
-      </button>
+<header class="topbar">
+    <div class="logo">FlowAI Studio</div>
 
-      <div class="divider">OR EMAIL</div>
-      
-      <input type="email" id="authEmail" class="auth-input" placeholder="Email address">
-      <input type="password" id="authPassword" class="auth-input" placeholder="Password">
-      
-      <button class="auth-submit-btn" onclick="handleEmailLogin()">Login / Enter</button>
+    <div class="user-area">
+        <span class="user-email" id="userEmail">User</span>
+        <span class="credits">⚡ <span id="credits">50</span> Credits</span>
+        <button class="logout" onclick="logout()">Logout</button>
     </div>
-  </div>
+</header>
 
-  <!-- Main App -->
-  <div id="appContainer" style="display: none;">
-    <div class="sidebar">
-      <div class="sidebar-icon active" onclick="switchView('dashboard')">🏠</div>
-      <div class="sidebar-icon" onclick="switchView('studio')">✨</div>
-      <div class="sidebar-icon">🔍</div>
-      <div class="sidebar-icon">⚙️</div>
-    </div>
+<div class="layout">
 
-    <div class="main-content">
-      <div class="navbar">
-        <div class="logo">FlowAI Studio</div>
-        <div class="nav-right">
-          <span id="userEmailDisplay" style="font-size: 12px; color: #9ca3af;"></span>
-          <div class="credits-badge">⚡ 50 Credits</div>
-          <button class="logout-btn" onclick="handleLogout()">Logout</button>
-        </div>
-      </div>
+    <aside class="sidebar">
+        <button class="side-btn active" onclick="goHome()">🏠</button>
+        <button class="side-btn">✨</button>
+        <button class="side-btn">🔍</button>
+        <button class="side-btn">⚙️</button>
+    </aside>
 
-      <!-- Dashboard -->
-      <div id="dashboardView" class="dashboard-container">
-        <div class="hero-banner">
-          <div>
-            <h2>Create Cinematic AI Media</h2>
-            <p style="color: #9ca3af; margin: 5px 0 0 0;">Transform your imagination into high-quality images and videos.</p>
-          </div>
-          <button class="new-project-btn" onclick="switchView('studio')">+ New Project</button>
-        </div>
-        <div class="section-title">Recent Creations</div>
-        <div class="gallery-grid">
-          <div class="card" onclick="switchView('studio')">
-            <div class="card-thumbnail">🎬 Sci-Fi City Loop</div>
-            <div class="card-footer">Aug 27, 04:15 PM</div>
-          </div>
-        </div>
-      </div>
+    <main class="main">
 
-      <!-- Studio View -->
-      <div id="studioView">
-        <button class="back-dashboard" onclick="switchView('dashboard')">← Back</button>
-        <div class="workspace-preview" id="previewArea">Type a prompt below and generate...</div>
-        <div class="workspace-controls">
-          <div class="ctrl-pill active" id="modeImgBtn" onclick="setStudioMode('image')">🖼️ Image Mode</div>
-          <div class="ctrl-pill" id="modeVidBtn" onclick="setStudioMode('video')">🎥 Video Mode</div>
-        </div>
-        <div class="prompt-box-container">
-          <textarea class="prompt-input" id="userPrompt" placeholder="Describe your creation..."></textarea>
-          <div class="prompt-actions">
-            <div id="statusText" style="font-size: 13px; color: #9ca3af;">Ready</div>
-            <button class="generate-action-btn" onclick="startGeneration()">Generate 🚀</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+        <button class="back" onclick="goHome()">← Back</button>
 
-  <script>
-    let currentMode = 'image';
+        <h1 class="title">Create Cinematic AI Media</h1>
 
-    window.onload = function() {
-      const savedUser = localStorage.getItem('flowai_user');
-      if (savedUser) {
-        showApp(savedUser);
-      } else {
-        document.getElementById('authOverlay').style.display = 'flex';
-      }
+        <p class="subtitle">
+            Describe what you want to create and generate high-quality AI media.
+        </p>
+
+        <section class="editor">
+
+            <div class="prompt-area">
+
+                <label for="prompt">
+                    Describe your image or video
+                </label>
+
+                <textarea
+                    id="prompt"
+                    placeholder="Example: A cinematic shot of a futuristic city at night, neon lights, rain, realistic, 4K..."
+                ></textarea>
+
+            </div>
+
+            <div class="controls">
+
+                <div class="modes">
+
+                    <button
+                        class="mode active"
+                        id="imageMode"
+                        onclick="setMode('image')">
+                        🖼️ Image Mode
+                    </button>
+
+                    <button
+                        class="mode"
+                        id="videoMode"
+                        onclick="setMode('video')">
+                        🎬 Video Mode
+                    </button>
+
+                </div>
+
+                <button
+                    class="generate"
+                    id="generateBtn"
+                    onclick="generateMedia()">
+                    ✨ Generate
+                </button>
+
+            </div>
+
+        </section>
+
+        <section class="result">
+
+            <div class="result-title">
+                Generated Result
+            </div>
+
+            <div class="placeholder" id="placeholder">
+                Type a description above and tap Generate.
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div id="loadingText">Generating your creation...</div>
+            </div>
+
+            <div class="error" id="error"></div>
+
+            <div id="output"></div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+
+let currentMode = "image";
+
+function setMode(mode){
+
+    currentMode = mode;
+
+    document
+        .getElementById("imageMode")
+        .classList.toggle("active", mode === "image");
+
+    document
+        .getElementById("videoMode")
+        .classList.toggle("active", mode === "video");
+
+    const prompt = document.getElementById("prompt");
+
+    if(mode === "video"){
+        prompt.placeholder =
+        "Example: A cinematic drone shot flying over snowy mountains at sunrise, realistic, smooth camera movement...";
+    }else{
+        prompt.placeholder =
+        "Example: A cinematic shot of a futuristic city at night, neon lights, rain, realistic, 4K...";
     }
+}
 
-    function handleGoogleLogin() {
-      const googleUser = "google.user@gmail.com";
-      localStorage.setItem('flowai_user', googleUser);
-      showApp(googleUser);
-    }
+async function generateMedia(){
 
-    function handleEmailLogin() {
-      const email = document.getElementById('authEmail').value;
-      const password = document.getElementById('authPassword').value;
+    const prompt =
+        document.getElementById("prompt").value.trim();
 
-      if (!email || !password) {
-        alert("Please enter email and password!");
+    const button =
+        document.getElementById("generateBtn");
+
+    const placeholder =
+        document.getElementById("placeholder");
+
+    const loading =
+        document.getElementById("loading");
+
+    const error =
+        document.getElementById("error");
+
+    const output =
+        document.getElementById("output");
+
+    if(!prompt){
+
+        error.style.display = "block";
+        error.innerText =
+        "Please enter a description first.";
+
         return;
-      }
-
-      localStorage.setItem('flowai_user', email);
-      showApp(email);
     }
 
-    function showApp(email) {
-      document.getElementById('authOverlay').style.display = 'none';
-      document.getElementById('appContainer').style.display = 'flex';
-      document.getElementById('userEmailDisplay').innerText = email;
-    }
+    error.style.display = "none";
+    output.innerHTML = "";
+    placeholder.style.display = "none";
+    loading.style.display = "flex";
 
-    function handleLogout() {
-      localStorage.removeItem('flowai_user');
-      document.getElementById('authOverlay').style.display = 'flex';
-      document.getElementById('appContainer').style.display = 'none';
-      document.getElementById('authEmail').value = '';
-      document.getElementById('authPassword').value = '';
-    }
+    button.disabled = true;
 
-    function switchView(viewName) {
-      document.getElementById('dashboardView').style.display = viewName === 'studio' ? 'none' : 'block';
-      document.getElementById('studioView').style.display = viewName === 'studio' ? 'flex' : 'none';
-    }
+    document.getElementById("loadingText").innerText =
+        currentMode === "video"
+        ? "Generating your video..."
+        : "Generating your image...";
 
-    function setStudioMode(mode) {
-      currentMode = mode;
-      document.getElementById('modeImgBtn').classList.toggle('active', mode === 'image');
-      document.getElementById('modeVidBtn').classList.toggle('active', mode === 'video');
-    }
+    try{
 
-    async function startGeneration() {
-      const prompt = document.getElementById('userPrompt').value;
-      const previewArea = document.getElementById('previewArea');
-      const statusText = document.getElementById('statusText');
+        /*
+         * Your backend API endpoint.
+         * The server should receive:
+         * {
+         *   prompt: "...",
+         *   mode: "image" / "video"
+         * }
+         */
 
-      if (!prompt) { alert("Please enter a prompt!"); return; }
+        const response = await fetch("/api/generate", {
 
-      statusText.innerText = "Generating...";
-      previewArea.innerHTML = "Creating your AI asset... ⏳";
+            method:"POST",
 
-      try {
-        const response = await fetch('/generate-media', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, mode: currentMode })
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                prompt:prompt,
+                mode:currentMode
+            })
+
         });
+
         const data = await response.json();
 
-        if (data.url) {
-          statusText.innerText = "Success!";
-          if (data.type === 'video') {
-            previewArea.innerHTML = `<video src="${data.url}" controls autoplay loop muted playsinline style="max-height:100%; max-width:100%; border-radius:12px;"></video>`;
-          } else {
-            previewArea.innerHTML = `<img src="${data.url}" style="max-height:100%; max-width:100%; border-radius:12px;" />`;
-          }
-        } else {
-          previewArea.innerHTML = "Failed to generate.";
+        if(!response.ok){
+            throw new Error(
+                data.error || "Generation failed."
+            );
         }
-      } catch (err) {
-        previewArea.innerHTML = "Error: " + err.message;
-      }
+
+        loading.style.display = "none";
+
+        /*
+         * Supported backend responses:
+         *
+         * Image:
+         * { "url": "https://..." }
+         *
+         * Video:
+         * { "url": "https://..." }
+         */
+
+        if(!data.url){
+
+            throw new Error(
+                "No generated media URL was returned."
+            );
+        }
+
+        if(currentMode === "image"){
+
+            output.innerHTML = `
+                <img
+                    src="${data.url}"
+                    alt="Generated AI Image"
+                >
+
+                <a
+                    class="download"
+                    href="${data.url}"
+                    target="_blank"
+                    download
+                >
+                    ⬇ Download Image
+                </a>
+            `;
+
+        }else{
+
+            output.innerHTML = `
+                <video
+                    src="${data.url}"
+                    controls
+                    autoplay
+                    loop
+                ></video>
+
+                <a
+                    class="download"
+                    href="${data.url}"
+                    target="_blank"
+                    download
+                >
+                    ⬇ Download Video
+                </a>
+            `;
+        }
+
+    }catch(err){
+
+        loading.style.display = "none";
+
+        error.style.display = "block";
+
+        error.innerText =
+            err.message ||
+            "Something went wrong. Please try again.";
+
+    }finally{
+
+        button.disabled = false;
+
     }
-  </script>
+}
+
+function goHome(){
+    window.location.href = "/";
+}
+
+function logout(){
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+
+    window.location.href = "/login";
+}
+
+document.addEventListener("DOMContentLoaded",function(){
+
+    const user =
+        localStorage.getItem("user");
+
+    if(user){
+        document.getElementById("userEmail").innerText = user;
+    }
+
+});
+
+</script>
+
 </body>
 </html>
