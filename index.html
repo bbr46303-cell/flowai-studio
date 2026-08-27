@@ -1,88 +1,67 @@
-const generateBtn = document.querySelector('button'); // Aapka generate button
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlowAI Studio</title>
+</head>
+<body>
 
-generateBtn.addEventListener('click', async () => {
-  const promptText = document.querySelector('textarea').value;
-  generateBtn.innerText = "Processing...";
-  generateBtn.disabled = true;
+  <h2>FlowAI Video Generator</h2>
+  <textarea id="prompt" placeholder="Enter your prompt here..." rows="4" cols="50"></textarea><br><br>
+  <button id="generateBtn">Generate Video</button>
 
-  try {
-    // 1. Video job start karein
-    const res = await fetch('/api/generate-video', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: promptText })
-    });
-    const data = await res.json();
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const generateBtn = document.getElementById("generateBtn");
 
-    if (!data.id) throw new Error(data.error || "Failed to start generation");
-
-    // 2. Status check polling (Har 5 sec)
-    const interval = setInterval(async () => {
-      const statusRes = await fetch(`/api/video-status/${data.id}`);
-      const statusData = await statusRes.json();
-
-      if (statusData.status === 'succeeded') {
-        clearInterval(interval);
-        generateBtn.innerText = "Generate Video";
-        generateBtn.disabled = false;
-        alert("Video Ready! URL: " + statusData.output);
-      } else if (statusData.status === 'failed') {
-        clearInterval(interval);
-        generateBtn.innerText = "Generate Video";
-        generateBtn.disabled = false;
-        alert("Generation Failed!");
-      }
-    }, 5000);
-
-  } catch (err) {
-    alert("Error: " + err.message);
-    generateBtn.innerText = "Generate Video";
-    generateBtn.disabled = false;
-  }
-});
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const generateBtn = document.querySelector("button");
-
-  if (generateBtn) {
-    generateBtn.addEventListener("click", async () => {
-      const promptText = document.querySelector("textarea")?.value || "";
-      generateBtn.innerText = "Processing...";
-      generateBtn.disabled = true;
-
-      try {
-        const res = await fetch("/api/generate-video", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: promptText })
-        });
-        const data = await res.json();
-
-        if (!data.id) throw new Error(data.error || "Failed to start generation");
-
-        const interval = setInterval(async () => {
-          const statusRes = await fetch(`/api/video-status/${data.id}`);
-          const statusData = await statusRes.json();
-
-          if (statusData.status === "succeeded") {
-            clearInterval(interval);
-            generateBtn.innerText = "Generate Video";
-            generateBtn.disabled = false;
-            alert("Video Ready! Link: " + statusData.output);
-          } else if (statusData.status === "failed") {
-            clearInterval(interval);
-            generateBtn.innerText = "Generate Video";
-            generateBtn.disabled = false;
-            alert("Generation Failed!");
+      if (generateBtn) {
+        generateBtn.addEventListener("click", async () => {
+          const promptText = document.getElementById("prompt")?.value || "";
+          
+          if (!promptText) {
+            alert("Please enter a prompt!");
+            return;
           }
-        }, 5000);
 
-      } catch (err) {
-        alert("Error: " + err.message);
-        generateBtn.innerText = "Generate Video";
-        generateBtn.disabled = false;
+          generateBtn.innerText = "Processing...";
+          generateBtn.disabled = true;
+
+          try {
+            const res = await fetch("/api/generate-video", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ prompt: promptText })
+            });
+            const data = await res.json();
+
+            if (!data.id) throw new Error(data.error || "Failed to start generation");
+
+            const interval = setInterval(async () => {
+              const statusRes = await fetch(`/api/video-status/${data.id}`);
+              const statusData = await statusRes.json();
+
+              if (statusData.status === "succeeded") {
+                clearInterval(interval);
+                generateBtn.innerText = "Generate Video";
+                generateBtn.disabled = false;
+                alert("Video Ready! Link: " + statusData.output);
+              } else if (statusData.status === "failed") {
+                clearInterval(interval);
+                generateBtn.innerText = "Generate Video";
+                generateBtn.disabled = false;
+                alert("Generation Failed!");
+              }
+            }, 5000);
+
+          } catch (err) {
+            alert("Error: " + err.message);
+            generateBtn.innerText = "Generate Video";
+            generateBtn.disabled = false;
+          }
+        });
       }
     });
-  }
-});
-</script>
+  </script>
+</body>
+</html>
