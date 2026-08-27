@@ -4,24 +4,61 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FlowAI Studio - Google Labs Style</title>
+  
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBp_20zwhX39EP6GlYpSR6W...",
+      authDomain: "flowai-studio.firebaseapp.com",
+      projectId: "flowai-studio",
+      storageBucket: "flowai-studio.appspot.com",
+      messagingSenderId: "998645093332",
+      appId: "1:998645093332:web:27b88ffc3ee92d8b248c41",
+      measurementId: "G-X3Z5XL1QlK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.auth = auth;
+    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+    window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+    window.signOut = signOut;
+
+    onAuthStateChanged(auth, (user) => {
+      const authBtn = document.getElementById('authBtn');
+      const userEmailDisplay = document.getElementById('userEmailDisplay');
+      if (user) {
+        authBtn.innerText = "Logout";
+        authBtn.onclick = handleLogout;
+        userEmailDisplay.innerText = user.email;
+      } else {
+        authBtn.innerText = "Login / Signup";
+        authBtn.onclick = openAuthModal;
+        userEmailDisplay.innerText = "Guest User";
+      }
+    });
+  </script>
+
   <style>
     :root { bg: #0b0b0f; card: #16161d; accent: #7c3aed; text: #f3f4f6; muted: #9ca3af; border: #1f1f2e; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-    /* Sidebar */
     .sidebar { width: 70px; background: #121218; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px; z-index: 10; }
     .sidebar-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--muted); transition: 0.2s; font-size: 18px; }
     .sidebar-icon:hover, .sidebar-icon.active { background: var(--accent); color: #fff; }
 
-    /* Main Content */
     .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
     
-    /* Navbar */
     .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; border-bottom: 1px solid var(--border); background: var(--bg); }
     .logo { font-size: 20px; font-weight: bold; background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-right { display: flex; align-items: center; gap: 15px; }
     .credits-badge { background: #1f1f2e; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid #374151; font-weight: 500; }
+    .auth-btn { background: var(--accent); color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
 
-    /* Dashboard View */
     .dashboard-container { padding: 30px; }
     .hero-banner { background: linear-gradient(135deg, #1e1b4b, #111827); border: 1px solid #312e81; padding: 30px; border-radius: 16px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
     .new-project-btn { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
@@ -34,110 +71,104 @@
     .card-thumbnail { height: 140px; background: #22222e; display: flex; justify-content: center; align-items: center; color: var(--muted); font-size: 14px; }
     .card-footer { padding: 12px; font-size: 13px; color: var(--muted); }
 
-    /* Studio / Generator Workspace */
     #studioView { display: none; flex: 1; flex-direction: column; justify-content: space-between; padding: 25px; height: 100%; box-sizing: border-box; }
     .workspace-preview { flex: 1; display: flex; justify-content: center; align-items: center; border: 2px dashed var(--border); border-radius: 16px; margin-bottom: 20px; color: var(--muted); font-size: 16px; background: rgba(22, 22, 29, 0.5); position: relative; overflow: hidden; max-height: 60vh; }
     .workspace-preview img, .workspace-preview video { max-height: 100%; max-width: 100%; border-radius: 12px; object-fit: contain; }
 
-    /* Controls Bar (Google Labs Style Toolbar) */
     .workspace-controls { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
     .ctrl-pill { background: var(--card); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; color: var(--muted); font-size: 13px; cursor: pointer; font-weight: 600; transition: 0.2s; }
     .ctrl-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-    /* Prompt Input Box */
     .prompt-box-container { display: flex; flex-direction: column; max-width: 700px; margin: 0 auto; width: 100%; background: var(--card); border: 1px solid #2d2d3d; border-radius: 16px; padding: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
     .prompt-input { background: transparent; border: none; color: #fff; font-size: 15px; resize: none; outline: none; height: 60px; font-family: inherit; }
     .prompt-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid #22222e; padding-top: 10px; }
     .generate-action-btn { background: var(--accent); color: white; border: none; padding: 10px 24px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
     .generate-action-btn:hover { background: #6d28d9; }
-    .generate-action-btn:disabled { background: #4b5563; cursor: not-allowed; }
-
+    
     .back-dashboard { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-bottom: 10px; align-self: flex-start; }
-    .back-dashboard:hover { background: var(--border); }
+
+    /* Modal Styling */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 100; }
+    .modal-content { background: var(--card); padding: 30px; border-radius: 16px; width: 320px; border: 1px solid var(--border); text-align: center; }
+    .modal-input { width: 100%; padding: 10px; margin: 10px 0; background: #0b0b0f; border: 1px solid var(--border); color: #fff; border-radius: 8px; box-sizing: border-box; }
+    .modal-btn { width: 100%; padding: 10px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .toggle-auth { margin-top: 15px; font-size: 13px; color: var(--muted); cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <!-- Left Sidebar -->
   <div class="sidebar">
-    <div class="sidebar-icon active" onclick="switchView('dashboard')" title="Dashboard">🏠</div>
-    <div class="sidebar-icon" onclick="switchView('studio')" title="Create Studio">✨</div>
-    <div class="sidebar-icon" title="Explore Community">🔍</div>
-    <div class="sidebar-icon" title="Settings">⚙️</div>
+    <div class="sidebar-icon active" onclick="switchView('dashboard')">🏠</div>
+    <div class="sidebar-icon" onclick="switchView('studio')">✨</div>
+    <div class="sidebar-icon">🔍</div>
+    <div class="sidebar-icon">⚙️</div>
   </div>
 
-  <!-- Main Content -->
   <div class="main-content">
-    
-    <!-- Navbar -->
     <div class="navbar">
       <div class="logo">FlowAI Studio</div>
-      <div class="credits-badge">⚡ Credits: <span id="creditCount">50</span> Free</div>
+      <div class="nav-right">
+        <span id="userEmailDisplay" style="font-size: 13px; color: var(--muted);">Guest User</span>
+        <div class="credits-badge">⚡ Credits: 50</div>
+        <button class="auth-btn" id="authBtn" onclick="openAuthModal()">Login / Signup</button>
+      </div>
     </div>
 
-    <!-- VIEW 1: Dashboard Home -->
+    <!-- Dashboard -->
     <div id="dashboardView" class="dashboard-container">
       <div class="hero-banner">
         <div>
           <h2>Create Cinematic AI Media</h2>
-          <p style="color: var(--muted); margin: 5px 0 0 0;">Transform your imagination into high-quality images and videos instantly.</p>
+          <p style="color: var(--muted); margin: 5px 0 0 0;">Transform your imagination into high-quality images and videos.</p>
         </div>
         <button class="new-project-btn" onclick="switchView('studio')">+ New Project</button>
       </div>
-
       <div class="section-title">Recent Creations</div>
       <div class="gallery-grid">
         <div class="card" onclick="switchView('studio')">
           <div class="card-thumbnail">🎬 Sci-Fi City Loop</div>
           <div class="card-footer">Aug 27, 04:15 PM</div>
         </div>
-        <div class="card" onclick="switchView('studio')">
-          <div class="card-thumbnail">🏎️ Scorpio N Desert</div>
-          <div class="card-footer">Aug 27, 03:50 PM</div>
-        </div>
       </div>
     </div>
 
-    <!-- VIEW 2: Creation Studio (Google Labs / Flow Style) -->
+    <!-- Studio View -->
     <div id="studioView">
-      <button class="back-dashboard" onclick="switchView('dashboard')">← Back to Dashboard</button>
-      
-      <div class="workspace-preview" id="previewArea">
-        Type a prompt below and hit generate to create media...
-      </div>
-
-      <!-- Mode Selector (Image / Video) -->
+      <button class="back-dashboard" onclick="switchView('dashboard')">← Back</button>
+      <div class="workspace-preview" id="previewArea">Type a prompt below and generate...</div>
       <div class="workspace-controls">
         <div class="ctrl-pill active" id="modeImgBtn" onclick="setStudioMode('image')">🖼️ Image Mode</div>
         <div class="ctrl-pill" id="modeVidBtn" onclick="setStudioMode('video')">🎥 Video Mode</div>
       </div>
-
       <div class="prompt-box-container">
-        <textarea class="prompt-input" id="userPrompt" placeholder="Describe what you want to create (e.g. Cinematic drone shot through a misty forest)..."></textarea>
+        <textarea class="prompt-input" id="userPrompt" placeholder="Describe your creation..."></textarea>
         <div class="prompt-actions">
-          <div id="statusText" style="font-size: 13px; color: var(--muted);">Ready to generate</div>
-          <button class="generate-action-btn" id="genBtn" onclick="startGeneration()">Generate 🚀</button>
+          <div id="statusText" style="font-size: 13px; color: var(--muted);">Ready</div>
+          <button class="generate-action-btn" onclick="startGeneration()">Generate 🚀</button>
         </div>
       </div>
     </div>
+  </div>
 
+  <!-- Auth Modal -->
+  <div class="modal" id="authModal">
+    <div class="modal-content">
+      <h3 id="modalTitle">Login to FlowAI</h3>
+      <input type="email" id="authEmail" class="modal-input" placeholder="Email address">
+      <input type="password" id="authPassword" class="modal-input" placeholder="Password">
+      <button class="modal-btn" id="authSubmitBtn" onclick="handleAuthAction()">Login</button>
+      <div class="toggle-auth" id="toggleAuthText" onclick="toggleAuthMode()">Don't have an account? Sign up</div>
+      <button style="background:transparent; border:none; color:var(--muted); margin-top:15px; cursor:pointer;" onclick="closeAuthModal()">Cancel</button>
+    </div>
   </div>
 
   <script>
     let currentMode = 'image';
-    let credits = 50;
+    let isSignupMode = false;
 
     function switchView(viewName) {
-      const dashboard = document.getElementById('dashboardView');
-      const studio = document.getElementById('studioView');
-      
-      if (viewName === 'studio') {
-        dashboard.style.display = 'none';
-        studio.style.display = 'flex';
-      } else {
-        dashboard.style.display = 'block';
-        studio.style.display = 'none';
-      }
+      document.getElementById('dashboardView').style.display = viewName === 'studio' ? 'none' : 'block';
+      document.getElementById('studioView').style.display = viewName === 'studio' ? 'flex' : 'none';
     }
 
     function setStudioMode(mode) {
@@ -146,61 +177,74 @@
       document.getElementById('modeVidBtn').classList.toggle('active', mode === 'video');
     }
 
+    function openAuthModal() { document.getElementById('authModal').style.display = 'flex'; }
+    function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
+
+    function toggleAuthMode() {
+      isSignupMode = !isSignupMode;
+      document.getElementById('modalTitle').innerText = isSignupMode ? "Create Account" : "Login to FlowAI";
+      document.getElementById('authSubmitBtn').innerText = isSignupMode ? "Sign Up" : "Login";
+      document.getElementById('toggleAuthText').innerText = isSignupMode ? "Already have an account? Login" : "Don't have an account? Sign up";
+    }
+
+    async function handleAuthAction() {
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+
+      if (!email || !password) {
+        alert("Please enter email and password!");
+        return;
+      }
+
+      try {
+        if (isSignupMode) {
+          await window.createUserWithEmailAndPassword(window.auth, email, password);
+          alert("Account created successfully!");
+        } else {
+          await window.signInWithEmailAndPassword(window.auth, email, password);
+          alert("Logged in successfully!");
+        }
+        closeAuthModal();
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    async function handleLogout() {
+      try {
+        await window.signOut(window.auth);
+        alert("Logged out successfully!");
+      } catch (error) {
+        alert("Error logging out: " + error.message);
+      }
+    }
+
     async function startGeneration() {
       const prompt = document.getElementById('userPrompt').value;
       const previewArea = document.getElementById('previewArea');
       const statusText = document.getElementById('statusText');
-      const genBtn = document.getElementById('genBtn');
 
-      if (!prompt) {
-        alert("Please enter a prompt!");
-        return;
-      }
+      if (!prompt) { alert("Please enter a prompt!"); return; }
 
-      if (credits <= 0) {
-        alert("Free credits finished!");
-        return;
-      }
-
-      statusText.innerText = currentMode === 'video' ? "Generating Video (Takes ~10s)..." : "Generating Image...";
-      previewArea.innerHTML = "Creating your AI masterpiece... ⏳";
-      genBtn.disabled = true;
+      statusText.innerText = "Generating...";
+      previewArea.innerHTML = "Creating your AI asset... ⏳";
 
       try {
         const response = await fetch('/generate-media', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: prompt, mode: currentMode })
+          body: JSON.stringify({ prompt, mode: currentMode })
         });
-
         const data = await response.json();
 
-        if (data.error) {
-          statusText.innerText = "Error: " + data.error;
-          previewArea.innerHTML = "Generation Failed.";
-        } else if (data.url) {
-          statusText.innerText = "Success! Generated successfully.";
-          
-          if (data.type === 'video') {
-            previewArea.innerHTML = `
-              <video src="${data.url}" controls autoplay loop muted playsinline></video>
-              <a href="${data.url}" target="_blank" style="position: absolute; bottom: 10px; right: 10px; background: #7c3aed; color: #fff; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold;">Download 📥</a>
-            `;
-          } else {
-            previewArea.innerHTML = `
-              <img src="${data.url}" alt="AI Generated" />
-              <a href="${data.url}" target="_blank" style="position: absolute; bottom: 10px; right: 10px; background: #7c3aed; color: #fff; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold;">Download 📥</a>
-            `;
-          }
-
-          credits--;
-          document.getElementById('creditCount').innerText = credits;
+        if (data.url) {
+          statusText.innerText = "Success!";
+          previewArea.innerHTML = `<img src="${data.url}" style="max-height:100%; max-width:100%; border-radius:12px;" />`;
+        } else {
+          previewArea.innerHTML = "Failed to generate.";
         }
       } catch (err) {
-        statusText.innerText = "Error occurred";
-        previewArea.innerHTML = "Server Error: " + err.message;
-      } finally {
-        genBtn.disabled = false;
+        previewArea.innerHTML = "Error: " + err.message;
       }
     }
   </script>
