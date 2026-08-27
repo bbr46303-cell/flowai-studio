@@ -3,138 +3,152 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FlowAI Studio</title>
+  <title>FlowAI Studio - Dashboard</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #121212; color: #fff; text-align: center; margin: 0; }
-    
-    .header-bar { display: flex; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto 20px; }
-    .credits { background: #1e1e1e; padding: 8px 15px; border-radius: 20px; font-size: 14px; border: 1px solid #333; }
-    .pay-btn { background: #00c853; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+    :root { bg-color: #0b0b0f; card-bg: #16161d; accent: #7c3aed; text-main: #f3f4f6; text-muted: #9ca3af; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0b0b0f; color: #f3f4f6; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-    .mode-container { display: flex; justify-content: center; gap: 10px; max-width: 500px; margin: 0 auto 15px; }
-    .mode-btn { flex: 1; padding: 10px; border: 1px solid #333; background: #1e1e1e; color: #aaa; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .mode-btn.active { background: #6200ee; color: #fff; border-color: #6200ee; }
+    /* Sidebar */
+    .sidebar { width: 70px; background: #121218; border-right: 1px solid #1f1f2e; display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px; }
+    .sidebar-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #9ca3af; transition: 0.2s; }
+    .sidebar-icon:hover, .sidebar-icon.active { background: #7c3aed; color: #fff; }
 
-    textarea { width: 100%; max-width: 500px; height: 90px; padding: 12px; margin-bottom: 15px; border-radius: 10px; background: #1e1e1e; color: #fff; border: 1px solid #333; box-sizing: border-box; font-size: 14px; resize: none; }
+    /* Main Content Area */
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
     
-    .gen-btn { padding: 12px 30px; font-size: 16px; cursor: pointer; border-radius: 8px; border: none; background: #6200ee; color: white; font-weight: bold; width: 100%; max-width: 500px; }
-    .gen-btn:disabled { background: #555; cursor: not-allowed; }
-    
-    #status { margin-top: 15px; font-weight: bold; color: #ffeb3b; }
-    
-    .result-box { margin-top: 20px; display: inline-block; width: 100%; max-width: 500px; }
-    img, video { width: 100%; border-radius: 12px; border: 1px solid #333; display: block; margin-bottom: 12px; }
-    
-    .download-btn { display: inline-block; padding: 12px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; width: 100%; max-width: 500px; box-sizing: border-box; text-align: center; }
-    
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: #1e1e1e; padding: 25px; border-radius: 12px; max-width: 350px; width: 90%; text-align: center; border: 1px solid #333; }
-    .pay-option { background: #2a2a2a; margin: 10px 0; padding: 12px; border-radius: 8px; cursor: pointer; border: 1px solid #444; font-weight: bold; }
-    .pay-option:hover { background: #6200ee; }
-    .close-btn { margin-top: 15px; background: #ff5252; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+    /* Top Navbar */
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; border-bottom: 1px solid #1f1f2e; background: #0b0b0f; }
+    .logo { font-size: 20px; font-weight: bold; background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .credits-badge { background: #1f1f2e; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid #374151; }
+
+    /* Dashboard View */
+    .dashboard-container { padding: 30px; }
+    .hero-banner { background: linear-gradient(135deg, #1e1b4b, #111827); border: 1px solid #312e81; padding: 30px; border-radius: 16px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+    .new-project-btn { background: #7c3aed; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
+    .new-project-btn:hover { background: #6d28d9; }
+
+    /* Gallery Grid */
+    .section-title { font-size: 18px; margin-bottom: 15px; color: #e5e7eb; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+    .card { background: #16161d; border: 1px solid #1f1f2e; border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.2s; }
+    .card:hover { transform: translateY(-4px); border-color: #7c3aed; }
+    .card-thumbnail { height: 140px; background: #22222e; display: flex; justify-content: center; align-items: center; color: #4b5563; font-size: 14px; }
+    .card-footer { padding: 12px; font-size: 13px; color: #9ca3af; }
+
+    /* Studio / Generator Workspace (Hidden by default) */
+    #studioView { display: none; flex: 1; flex-direction: column; justify-content: space-between; padding: 20px; height: 100%; box-sizing: border-box; }
+    .workspace-preview { flex: 1; display: flex; justify-content: center; align-items: center; border: 2px dashed #1f1f2e; border-radius: 16px; margin-bottom: 20px; color: #6b7280; font-size: 16px; }
+    .prompt-box-container { display: flex; flex-direction: column; max-width: 700px; margin: 0 auto; width: 100%; background: #16161d; border: 1px solid #2d2d3d; border-radius: 16px; padding: 15px; }
+    .prompt-input { background: transparent; border: none; color: #fff; font-size: 15px; resize: none; outline: none; height: 50px; }
+    .prompt-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid #22222e; padding-top: 10px; }
+    .generate-action-btn { background: #7c3aed; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <div class="header-bar">
-    <div class="credits">Credits: <span id="creditCount">4</span> Free</div>
-    <button class="pay-btn" onclick="openPayment()">Buy Credits / Premium</button>
+  <!-- Left Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-icon active" onclick="switchView('dashboard')" title="Home">🏠</div>
+    <div class="sidebar-icon" onclick="switchView('studio')" title="Create Studio">✨</div>
+    <div class="sidebar-icon" title="Explore">🔍</div>
+    <div class="sidebar-icon" title="Settings">⚙️</div>
   </div>
 
-  <h2>FlowAI Studio</h2>
-
-  <div class="mode-container">
-    <button class="mode-btn active" id="imgModeBtn" onclick="setMode('image')">🖼️ Image Mode</button>
-    <button class="mode-btn" id="videoModeBtn" onclick="setMode('video')">🎥 Video Mode</button>
-  </div>
-
-  <textarea id="promptInput" placeholder="Enter your prompt here..."></textarea><br>
-  <button class="gen-btn" id="genBtn" onclick="generateMedia()">Generate</button>
-
-  <div id="status"></div>
-  <div class="result-box" id="resultContainer"></div>
-
-  <div class="modal" id="paymentModal">
-    <div class="modal-content">
-      <h3>Choose Payment Method</h3>
-      <p style="color: #aaa; font-size: 14px;">Get Unlimited AI Generations</p>
-      <div class="pay-option" onclick="processPay('UPI / QR Code')">📱 UPI / QR Code</div>
-      <div class="pay-option" onclick="processPay('Credit / Debit Card')">💳 Credit / Debit Card</div>
-      <div class="pay-option" onclick="processPay('Net Banking')">🏦 Net Banking</div>
-      <button class="close-btn" onclick="closePayment()">Cancel</button>
+  <!-- Main Workspace -->
+  <div class="main-content">
+    
+    <!-- Navbar -->
+    <div class="navbar">
+      <div class="logo">FlowAI Studio</div>
+      <div class="credits-badge">⚡ Credits: 50 Free</div>
     </div>
+
+    <!-- VIEW 1: Dashboard Home -->
+    <div id="dashboardView" class="dashboard-container">
+      <div class="hero-banner">
+        <div>
+          <h2>Create Cinematic AI Media</h2>
+          <p style="color: #9ca3af; margin: 5px 0 0 0;">Transform your imagination into high-quality images and videos instantly.</p>
+        </div>
+        <button class="new-project-btn" onclick="switchView('studio')">+ New Project</button>
+      </div>
+
+      <div class="section-title">Recent Creations</div>
+      <div class="gallery-grid">
+        <div class="card" onclick="switchView('studio')">
+          <div class="card-thumbnail">🎬 Sci-Fi City Loop</div>
+          <div class="card-footer">Aug 27, 04:15 PM</div>
+        </div>
+        <div class="card" onclick="switchView('studio')">
+          <div class="card-thumbnail">🏎️ Scorpio N Desert</div>
+          <div class="card-footer">Aug 27, 03:50 PM</div>
+        </div>
+        <div class="card" onclick="switchView('studio')">
+          <div class="card-thumbnail">🐉 Crystal Dragon</div>
+          <div class="card-footer">Aug 26, 11:20 PM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: Creation Studio (Like Google Flow) -->
+    <div id="studioView">
+      <div class="workspace-preview" id="previewArea">
+        Start creating or drop media here...
+      </div>
+
+      <div class="prompt-box-container">
+        <textarea class="prompt-input" id="userPrompt" placeholder="What do you want to create? (e.g. Cinematic drone shot...)"></textarea>
+        <div class="prompt-actions">
+          <div style="font-size: 13px; color: #9ca3af;">Mode: AI Video / Image Generator</div>
+          <button class="generate-action-btn" onclick="startGeneration()">Generate 🚀</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
-    let credits = 4;
-    let selectedMode = 'image';
-
-    function setMode(mode) {
-      selectedMode = mode;
-      document.getElementById('imgModeBtn').classList.toggle('active', mode === 'image');
-      document.getElementById('videoModeBtn').classList.toggle('active', mode === 'video');
+    function switchView(viewName) {
+      const dashboard = document.getElementById('dashboardView');
+      const studio = document.getElementById('studioView');
+      
+      if (viewName === 'studio') {
+        dashboard.style.display = 'none';
+        studio.style.display = 'flex';
+      } else {
+        dashboard.style.display = 'block';
+        studio.style.display = 'none';
+      }
     }
 
-    async function generateMedia() {
-      const prompt = document.getElementById('promptInput').value;
-      const statusDiv = document.getElementById('status');
-      const resultContainer = document.getElementById('resultContainer');
-      const btn = document.getElementById('genBtn');
+    async function startGeneration() {
+      const prompt = document.getElementById('userPrompt').value;
+      const previewArea = document.getElementById('previewArea');
 
       if (!prompt) {
         alert("Please enter a prompt!");
         return;
       }
 
-      if (credits <= 0) {
-        alert("Free credits finished! Please buy premium credits.");
-        openPayment();
-        return;
-      }
-
-      statusDiv.innerText = selectedMode === 'video' ? "Generating Video..." : "Generating Image...";
-      resultContainer.innerHTML = "";
-      btn.disabled = true;
+      previewArea.innerHTML = "Generating your AI creation... Please wait ⏳";
 
       try {
         const response = await fetch('/generate-media', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, mode: selectedMode })
+          body: JSON.stringify({ prompt: prompt, mode: 'image' })
         });
 
         const data = await response.json();
-
-        if (data.error) {
-          statusDiv.innerText = "Error: " + data.error;
-        } else if (data.url) {
-          statusDiv.innerText = "Success!";
-          
-          if (data.type === 'video') {
-            resultContainer.innerHTML = `
-              <video src="${data.url}" controls autoplay loop muted playsinline></video>
-              <a href="${data.url}" class="download-btn" target="_blank">⬇️ Download Video</a>
-            `;
-          } else {
-            resultContainer.innerHTML = `
-              <img src="${data.url}" alt="Generated Image"/>
-              <a href="${data.url}" class="download-btn" target="_blank" download="image.jpg">⬇️ Download Image</a>
-            `;
-          }
-
-          credits--;
-          document.getElementById('creditCount').innerText = credits;
+        if (data.url) {
+          previewArea.innerHTML = `<img src="${data.url}" style="max-height:100%; max-width:100%; border-radius:12px;" />`;
+        } else {
+          previewArea.innerHTML = "Error generating media.";
         }
       } catch (err) {
-        statusDiv.innerText = "Error: " + err.message;
-      } finally {
-        btn.disabled = false;
+        previewArea.innerHTML = "Server Error: " + err.message;
       }
     }
-
-    function openPayment() { document.getElementById('paymentModal').style.display = 'flex'; }
-    function closePayment() { document.getElementById('paymentModal').style.display = 'none'; }
-    function processPay(method) { alert(`Redirecting to ${method}...`); closePayment(); }
   </script>
 </body>
 </html>
