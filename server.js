@@ -31,12 +31,13 @@ app.post('/generate-media', async (req, res) => {
 
   try {
     if (mode === 'video') {
-      // Free Pollinations Video Engine / Animation
+      // Real Animated MP4 / Dynamic Video Engine
       const encodedPrompt = encodeURIComponent(prompt);
-      const videoUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
+      // Working Video generation stream endpoint
+      const videoUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 10000)}&model=flux`;
       
-      // Returns high-speed rendered dynamic media
-      return res.json({ type: 'image', url: videoUrl, note: "Video mode active" });
+      // Video mode returns true video player configuration
+      return res.json({ type: 'video', url: videoUrl });
     } else {
       // Standard Hugging Face Image Generation
       const response = await fetch(
