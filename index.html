@@ -1,873 +1,217 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FlowAI Studio</title>
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+
+/* =========================
+   FIREBASE
+========================= */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBp_2OzwhX39EP6GIYpSR6WbFBqHNGKwqY",
+  authDomain: "flowai-studio.firebaseapp.com",
+  projectId: "flowai-studio",
+  storageBucket: "flowai-studio.firebasestorage.app",
+  messagingSenderId: "990645093332",
+  appId: "1:990645093332:web:27b88ffc3ee92d8b248c41",
+  measurementId: "G-X3Z5XL1QLK"
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const googleProvider =
+  new GoogleAuthProvider();
 
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-
-body{
-  font-family:Arial,Helvetica,sans-serif;
-  background:#08080c;
-  color:#fff;
-  min-height:100vh;
-}
-
-button,input{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-}
-
-/* LOGIN */
-
-.auth-page{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  background:
-    radial-gradient(circle at 50% 20%,rgba(124,58,237,.18),transparent 35%),
-    #08080c;
-}
-
-.auth-box{
-  width:100%;
-  max-width:420px;
-  background:#111116;
-  border:1px solid #292932;
-  border-radius:18px;
-  padding:30px;
-  box-shadow:0 20px 80px rgba(0,0,0,.5);
-}
-
-.auth-logo{
-  text-align:center;
-  font-size:25px;
-  font-weight:bold;
-  color:#a66cff;
-  margin-bottom:28px;
-}
-
-.auth-title{
-  font-size:25px;
-  text-align:center;
-  margin-bottom:8px;
-}
-
-.auth-subtitle{
-  color:#777;
-  text-align:center;
-  font-size:13px;
-  margin-bottom:25px;
-}
-
-.google-btn,
-.auth-btn{
-  width:100%;
-  padding:13px;
-  border-radius:9px;
-  border:1px solid #34343e;
-  background:#19191f;
-  color:#fff;
-  margin-bottom:12px;
-  font-weight:bold;
-}
-
-.google-btn{
-  background:#fff;
-  color:#111;
-  border-color:#fff;
-}
-
-.google-btn:hover{
-  background:#eee;
-}
-
-.divider{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  color:#666;
-  font-size:11px;
-  margin:18px 0;
-}
-
-.divider:before,
-.divider:after{
-  content:"";
-  height:1px;
-  background:#2b2b34;
-  flex:1;
-}
-
-.auth-input{
-  width:100%;
-  background:#0b0b10;
-  color:#fff;
-  border:1px solid #30303a;
-  border-radius:8px;
-  padding:13px;
-  margin-bottom:12px;
-  outline:none;
-}
-
-.auth-input:focus{
-  border-color:#8b5cf6;
-}
-
-.auth-btn{
-  background:linear-gradient(135deg,#7c3aed,#9333ea);
-  border:0;
-}
-
-.switch{
-  text-align:center;
-  color:#777;
-  font-size:12px;
-  margin-top:18px;
-}
-
-.switch span{
-  color:#a66cff;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.auth-error{
-  display:none;
-  background:#351719;
-  border:1px solid #7f1d1d;
-  color:#fca5a5;
-  padding:10px;
-  border-radius:8px;
-  font-size:12px;
-  margin-bottom:12px;
-}
-
-/* APP */
-
-.app{
-  display:none;
-  min-height:100vh;
-}
-
-.topbar{
-  height:58px;
-  background:#111116;
-  border-bottom:1px solid #24242d;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 18px;
-}
-
-.logo{
-  color:#a66cff;
-  font-weight:bold;
-  font-size:16px;
-}
-
-.user-area{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-size:11px;
-}
-
-.user-email{
-  color:#aaa;
-}
-
-.credits{
-  background:#24232d;
-  padding:7px 12px;
-  border-radius:20px;
-}
-
-.logout{
-  border:0;
-  background:#ef4444;
-  color:white;
-  padding:7px 12px;
-  border-radius:6px;
-  font-size:11px;
-}
-
-.layout{
-  display:flex;
-  min-height:calc(100vh - 58px);
-}
-
-.sidebar{
-  width:52px;
-  background:#111116;
-  border-right:1px solid #24242d;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding-top:10px;
-  gap:8px;
-}
-
-.side-btn{
-  width:38px;
-  height:38px;
-  border:0;
-  background:transparent;
-  color:#aaa;
-  border-radius:8px;
-  font-size:18px;
-}
-
-.side-btn.active{
-  background:#7c3aed;
-  color:white;
-}
-
-.main{
-  flex:1;
-  max-width:1100px;
-  margin:auto;
-  padding:30px;
-}
-
-/* DASHBOARD */
-
-.dashboard{
-  display:block;
-}
-
-.welcome{
-  margin-bottom:30px;
-}
-
-.welcome h1{
-  font-size:28px;
-  margin-bottom:8px;
-}
-
-.welcome p{
-  color:#777;
-  font-size:14px;
-}
-
-.new-project{
-  width:100%;
-  min-height:180px;
-  border:1px solid #302c3c;
-  border-radius:16px;
-  background:
-    linear-gradient(135deg,rgba(124,58,237,.15),rgba(17,17,22,.9));
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  gap:12px;
-  transition:.2s;
-}
-
-.new-project:hover{
-  border-color:#8b5cf6;
-  transform:translateY(-2px);
-}
-
-.plus{
-  width:55px;
-  height:55px;
-  border-radius:50%;
-  background:#7c3aed;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:30px;
-}
-
-.new-title{
-  font-size:18px;
-  font-weight:bold;
-}
-
-.new-desc{
-  color:#777;
-  font-size:12px;
-}
-
-.section-title{
-  margin:30px 0 15px;
-  font-size:15px;
-}
-
-.projects{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:15px;
-}
-
-.project-card{
-  min-height:130px;
-  border:1px solid #292932;
-  border-radius:12px;
-  background:#111116;
-  padding:16px;
-  color:#aaa;
-}
-
-.project-card strong{
-  display:block;
-  color:white;
-  margin-bottom:8px;
-}
-
-.empty{
-  color:#666;
-  font-size:12px;
-}
-
-/* STUDIO */
-
-.studio{
-  display:none;
-}
-
-.back{
-  border:1px solid #292934;
-  background:#121218;
-  color:#ddd;
-  padding:8px 14px;
-  border-radius:7px;
-  font-size:12px;
-  margin-bottom:18px;
-}
-
-.title{
-  font-size:22px;
-  margin-bottom:5px;
-}
-
-.subtitle{
-  color:#777;
-  font-size:13px;
-  margin-bottom:18px;
-}
-
-.editor{
-  border:1px solid #272731;
-  background:#101015;
-  border-radius:12px;
-  overflow:hidden;
-}
-
-.prompt-area{
-  padding:18px;
-}
-
-label{
-  display:block;
-  color:#aaa;
-  font-size:13px;
-  margin-bottom:8px;
-}
-
-textarea{
-  width:100%;
-  min-height:170px;
-  resize:vertical;
-  background:#0b0b10;
-  border:1px solid #30303a;
-  color:#fff;
-  border-radius:9px;
-  padding:15px;
-  font-size:14px;
-  line-height:1.5;
-  outline:none;
-}
-
-.controls{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:15px 18px;
-  border-top:1px solid #25252e;
-  gap:10px;
-}
-
-.modes{
-  display:flex;
-  gap:8px;
-}
-
-.mode{
-  border:1px solid #30303a;
-  background:#19191f;
-  color:#aaa;
-  padding:9px 15px;
-  border-radius:20px;
-}
-
-.mode.active{
-  background:#7c3aed;
-  color:white;
-}
-
-.generate{
-  border:0;
-  background:linear-gradient(135deg,#7c3aed,#9333ea);
-  color:white;
-  padding:11px 24px;
-  border-radius:8px;
-  font-weight:bold;
-}
-
-.result{
-  margin-top:18px;
-  border:1px solid #272731;
-  background:#101015;
-  border-radius:12px;
-  padding:18px;
-  min-height:180px;
-}
-
-.result-title{
-  font-size:14px;
-  font-weight:bold;
-  margin-bottom:12px;
-}
-
-.placeholder{
-  min-height:130px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#666;
-  font-size:13px;
-}
-
-@media(max-width:700px){
-
-  .main{
-    padding:18px 10px;
-  }
-
-  .projects{
-    grid-template-columns:1fr;
-  }
-
-  .welcome h1{
-    font-size:23px;
-  }
-
-  .user-email{
-    display:none;
-  }
-
-  .controls{
-    flex-direction:column;
-    align-items:stretch;
-  }
-
-  .modes{
-    width:100%;
-  }
-
-  .mode{
-    flex:1;
-  }
-
-  .generate{
-    width:100%;
-  }
-
-  .auth-box{
-    padding:24px 18px;
-  }
-}
-</style>
-</head>
-
-<body>
-
-
-<!-- =========================
-     LOGIN / SIGNUP
-========================= -->
-
-<section class="auth-page" id="authPage">
-
-  <div class="auth-box">
-
-    <div class="auth-logo">
-      FlowAI Studio
-    </div>
-
-    <h1 class="auth-title" id="authTitle">
-      Welcome back
-    </h1>
-
-    <p class="auth-subtitle" id="authSubtitle">
-      Sign in to continue to FlowAI Studio
-    </p>
-
-    <div class="auth-error" id="authError"></div>
-
-    <button class="google-btn" onclick="googleLogin()">
-      🔵 Continue with Google
-    </button>
-
-    <div class="divider">
-      OR
-    </div>
-
-    <div id="signupNameBox" style="display:none">
-      <input
-        class="auth-input"
-        id="nameInput"
-        placeholder="Your name"
-      >
-    </div>
-
-    <input
-      class="auth-input"
-      id="emailInput"
-      type="email"
-      placeholder="Email address"
-    >
-
-    <input
-      class="auth-input"
-      id="passwordInput"
-      type="password"
-      placeholder="Password"
-    >
-
-    <button
-      class="auth-btn"
-      onclick="emailAuth()"
-      id="authButton"
-    >
-      Login
-    </button>
-
-    <div class="switch" id="switchText">
-      Don't have an account?
-      <span onclick="showSignup()">Create account</span>
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =========================
-     MAIN APP
-========================= -->
-
-<section class="app" id="app">
-
-<header class="topbar">
-
-  <div class="logo">
-    FlowAI Studio
-  </div>
-
-  <div class="user-area">
-
-    <span
-      class="user-email"
-      id="userEmail"
-    >
-      User
-    </span>
-
-    <span class="credits">
-      ⚡ <span id="credits">50</span> Credits
-    </span>
-
-    <button
-      class="logout"
-      onclick="logout()"
-    >
-      Logout
-    </button>
-
-  </div>
-
-</header>
-
-
-<div class="layout">
-
-  <aside class="sidebar">
-
-    <button
-      class="side-btn active"
-      onclick="showDashboard()"
-    >
-      🏠
-    </button>
-
-    <button class="side-btn">
-      ✨
-    </button>
-
-    <button class="side-btn">
-      🔍
-    </button>
-
-    <button class="side-btn">
-      ⚙️
-    </button>
-
-  </aside>
-
-
-  <main class="main">
-
-
-    <!-- DASHBOARD -->
-
-    <div
-      class="dashboard"
-      id="dashboard"
-    >
-
-      <div class="welcome">
-
-        <h1>
-          Welcome to FlowAI Studio
-        </h1>
-
-        <p>
-          Create cinematic AI images and videos from your ideas.
-        </p>
-
-      </div>
-
-
-      <button
-        class="new-project"
-        onclick="newProject()"
-      >
-
-        <div class="plus">
-          +
-        </div>
-
-        <div class="new-title">
-          New project
-        </div>
-
-        <div class="new-desc">
-          Start creating with AI
-        </div>
-
-      </button>
-
-
-      <div class="section-title">
-        Recent projects
-      </div>
-
-
-      <div class="projects">
-
-        <div class="project-card">
-
-          <strong>
-            Create your first project
-          </strong>
-
-          <span class="empty">
-            Your projects will appear here.
-          </span>
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <!-- AI STUDIO -->
-
-    <div
-      class="studio"
-      id="studio"
-    >
-
-      <button
-        class="back"
-        onclick="showDashboard()"
-      >
-        ← Back
-      </button>
-
-
-      <h1 class="title">
-        Create Cinematic AI Media
-      </h1>
-
-      <p class="subtitle">
-        Describe what you want to create.
-      </p>
-
-
-      <section class="editor">
-
-        <div class="prompt-area">
-
-          <label>
-            Describe your image or video
-          </label>
-
-          <textarea
-            id="prompt"
-            placeholder="Example: A cinematic futuristic city at night, neon lights, rain, ultra realistic..."
-          ></textarea>
-
-        </div>
-
-
-        <div class="controls">
-
-          <div class="modes">
-
-            <button
-              class="mode active"
-              id="imageMode"
-              onclick="setMode('image')"
-            >
-              🖼️ Image
-            </button>
-
-            <button
-              class="mode"
-              id="videoMode"
-              onclick="setMode('video')"
-            >
-              🎬 Video
-            </button>
-
-          </div>
-
-
-          <button
-            class="generate"
-            onclick="generateMedia()"
-          >
-            ✨ Generate
-          </button>
-
-        </div>
-
-      </section>
-
-
-      <section class="result">
-
-        <div class="result-title">
-          Generated Result
-        </div>
-
-        <div
-          class="placeholder"
-          id="placeholder"
-        >
-          Your generated image or video will appear here.
-        </div>
-
-        <div id="output"></div>
-
-      </section>
-
-    </div>
-
-  </main>
-
-</div>
-
-</section>
-
-
-<script>
 
 let signupMode = false;
 let currentMode = "image";
 
 
 /* =========================
-   LOGIN SCREEN
+   ERROR
 ========================= */
 
-function showSignup(){
+function showAuthError(message){
 
-  signupMode = true;
+  const box =
+    document.getElementById("authError");
 
-  document.getElementById("authTitle").innerText =
-    "Create your account";
+  box.innerText = message;
 
-  document.getElementById("authSubtitle").innerText =
-    "Join FlowAI Studio and start creating";
-
-  document.getElementById("signupNameBox").style.display =
-    "block";
-
-  document.getElementById("authButton").innerText =
-    "Sign up";
-
-  document.getElementById("switchText").innerHTML =
-    'Already have an account? <span onclick="showLogin()">Login</span>';
-
+  box.style.display = "block";
 }
 
 
-function showLogin(){
+function hideAuthError(){
 
-  signupMode = false;
+  document.getElementById("authError")
+    .style.display = "none";
+}
 
-  document.getElementById("authTitle").innerText =
-    "Welcome back";
 
-  document.getElementById("authSubtitle").innerText =
-    "Sign in to continue to FlowAI Studio";
+function firebaseError(error){
 
-  document.getElementById("signupNameBox").style.display =
-    "none";
+  switch(error.code){
 
-  document.getElementById("authButton").innerText =
-    "Login";
+    case "auth/invalid-credential":
+      return "Email or password is incorrect.";
 
-  document.getElementById("switchText").innerHTML =
-    'Don\'t have an account? <span onclick="showSignup()">Create account</span>';
+    case "auth/invalid-email":
+      return "Please enter a valid email address.";
 
+    case "auth/user-not-found":
+      return "No account found with this email.";
+
+    case "auth/wrong-password":
+      return "Incorrect password.";
+
+    case "auth/email-already-in-use":
+      return "An account already exists with this email.";
+
+    case "auth/weak-password":
+      return "Password must be at least 6 characters.";
+
+    case "auth/popup-blocked":
+      return "Google login was blocked by the browser.";
+
+    case "auth/unauthorized-domain":
+      return "This website domain is not authorized in Firebase.";
+
+    case "auth/network-request-failed":
+      return "Network error. Check your internet connection.";
+
+    default:
+      return error.message ||
+        "Something went wrong. Please try again.";
+  }
 }
 
 
 /* =========================
-   TEMP EMAIL AUTH
+   GOOGLE LOGIN
 ========================= */
 
-function emailAuth(){
+window.googleLogin = async function(){
 
-  const email =
-    document.getElementById("emailInput").value.trim();
+  hideAuthError();
 
-  const password =
-    document.getElementById("passwordInput").value;
+  const button =
+    document.querySelector(".google-btn");
 
-  const name =
-    document.getElementById("nameInput").value.trim();
+  button.disabled = true;
 
+  button.innerText =
+    "Connecting to Google...";
 
-  if(!email || !password){
+  try{
+
+    await signInWithRedirect(
+      auth,
+      googleProvider
+    );
+
+  }catch(error){
+
+    console.error(error);
 
     showAuthError(
-      "Please enter email and password."
+      firebaseError(error)
+    );
+
+    button.disabled = false;
+
+    button.innerText =
+      "🔵 Continue with Google";
+  }
+};
+
+
+/* =========================
+   GOOGLE REDIRECT RESULT
+========================= */
+
+getRedirectResult(auth)
+  .then((result) => {
+
+    if(result && result.user){
+
+      saveUser(result.user);
+
+      openApp(result.user);
+    }
+
+  })
+  .catch((error) => {
+
+    console.error(error);
+
+    showAuthError(
+      firebaseError(error)
+    );
+
+  });
+
+
+/* =========================
+   EMAIL LOGIN / SIGNUP
+========================= */
+
+window.emailAuth = async function(){
+
+  hideAuthError();
+
+  const email =
+    document
+      .getElementById("emailInput")
+      .value
+      .trim();
+
+  const password =
+    document
+      .getElementById("passwordInput")
+      .value;
+
+  const name =
+    document
+      .getElementById("nameInput")
+      .value
+      .trim();
+
+  const button =
+    document.getElementById("authButton");
+
+
+  if(!email){
+
+    showAuthError(
+      "Please enter your email address."
+    );
+
+    return;
+  }
+
+
+  if(!password){
+
+    showAuthError(
+      "Please enter your password."
     );
 
     return;
@@ -884,53 +228,177 @@ function emailAuth(){
   }
 
 
-  /*
-    Temporary local account.
+  button.disabled = true;
 
-    Real secure authentication will be
-    connected in the next step.
-  */
+  button.innerText =
+    signupMode
+    ? "Creating account..."
+    : "Logging in...";
 
-  const user = {
-    name: signupMode ? name : email.split("@")[0],
-    email: email
-  };
+
+  try{
+
+    let user;
+
+
+    /* SIGN UP */
+
+    if(signupMode){
+
+      const result =
+        await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+      user = result.user;
+
+
+      await updateProfile(
+        user,
+        {
+          displayName: name
+        }
+      );
+
+    }
+
+    /* LOGIN */
+
+    else{
+
+      const result =
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+      user = result.user;
+    }
+
+
+    saveUser(user);
+
+    openApp(user);
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showAuthError(
+      firebaseError(error)
+    );
+
+    button.disabled = false;
+
+    button.innerText =
+      signupMode
+      ? "Sign up"
+      : "Login";
+  }
+};
+
+
+/* =========================
+   SAVE USER
+========================= */
+
+function saveUser(user){
 
   localStorage.setItem(
     "flowai_user",
-    JSON.stringify(user)
-  );
+    JSON.stringify({
 
-  openApp(user);
+      uid: user.uid,
+
+      name:
+        user.displayName ||
+        user.email?.split("@")[0] ||
+        "User",
+
+      email:
+        user.email || ""
+
+    })
+  );
 }
 
 
 /* =========================
-   GOOGLE
+   SHOW SIGNUP
 ========================= */
 
-function googleLogin(){
+window.showSignup = function(){
 
-  showAuthError(
-    "Google login will be connected with Google Firebase authentication in the next step."
-  );
+  signupMode = true;
 
-}
+  hideAuthError();
+
+  document
+    .getElementById("authTitle")
+    .innerText =
+    "Create your account";
+
+  document
+    .getElementById("authSubtitle")
+    .innerText =
+    "Join FlowAI Studio and start creating";
+
+  document
+    .getElementById("signupNameBox")
+    .style.display =
+    "block";
+
+  document
+    .getElementById("authButton")
+    .innerText =
+    "Sign up";
+
+  document
+    .getElementById("switchText")
+    .innerHTML =
+    'Already have an account? <span onclick="showLogin()">Login</span>';
+};
 
 
 /* =========================
-   ERROR
+   SHOW LOGIN
 ========================= */
 
-function showAuthError(message){
+window.showLogin = function(){
 
-  const box =
-    document.getElementById("authError");
+  signupMode = false;
 
-  box.innerText = message;
-  box.style.display = "block";
+  hideAuthError();
 
-}
+  document
+    .getElementById("authTitle")
+    .innerText =
+    "Welcome back";
+
+  document
+    .getElementById("authSubtitle")
+    .innerText =
+    "Sign in to continue to FlowAI Studio";
+
+  document
+    .getElementById("signupNameBox")
+    .style.display =
+    "none";
+
+  document
+    .getElementById("authButton")
+    .innerText =
+    "Login";
+
+  document
+    .getElementById("switchText")
+    .innerHTML =
+    'Don\'t have an account? <span onclick="showSignup()">Create account</span>';
+};
 
 
 /* =========================
@@ -939,14 +407,20 @@ function showAuthError(message){
 
 function openApp(user){
 
-  document.getElementById("authPage").style.display =
+  document
+    .getElementById("authPage")
+    .style.display =
     "none";
 
-  document.getElementById("app").style.display =
+  document
+    .getElementById("app")
+    .style.display =
     "block";
 
-  document.getElementById("userEmail").innerText =
-    user.email;
+  document
+    .getElementById("userEmail")
+    .innerText =
+    user.email || "User";
 
   showDashboard();
 }
@@ -956,32 +430,39 @@ function openApp(user){
    DASHBOARD
 ========================= */
 
-function showDashboard(){
+window.showDashboard = function(){
 
-  document.getElementById("dashboard").style.display =
+  document
+    .getElementById("dashboard")
+    .style.display =
     "block";
 
-  document.getElementById("studio").style.display =
+  document
+    .getElementById("studio")
+    .style.display =
     "none";
-}
+};
 
 
-function newProject(){
+window.newProject = function(){
 
-  document.getElementById("dashboard").style.display =
+  document
+    .getElementById("dashboard")
+    .style.display =
     "none";
 
-  document.getElementById("studio").style.display =
+  document
+    .getElementById("studio")
+    .style.display =
     "block";
-
-}
+};
 
 
 /* =========================
    MODE
 ========================= */
 
-function setMode(mode){
+window.setMode = function(mode){
 
   currentMode = mode;
 
@@ -998,18 +479,20 @@ function setMode(mode){
       "active",
       mode === "video"
     );
-
-}
+};
 
 
 /* =========================
-   GENERATION
+   GENERATE
 ========================= */
 
-async function generateMedia(){
+window.generateMedia = async function(){
 
   const prompt =
-    document.getElementById("prompt").value.trim();
+    document
+      .getElementById("prompt")
+      .value
+      .trim();
 
   if(!prompt){
 
@@ -1031,7 +514,6 @@ async function generateMedia(){
     ? "Generating your video..."
     : "Generating your image...";
 
-
   output.innerHTML = "";
 
 
@@ -1049,8 +531,11 @@ async function generateMedia(){
           },
 
           body:JSON.stringify({
-            prompt:prompt,
-            mode:currentMode
+
+            prompt: prompt,
+
+            mode: currentMode
+
           })
         }
       );
@@ -1066,7 +551,6 @@ async function generateMedia(){
         data.error ||
         "Generation failed"
       );
-
     }
 
 
@@ -1077,7 +561,9 @@ async function generateMedia(){
           src="${data.url}"
           style="width:100%;border-radius:10px"
         >
+
         <br><br>
+
         <a
           href="${data.url}"
           target="_blank"
@@ -1086,7 +572,6 @@ async function generateMedia(){
           ⬇ Download Image
         </a>
       `;
-
     }
 
 
@@ -1099,7 +584,9 @@ async function generateMedia(){
           playsinline
           style="width:100%;border-radius:10px"
         ></video>
+
         <br><br>
+
         <a
           href="${data.url}"
           target="_blank"
@@ -1108,67 +595,60 @@ async function generateMedia(){
           ⬇ Download Video
         </a>
       `;
-
     }
 
 
     placeholder.innerText =
       "Generation complete.";
 
+
   }catch(error){
+
+    console.error(error);
 
     placeholder.innerText =
       "Generation failed: " +
       error.message;
-
   }
-
-}
+};
 
 
 /* =========================
    LOGOUT
 ========================= */
 
-function logout(){
+window.logout = async function(){
+
+  try{
+
+    await signOut(auth);
+
+  }catch(error){
+
+    console.error(error);
+  }
 
   localStorage.removeItem(
     "flowai_user"
   );
 
   location.reload();
-
-}
+};
 
 
 /* =========================
-   AUTO LOGIN
+   AUTH STATE
 ========================= */
 
-document.addEventListener(
-  "DOMContentLoaded",
-  function(){
+onAuthStateChanged(
+  auth,
+  function(user){
 
-    const saved =
-      localStorage.getItem(
-        "flowai_user"
-      );
+    if(user){
 
-    if(saved){
+      saveUser(user);
 
-      try{
-
-        openApp(
-          JSON.parse(saved)
-        );
-
-      }catch(e){
-
-        localStorage.removeItem(
-          "flowai_user"
-        );
-
-      }
+      openApp(user);
 
     }
 
@@ -1176,6 +656,3 @@ document.addEventListener(
 );
 
 </script>
-
-</body>
-</html>
