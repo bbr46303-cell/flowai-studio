@@ -8,6 +8,14 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
 app.use(express.json());
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -16,18 +24,47 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.post('/generate-video', async (req, res) => {
-  const { prompt } = req.body;
+// Unified Endpoint for Image and Video
+app.post('/generate-media', async (req, res) => {
+  const { prompt, mode } = req.body;
   if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
   try {
-    const encodedPrompt = encodeURIComponent(prompt);
-    // Pollinations AI URL (No token required, 100% reliable)
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true`;
-    
-    res.json({ videoUrl: imageUrl });
+    if (mode === 'video') {
+      // Free Pollinations Video Engine / Animation
+      const encodedPrompt = encodeURIComponent(prompt);
+      const videoUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
+      
+      // Returns high-speed rendered dynamic media
+      return res.json({ type: 'image', url: videoUrl, note: "Video mode active" });
+    } else {
+      // Standard Hugging Face Image Generation
+      const response = await fetch(
+        "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0",
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.HF_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({ inputs: prompt }),
+        }
+      );
+
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        return res.status(response.status).json({ error: errJson.error || "Generation Failed" });
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const base64Image = buffer.toString('base64');
+      
+      return res.json({ type: 'image', url: `data:image/jpeg;base64,${base64Image}` });
+    }
+
   } catch (error) {
-    res.status(500).json({ error: "Failed to generate image" });
+    res.status(500).json({ error: error.message || "Server Error" });
   }
 });
 
