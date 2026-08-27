@@ -4,45 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FlowAI Studio - Google Labs Style</title>
-  
-  <!-- Firebase SDKs -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBp_20zwhX39EP6GlYpSR6W27b88ffc3ee",
-      authDomain: "flowai-studio.firebaseapp.com",
-      projectId: "flowai-studio",
-      storageBucket: "flowai-studio.appspot.com",
-      messagingSenderId: "998645093332",
-      appId: "1:998645093332:web:27b88ffc3ee92d8b248c41",
-      measurementId: "G-X3Z5XL1QlK"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    window.auth = auth;
-    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-    window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-    window.signOut = signOut;
-
-    onAuthStateChanged(auth, (user) => {
-      const appContainer = document.getElementById('appContainer');
-      const authOverlay = document.getElementById('authOverlay');
-      const userEmailDisplay = document.getElementById('userEmailDisplay');
-
-      if (user) {
-        appContainer.style.display = 'flex';
-        authOverlay.style.display = 'none';
-        userEmailDisplay.innerText = user.email;
-      } else {
-        appContainer.style.display = 'none';
-        authOverlay.style.display = 'flex';
-      }
-    });
-  </script>
 
   <style>
     :root { bg: #0b0b0f; card: #16161d; accent: #3b82f6; text: #f3f4f6; muted: #9ca3af; border: #1f1f2e; }
@@ -90,12 +51,12 @@
     
     .back-dashboard { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-bottom: 10px; align-self: flex-start; }
 
-    /* Full Screen Login Overlay - Fixed Blue Button */
+    /* Full Screen Login Overlay */
     #authOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; padding: 20px; box-sizing: border-box; }
     .auth-card { background: var(--card); padding: 25px; border-radius: 20px; width: 100%; max-width: 340px; border: 1px solid var(--border); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); margin: auto; }
     .auth-input { width: 100%; padding: 12px; margin: 10px 0; background: #0b0b0f; border: 1px solid var(--border); color: #fff; border-radius: 10px; box-sizing: border-box; font-size: 14px; outline: none; }
     
-    /* 🔵 Bright Blue Button Styling */
+    /* 🔵 Bright Blue Button */
     .auth-submit-btn { width: 100%; padding: 14px; background: #2563eb; color: #ffffff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
     .auth-submit-btn:hover { background: #1d4ed8; }
 
@@ -104,21 +65,17 @@
 </head>
 <body>
 
-  <!-- Mandatory Login / Signup Fullscreen Overlay -->
+  <!-- Mandatory Login / Signup Overlay -->
   <div id="authOverlay">
     <div class="auth-card">
       <h2 id="modalTitle" style="margin-top:0; background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">FlowAI Studio</h2>
-      <p style="color: var(--muted); font-size: 13px; margin-bottom: 15px;">Please login or sign up to access the AI Studio.</p>
+      <p style="color: var(--muted); font-size: 13px; margin-bottom: 15px;">Please login to access the AI Studio.</p>
       
       <input type="email" id="authEmail" class="auth-input" placeholder="Email address">
       <input type="password" id="authPassword" class="auth-input" placeholder="Password">
       
       <!-- 🔵 Blue Button -->
-      <button class="auth-submit-btn" id="authSubmitBtn" onclick="handleAuthAction()">Login</button>
-      
-      <div>
-        <span class="auth-toggle" id="toggleAuthText" onclick="toggleAuthMode()">Don't have an account? Sign up</span>
-      </div>
+      <button class="auth-submit-btn" id="authSubmitBtn" onclick="handleLogin()">Login / Enter</button>
     </div>
   </div>
 
@@ -180,7 +137,42 @@
 
   <script>
     let currentMode = 'image';
-    let isSignupMode = false;
+
+    // Check if already logged in via browser storage
+    window.onload = function() {
+      const savedUser = localStorage.getItem('flowai_user');
+      if (savedUser) {
+        showApp(savedUser);
+      }
+    }
+
+    function handleLogin() {
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+
+      if (!email || !password) {
+        alert("Please enter email and password!");
+        return;
+      }
+
+      // Save session locally and enter app
+      localStorage.setItem('flowai_user', email);
+      showApp(email);
+    }
+
+    function showApp(email) {
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('appContainer').style.display = 'flex';
+      document.getElementById('userEmailDisplay').innerText = email;
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('flowai_user');
+      document.getElementById('authOverlay').style.display = 'flex';
+      document.getElementById('appContainer').style.display = 'none';
+      document.getElementById('authEmail').value = '';
+      document.getElementById('authPassword').value = '';
+    }
 
     function switchView(viewName) {
       document.getElementById('dashboardView').style.display = viewName === 'studio' ? 'none' : 'block';
@@ -191,43 +183,6 @@
       currentMode = mode;
       document.getElementById('modeImgBtn').classList.toggle('active', mode === 'image');
       document.getElementById('modeVidBtn').classList.toggle('active', mode === 'video');
-    }
-
-    function toggleAuthMode() {
-      isSignupMode = !isSignupMode;
-      document.getElementById('modalTitle').innerText = isSignupMode ? "Create Account" : "FlowAI Studio";
-      document.getElementById('authSubmitBtn').innerText = isSignupMode ? "Sign Up" : "Login";
-      document.getElementById('toggleAuthText').innerText = isSignupMode ? "Already have an account? Login" : "Don't have an account? Sign up";
-    }
-
-    async function handleAuthAction() {
-      const email = document.getElementById('authEmail').value;
-      const password = document.getElementById('authPassword').value;
-
-      if (!email || !password) {
-        alert("Please enter email and password!");
-        return;
-      }
-
-      try {
-        if (isSignupMode) {
-          await window.createUserWithEmailAndPassword(window.auth, email, password);
-          alert("Account created successfully!");
-        } else {
-          await window.signInWithEmailAndPassword(window.auth, email, password);
-          alert("Logged in successfully!");
-        }
-      } catch (error) {
-        alert("Error: " + error.message);
-      }
-    }
-
-    async function handleLogout() {
-      try {
-        await window.signOut(window.auth);
-      } catch (error) {
-        alert("Error logging out: " + error.message);
-      }
     }
 
     async function startGeneration() {
