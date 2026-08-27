@@ -4,64 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FlowAI Studio</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #121212; color: #fff; text-align: center; }
+    textarea { width: 90%; max-width: 500px; height: 100px; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e1e1e; color: #fff; border: 1px solid #333; }
+    button { padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 6px; border: none; background: #6200ee; color: white; font-weight: bold; }
+    button:disabled { background: #555; cursor: not-allowed; }
+    #status { margin-top: 15px; font-weight: bold; color: #ffeb3b; }
+    video { margin-top: 20px; width: 90%; max-width: 500px; border-radius: 10px; }
+  </style>
 </head>
 <body>
 
   <h2>FlowAI Video Generator</h2>
-  <textarea id="prompt" placeholder="Enter your prompt here..." rows="4" cols="50"></textarea><br><br>
-  <button id="generateBtn">Generate Video</button>
+  <textarea id="promptInput" placeholder="Enter your prompt here..."></textarea><br>
+  <button id="genBtn" onclick="generateVideo()">Generate Video</button>
+
+  <div id="status"></div>
+  <div id="videoContainer"></div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const generateBtn = document.getElementById("generateBtn");
+    async function generateVideo() {
+      const prompt = document.getElementById('promptInput').value;
+      const statusDiv = document.getElementById('status');
+      const videoContainer = document.getElementById('videoContainer');
+      const btn = document.getElementById('genBtn');
 
-      if (generateBtn) {
-        generateBtn.addEventListener("click", async () => {
-          const promptText = document.getElementById("prompt")?.value || "";
-          
-          if (!promptText) {
-            alert("Please enter a prompt!");
-            return;
-          }
-
-          generateBtn.innerText = "Processing...";
-          generateBtn.disabled = true;
-
-          try {
-            const res = await fetch("/api/generate-video", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ prompt: promptText })
-            });
-            const data = await res.json();
-
-            if (!data.id) throw new Error(data.error || "Failed to start generation");
-
-            const interval = setInterval(async () => {
-              const statusRes = await fetch(`/api/video-status/${data.id}`);
-              const statusData = await statusRes.json();
-
-              if (statusData.status === "succeeded") {
-                clearInterval(interval);
-                generateBtn.innerText = "Generate Video";
-                generateBtn.disabled = false;
-                alert("Video Ready! Link: " + statusData.output);
-              } else if (statusData.status === "failed") {
-                clearInterval(interval);
-                generateBtn.innerText = "Generate Video";
-                generateBtn.disabled = false;
-                alert("Generation Failed!");
-              }
-            }, 5000);
-
-          } catch (err) {
-            alert("Error: " + err.message);
-            generateBtn.innerText = "Generate Video";
-            generateBtn.disabled = false;
-          }
-        });
+      if (!prompt) {
+        alert("Please enter a prompt!");
+        return;
       }
-    });
+
+      statusDiv.innerText = "Processing... (Model may take 20-30s to load)";
+      videoContainer.innerHTML = "";
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('/generate-video', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: prompt })
+        });
+
+        const contentType = response.headers.get("content-type");
+
+        if (contentType && contentType.includes("application/json")) {
+          const data = await response.json();
+          if (data.error) {
+            statusDiv.innerText = "Error: " + data.error;
+          } else if (data.videoUrl) {
+            statusDiv.innerText = "Done! Video generated successfully.";
+            videoContainer.innerHTML = `<video controls autoplay loop src="${data.videoUrl}"></video>`;
+          } else {
+            statusDiv.innerText = "Unexpected response from server.";
+          }
+        } else {
+          statusDiv.innerText = "Server Error: Invalid response format.";
+        }
+      } catch (err) {
+        statusDiv.innerText = "Error: " + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
   </script>
 </body>
 </html>
