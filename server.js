@@ -1,9 +1,14 @@
 import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Manual CORS Header Setup (Bina cors package ke)
+// CORS Header Setup
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
@@ -15,7 +20,15 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use(express.static('public'));
+
+// Public folder aur Root folder dono check karega HTML ke liye
+app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Root route (Home Page) serve karne ke liye
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.post('/generate-video', async (req, res) => {
   const { prompt } = req.body;
