@@ -53,11 +53,12 @@
 
     .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
     
-    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; border-bottom: 1px solid var(--border); background: var(--bg); }
-    .logo { font-size: 20px; font-weight: bold; background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .nav-right { display: flex; align-items: center; gap: 15px; }
-    .credits-badge { background: #1f1f2e; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid #374151; font-weight: 500; }
-    .auth-btn { background: var(--accent); color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
+    /* Fixed Navbar layout for mobile screens */
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border); background: var(--bg); flex-wrap: wrap; gap: 10px; }
+    .logo { font-size: 18px; font-weight: bold; background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .credits-badge { background: #1f1f2e; padding: 5px 10px; border-radius: 20px; font-size: 12px; border: 1px solid #374151; font-weight: 500; }
+    .auth-btn { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
 
     .dashboard-container { padding: 30px; }
     .hero-banner { background: linear-gradient(135deg, #1e1b4b, #111827); border: 1px solid #312e81; padding: 30px; border-radius: 16px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
@@ -108,8 +109,8 @@
     <div class="navbar">
       <div class="logo">FlowAI Studio</div>
       <div class="nav-right">
-        <span id="userEmailDisplay" style="font-size: 13px; color: var(--muted);">Guest User</span>
-        <div class="credits-badge">⚡ Credits: 50</div>
+        <span id="userEmailDisplay" style="font-size: 12px; color: var(--muted);">Guest User</span>
+        <div class="credits-badge">⚡ 50</div>
         <button class="auth-btn" id="authBtn" onclick="openAuthModal()">Login / Signup</button>
       </div>
     </div>
@@ -239,7 +240,11 @@
 
         if (data.url) {
           statusText.innerText = "Success!";
-          previewArea.innerHTML = `<img src="${data.url}" style="max-height:100%; max-width:100%; border-radius:12px;" />`;
+          if (data.type === 'video') {
+            previewArea.innerHTML = `<video src="${data.url}" controls autoplay loop muted playsinline style="max-height:100%; max-width:100%; border-radius:12px;"></video>`;
+          } else {
+            previewArea.innerHTML = `<img src="${data.url}" style="max-height:100%; max-width:100%; border-radius:12px;" />`;
+          }
         } else {
           previewArea.innerHTML = "Failed to generate.";
         }
