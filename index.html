@@ -18,40 +18,67 @@ import {
 
 
 /* =========================
-   FIREBASE
+   FIREBASE CONFIG
 ========================= */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBp_2OzwhX39EP6GIYpSR6WbFBqHNGKwqY",
-  authDomain: "flowai-studio.firebaseapp.com",
-  projectId: "flowai-studio",
-  storageBucket: "flowai-studio.firebasestorage.app",
-  messagingSenderId: "990645093332",
-  appId: "1:990645093332:web:27b88ffc3ee92d8b248c41",
-  measurementId: "G-X3Z5XL1QLK"
+
+  apiKey:
+    "AIzaSyBp_2OzwhX39EP6GIYpSR6WbFBqHNGKwqY",
+
+  authDomain:
+    "flowai-studio.firebaseapp.com",
+
+  projectId:
+    "flowai-studio",
+
+  storageBucket:
+    "flowai-studio.firebasestorage.app",
+
+  messagingSenderId:
+    "990645093332",
+
+  appId:
+    "1:990645093332:web:27b88ffc3ee92d8b248c41",
+
+  measurementId:
+    "G-X3Z5XL1QLK"
+
 };
 
 
-const app = initializeApp(firebaseConfig);
+/* =========================
+   INITIALIZE FIREBASE
+========================= */
 
-const auth = getAuth(app);
+const app =
+  initializeApp(firebaseConfig);
+
+const auth =
+  getAuth(app);
 
 const googleProvider =
   new GoogleAuthProvider();
 
+
+/* =========================
+   VARIABLES
+========================= */
 
 let signupMode = false;
 let currentMode = "image";
 
 
 /* =========================
-   ERROR
+   ERROR MESSAGE
 ========================= */
 
 function showAuthError(message){
 
   const box =
     document.getElementById("authError");
+
+  if(!box) return;
 
   box.innerText = message;
 
@@ -61,10 +88,18 @@ function showAuthError(message){
 
 function hideAuthError(){
 
-  document.getElementById("authError")
-    .style.display = "none";
+  const box =
+    document.getElementById("authError");
+
+  if(!box) return;
+
+  box.style.display = "none";
 }
 
+
+/* =========================
+   FIREBASE ERROR
+========================= */
 
 function firebaseError(error){
 
@@ -88,8 +123,8 @@ function firebaseError(error){
     case "auth/weak-password":
       return "Password must be at least 6 characters.";
 
-    case "auth/popup-blocked":
-      return "Google login was blocked by the browser.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Please try again later.";
 
     case "auth/unauthorized-domain":
       return "This website domain is not authorized in Firebase.";
@@ -97,10 +132,50 @@ function firebaseError(error){
     case "auth/network-request-failed":
       return "Network error. Check your internet connection.";
 
+    case "auth/popup-blocked":
+      return "Google login was blocked by the browser.";
+
+    case "auth/operation-not-allowed":
+      return "This login method is not enabled in Firebase.";
+
     default:
       return error.message ||
         "Something went wrong. Please try again.";
   }
+
+}
+
+
+/* =========================
+   SAVE USER
+========================= */
+
+function saveUser(user){
+
+  if(!user) return;
+
+  const userData = {
+
+    uid:
+      user.uid || "",
+
+    name:
+      user.displayName ||
+      (user.email
+        ? user.email.split("@")[0]
+        : "User"),
+
+    email:
+      user.email || ""
+
+  };
+
+
+  localStorage.setItem(
+    "flowai_user",
+    JSON.stringify(userData)
+  );
+
 }
 
 
@@ -108,39 +183,57 @@ function firebaseError(error){
    GOOGLE LOGIN
 ========================= */
 
-window.googleLogin = async function(){
+window.googleLogin =
+  async function(){
 
-  hideAuthError();
+    hideAuthError();
 
-  const button =
-    document.querySelector(".google-btn");
+    const button =
+      document.querySelector(
+        ".google-btn"
+      );
 
-  button.disabled = true;
+    if(button){
 
-  button.innerText =
-    "Connecting to Google...";
+      button.disabled = true;
 
-  try{
+      button.innerText =
+        "Connecting to Google...";
 
-    await signInWithRedirect(
-      auth,
-      googleProvider
-    );
+    }
 
-  }catch(error){
 
-    console.error(error);
+    try{
 
-    showAuthError(
-      firebaseError(error)
-    );
+      await signInWithRedirect(
+        auth,
+        googleProvider
+      );
 
-    button.disabled = false;
+    }catch(error){
 
-    button.innerText =
-      "🔵 Continue with Google";
-  }
-};
+      console.error(
+        "GOOGLE LOGIN ERROR:",
+        error
+      );
+
+      showAuthError(
+        firebaseError(error)
+      );
+
+
+      if(button){
+
+        button.disabled = false;
+
+        button.innerText =
+          "🔵 Continue with Google";
+
+      }
+
+    }
+
+  };
 
 
 /* =========================
@@ -148,23 +241,30 @@ window.googleLogin = async function(){
 ========================= */
 
 getRedirectResult(auth)
-  .then((result) => {
+  .then(function(result){
 
-    if(result && result.user){
+    if(
+      result &&
+      result.user
+    ){
 
-      if(result && result.user){
+      saveUser(
+        result.user
+      );
 
-  openApp(result.user);
+      openApp(
+        result.user
+      );
 
-};
-
-      openApp(result.user);
     }
 
   })
-  .catch((error) => {
+  .catch(function(error){
 
-    console.error(error);
+    console.error(
+      "REDIRECT ERROR:",
+      error
+    );
 
     showAuthError(
       firebaseError(error)
@@ -177,232 +277,271 @@ getRedirectResult(auth)
    EMAIL LOGIN / SIGNUP
 ========================= */
 
-window.emailAuth = async function(){
+window.emailAuth =
+  async function(){
 
-  hideAuthError();
-
-  const email =
-    document
-      .getElementById("emailInput")
-      .value
-      .trim();
-
-  const password =
-    document
-      .getElementById("passwordInput")
-      .value;
-
-  const name =
-    document
-      .getElementById("nameInput")
-      .value
-      .trim();
-
-  const button =
-    document.getElementById("authButton");
+    hideAuthError();
 
 
-  if(!email){
-
-    showAuthError(
-      "Please enter your email address."
-    );
-
-    return;
-  }
+    const email =
+      document
+        .getElementById("emailInput")
+        .value
+        .trim();
 
 
-  if(!password){
-
-    showAuthError(
-      "Please enter your password."
-    );
-
-    return;
-  }
+    const password =
+      document
+        .getElementById("passwordInput")
+        .value;
 
 
-  if(signupMode && !name){
-
-    showAuthError(
-      "Please enter your name."
-    );
-
-    return;
-  }
+    const name =
+      document
+        .getElementById("nameInput")
+        .value
+        .trim();
 
 
-  button.disabled = true;
-
-  button.innerText =
-    signupMode
-    ? "Creating account..."
-    : "Logging in...";
+    const button =
+      document
+        .getElementById("authButton");
 
 
-  try{
+    /* VALIDATION */
 
-    let user;
+    if(!email){
 
-
-    /* SIGN UP */
-
-    if(signupMode){
-
-      const result =
-        await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-      user = result.user;
-
-
-      await updateProfile(
-        user,
-        {
-          displayName: name
-        }
+      showAuthError(
+        "Please enter your email address."
       );
 
-    }
+      return;
 
-    /* LOGIN */
-
-    else{
-
-      const result =
-        await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-      user = result.user;
     }
 
 
-    saveUser(user);
+    if(!password){
 
-    openApp(user);
+      showAuthError(
+        "Please enter your password."
+      );
+
+      return;
+
+    }
 
 
-  }catch(error){
+    if(
+      signupMode &&
+      !name
+    ){
 
-    console.error(error);
+      showAuthError(
+        "Please enter your name."
+      );
 
-    showAuthError(
-      firebaseError(error)
-    );
+      return;
 
-    button.disabled = false;
+    }
+
+
+    if(
+      signupMode &&
+      password.length < 6
+    ){
+
+      showAuthError(
+        "Password must be at least 6 characters."
+      );
+
+      return;
+
+    }
+
+
+    button.disabled = true;
 
     button.innerText =
       signupMode
-      ? "Sign up"
-      : "Login";
-  }
-};
+      ? "Creating account..."
+      : "Logging in...";
 
 
-/* =========================
-   SAVE USER
-========================= */
+    try{
 
-function saveUser(user){
+      let user;
 
-  localStorage.setItem(
-    "flowai_user",
-    JSON.stringify({
 
-      uid: user.uid,
+      /* =====================
+         SIGN UP
+      ===================== */
 
-      name:
-        user.displayName ||
-        user.email?.split("@")[0] ||
-        "User",
+      if(signupMode){
 
-      email:
-        user.email || ""
+        const result =
+          await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
 
-    })
-  );
-}
+
+        user =
+          result.user;
+
+
+        await updateProfile(
+          user,
+          {
+            displayName:
+              name
+          }
+        );
+
+      }
+
+
+      /* =====================
+         LOGIN
+      ===================== */
+
+      else{
+
+        const result =
+          await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+
+
+        user =
+          result.user;
+
+      }
+
+
+      /* SAVE */
+
+      saveUser(user);
+
+
+      /* OPEN APP */
+
+      openApp(user);
+
+
+    }catch(error){
+
+      console.error(
+        "EMAIL AUTH ERROR:",
+        error
+      );
+
+      showAuthError(
+        firebaseError(error)
+      );
+
+
+      button.disabled = false;
+
+      button.innerText =
+        signupMode
+        ? "Sign up"
+        : "Login";
+
+    }
+
+  };
 
 
 /* =========================
    SHOW SIGNUP
 ========================= */
 
-window.showSignup = function(){
+window.showSignup =
+  function(){
 
-  signupMode = true;
+    signupMode = true;
 
-  hideAuthError();
+    hideAuthError();
 
-  document
-    .getElementById("authTitle")
-    .innerText =
-    "Create your account";
 
-  document
-    .getElementById("authSubtitle")
-    .innerText =
-    "Join FlowAI Studio and start creating";
+    document
+      .getElementById("authTitle")
+      .innerText =
+      "Create your account";
 
-  document
-    .getElementById("signupNameBox")
-    .style.display =
-    "block";
 
-  document
-    .getElementById("authButton")
-    .innerText =
-    "Sign up";
+    document
+      .getElementById("authSubtitle")
+      .innerText =
+      "Join FlowAI Studio and start creating";
 
-  document
-    .getElementById("switchText")
-    .innerHTML =
-    'Already have an account? <span onclick="showLogin()">Login</span>';
-};
+
+    document
+      .getElementById("signupNameBox")
+      .style.display =
+      "block";
+
+
+    document
+      .getElementById("authButton")
+      .innerText =
+      "Sign up";
+
+
+    document
+      .getElementById("switchText")
+      .innerHTML =
+      'Already have an account? <span onclick="showLogin()">Login</span>';
+
+  };
 
 
 /* =========================
    SHOW LOGIN
 ========================= */
 
-window.showLogin = function(){
+window.showLogin =
+  function(){
 
-  signupMode = false;
+    signupMode = false;
 
-  hideAuthError();
+    hideAuthError();
 
-  document
-    .getElementById("authTitle")
-    .innerText =
-    "Welcome back";
 
-  document
-    .getElementById("authSubtitle")
-    .innerText =
-    "Sign in to continue to FlowAI Studio";
+    document
+      .getElementById("authTitle")
+      .innerText =
+      "Welcome back";
 
-  document
-    .getElementById("signupNameBox")
-    .style.display =
-    "none";
 
-  document
-    .getElementById("authButton")
-    .innerText =
-    "Login";
+    document
+      .getElementById("authSubtitle")
+      .innerText =
+      "Sign in to continue to FlowAI Studio";
 
-  document
-    .getElementById("switchText")
-    .innerHTML =
-    'Don\'t have an account? <span onclick="showSignup()">Create account</span>';
-};
+
+    document
+      .getElementById("signupNameBox")
+      .style.display =
+      "none";
+
+
+    document
+      .getElementById("authButton")
+      .innerText =
+      "Login";
+
+
+    document
+      .getElementById("switchText")
+      .innerHTML =
+      'Don\'t have an account? <span onclick="showSignup()">Create account</span>';
+
+  };
 
 
 /* =========================
@@ -411,22 +550,57 @@ window.showLogin = function(){
 
 function openApp(user){
 
-  document
-    .getElementById("authPage")
-    .style.display =
-    "none";
+  if(!user){
 
-  document
-    .getElementById("app")
-    .style.display =
-    "block";
+    return;
 
-  document
-    .getElementById("userEmail")
-    .innerText =
-    user.email || "User";
+  }
+
+
+  const authPage =
+    document.getElementById(
+      "authPage"
+    );
+
+
+  const appPage =
+    document.getElementById(
+      "app"
+    );
+
+
+  const userEmail =
+    document.getElementById(
+      "userEmail"
+    );
+
+
+  if(authPage){
+
+    authPage.style.display =
+      "none";
+
+  }
+
+
+  if(appPage){
+
+    appPage.style.display =
+      "block";
+
+  }
+
+
+  if(userEmail){
+
+    userEmail.innerText =
+      user.email || "User";
+
+  }
+
 
   showDashboard();
+
 }
 
 
@@ -434,210 +608,319 @@ function openApp(user){
    DASHBOARD
 ========================= */
 
-window.showDashboard = function(){
+window.showDashboard =
+  function(){
 
-  document
-    .getElementById("dashboard")
-    .style.display =
-    "block";
-
-  document
-    .getElementById("studio")
-    .style.display =
-    "none";
-};
+    const dashboard =
+      document.getElementById(
+        "dashboard"
+      );
 
 
-window.newProject = function(){
+    const studio =
+      document.getElementById(
+        "studio"
+      );
 
-  document
-    .getElementById("dashboard")
-    .style.display =
-    "none";
 
-  document
-    .getElementById("studio")
-    .style.display =
-    "block";
-};
+    if(dashboard){
+
+      dashboard.style.display =
+        "block";
+
+    }
+
+
+    if(studio){
+
+      studio.style.display =
+        "none";
+
+    }
+
+  };
+
+
+/* =========================
+   NEW PROJECT
+========================= */
+
+window.newProject =
+  function(){
+
+    const dashboard =
+      document.getElementById(
+        "dashboard"
+      );
+
+
+    const studio =
+      document.getElementById(
+        "studio"
+      );
+
+
+    if(dashboard){
+
+      dashboard.style.display =
+        "none";
+
+    }
+
+
+    if(studio){
+
+      studio.style.display =
+        "block";
+
+    }
+
+  };
 
 
 /* =========================
    MODE
 ========================= */
 
-window.setMode = function(mode){
+window.setMode =
+  function(mode){
 
-  currentMode = mode;
+    currentMode =
+      mode;
 
-  document
-    .getElementById("imageMode")
-    .classList.toggle(
-      "active",
-      mode === "image"
-    );
 
-  document
-    .getElementById("videoMode")
-    .classList.toggle(
-      "active",
-      mode === "video"
-    );
-};
+    const imageMode =
+      document.getElementById(
+        "imageMode"
+      );
+
+
+    const videoMode =
+      document.getElementById(
+        "videoMode"
+      );
+
+
+    if(imageMode){
+
+      imageMode.classList.toggle(
+        "active",
+        mode === "image"
+      );
+
+    }
+
+
+    if(videoMode){
+
+      videoMode.classList.toggle(
+        "active",
+        mode === "video"
+      );
+
+    }
+
+  };
 
 
 /* =========================
-   GENERATE
+   GENERATE MEDIA
 ========================= */
 
-window.generateMedia = async function(){
+window.generateMedia =
+  async function(){
 
-  const prompt =
-    document
-      .getElementById("prompt")
-      .value
-      .trim();
-
-  if(!prompt){
-
-    alert("Please enter a prompt.");
-
-    return;
-  }
+    const prompt =
+      document
+        .getElementById("prompt")
+        .value
+        .trim();
 
 
-  const placeholder =
-    document.getElementById("placeholder");
+    if(!prompt){
 
-  const output =
-    document.getElementById("output");
+      alert(
+        "Please enter a prompt."
+      );
 
+      return;
 
-  placeholder.innerText =
-    currentMode === "video"
-    ? "Generating your video..."
-    : "Generating your image...";
-
-  output.innerHTML = "";
+    }
 
 
-  try{
-
-    const response =
-      await fetch(
-        "/api/generate",
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
-
-          body:JSON.stringify({
-
-            prompt: prompt,
-
-            mode: currentMode
-
-          })
-        }
+    const placeholder =
+      document.getElementById(
+        "placeholder"
       );
 
 
-    const data =
-      await response.json();
-
-
-    if(!response.ok){
-
-      throw new Error(
-        data.error ||
-        "Generation failed"
+    const output =
+      document.getElementById(
+        "output"
       );
-    }
-
-
-    if(data.type === "image"){
-
-      output.innerHTML = `
-        <img
-          src="${data.url}"
-          style="width:100%;border-radius:10px"
-        >
-
-        <br><br>
-
-        <a
-          href="${data.url}"
-          target="_blank"
-          style="color:white"
-        >
-          ⬇ Download Image
-        </a>
-      `;
-    }
-
-
-    if(data.type === "video"){
-
-      output.innerHTML = `
-        <video
-          src="${data.url}"
-          controls
-          playsinline
-          style="width:100%;border-radius:10px"
-        ></video>
-
-        <br><br>
-
-        <a
-          href="${data.url}"
-          target="_blank"
-          style="color:white"
-        >
-          ⬇ Download Video
-        </a>
-      `;
-    }
 
 
     placeholder.innerText =
-      "Generation complete.";
+      currentMode === "video"
+      ? "Generating your video..."
+      : "Generating your image...";
 
 
-  }catch(error){
+    output.innerHTML = "";
 
-    console.error(error);
 
-    placeholder.innerText =
-      "Generation failed: " +
-      error.message;
-  }
-};
+    try{
+
+      const response =
+        await fetch(
+          "/api/generate",
+          {
+
+            method:
+              "POST",
+
+            headers:{
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify({
+
+                prompt:
+                  prompt,
+
+                mode:
+                  currentMode
+
+              })
+
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if(!response.ok){
+
+        throw new Error(
+          data.error ||
+          "Generation failed"
+        );
+
+      }
+
+
+      if(data.type === "image"){
+
+        output.innerHTML = `
+
+          <img
+            src="${data.url}"
+            style="
+              width:100%;
+              border-radius:10px;
+              display:block;
+            "
+          >
+
+          <br>
+
+          <a
+            href="${data.url}"
+            target="_blank"
+            style="color:white"
+          >
+            ⬇ Download Image
+          </a>
+
+        `;
+
+      }
+
+
+      if(data.type === "video"){
+
+        output.innerHTML = `
+
+          <video
+            src="${data.url}"
+            controls
+            playsinline
+            style="
+              width:100%;
+              border-radius:10px;
+              display:block;
+            "
+          ></video>
+
+          <br>
+
+          <a
+            href="${data.url}"
+            target="_blank"
+            style="color:white"
+          >
+            ⬇ Download Video
+          </a>
+
+        `;
+
+      }
+
+
+      placeholder.innerText =
+        "Generation complete.";
+
+
+    }catch(error){
+
+      console.error(
+        "GENERATION ERROR:",
+        error
+      );
+
+
+      placeholder.innerText =
+        "Generation failed: " +
+        error.message;
+
+    }
+
+  };
 
 
 /* =========================
    LOGOUT
 ========================= */
 
-window.logout = async function(){
+window.logout =
+  async function(){
 
-  try{
+    try{
 
-    await signOut(auth);
+      await signOut(auth);
 
-  }catch(error){
+    }catch(error){
 
-    console.error(error);
-  }
+      console.error(
+        "LOGOUT ERROR:",
+        error
+      );
 
-  localStorage.removeItem(
-    "flowai_user"
-  );
+    }
 
-  location.reload();
-};
+
+    localStorage.removeItem(
+      "flowai_user"
+    );
+
+
+    location.reload();
+
+  };
 
 
 /* =========================
@@ -650,11 +933,7 @@ onAuthStateChanged(
 
     if(user){
 
-      if(user){
-
-  openApp(user);
-
-};
+      saveUser(user);
 
       openApp(user);
 
