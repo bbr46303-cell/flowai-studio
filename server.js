@@ -21,11 +21,10 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// Public folder aur Root folder dono check karega HTML ke liye
+// Public aur Root folder handle karne ke liye
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Root route (Home Page) serve karne ke liye
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -50,11 +49,20 @@ app.post('/generate-video', async (req, res) => {
       }
     );
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      return res.status(response.status).json({ error: errorData.error || "Generation failed" });
+    const contentType = response.headers.get("content-type");
+
+    // Agar Hugging Face ne Error/JSON return kiya (jaise Model Loading...)
+    if (contentType && contentType.includes("application/json")) {
+      const jsonResponse = await response.json();
+      if (!response.ok) {
+        return res.status(response.status).json({ 
+          error: jsonResponse.error || "Model loading, please try again in 20 seconds." 
+        });
+      }
+      return res.json(jsonResponse);
     }
 
+    // Agar Video Output (Binary Blob/Video) aaya
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const base64Video = buffer.toString('base64');
@@ -63,7 +71,7 @@ app.post('/generate-video', async (req, res) => {
 
   } catch (error) {
     console.error("Server Error:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || "Internal Server Error" });
   }
 });
 
