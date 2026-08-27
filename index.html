@@ -1,945 +1,273 @@
-<script type="module">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowAI Studio</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;color:#f5edff;background:radial-gradient(circle at 15% 0%,#6410a8 0,transparent 30%),radial-gradient(circle at 100% 30%,#32005e 0,transparent 35%),#0b0714;min-height:100vh}
+button,textarea{font:inherit}button{cursor:pointer}
+.top{display:flex;align-items:center;justify-content:space-between;padding:24px 26px 18px;max-width:1000px;margin:auto}
+.brand{display:flex;align-items:center;gap:16px}.logo{width:70px;height:70px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:38px;background:linear-gradient(135deg,#9b24ff,#d82be9)}
+.brand h1{margin:0;font-size:31px}.brand p{margin:3px 0;color:#c38cff;font-size:20px}
+.userArea{display:flex;align-items:center;gap:8px}.credits{padding:13px 22px;border:1px solid #a83aff88;border-radius:30px;background:#241035;font-weight:bold}
+.userName{color:#d7b6ff;font-weight:bold}.logout{border:0;color:#fff;background:#5b1930;padding:12px 16px;border-radius:22px;font-weight:bold}
+.wrap{max-width:1000px;margin:auto;padding:10px 25px 50px}.card{border:1px solid #3d254f;border-radius:30px;background:#100b1b;padding:32px}
+.create{display:flex;align-items:center;gap:18px;margin-bottom:28px}.magic{width:90px;height:90px;border-radius:25px;display:flex;align-items:center;justify-content:center;font-size:45px;background:linear-gradient(135deg,#8d27ff,#d72ae8)}
+h2{font-size:38px;margin:0}.sub{color:#9c91a9;font-size:23px;margin-top:4px}
+.tabs{display:flex;background:#171321;border-radius:24px;padding:6px;margin-bottom:35px}.tab{flex:1;border:0;background:transparent;color:#aaa0b7;padding:19px;border-radius:19px;font-size:23px;font-weight:bold}.tab.active{color:white;background:linear-gradient(100deg,#7829dc,#d027d4)}
+.label{color:#aaa0b8;font-weight:bold;letter-spacing:1px;font-size:18px;margin:22px 0 13px}
+textarea{width:100%;height:220px;resize:none;background:#0d0915;color:white;border:1px solid #33253e;border-radius:25px;padding:25px;font-size:21px;outline:none}.counter{text-align:right;color:#777080;margin-top:-35px;margin-right:20px}
+.ideas{display:flex;gap:12px;margin:28px 0;flex-wrap:wrap}.idea,.option{border:1px solid #33253f;background:#110d19;color:#d9d0df;border-radius:25px;padding:14px 22px;font-weight:bold}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}.option{text-align:left;padding:20px}.option strong{display:block;font-size:23px;color:#eee}.option span{color:#94899d;font-size:17px}.option.selected{border-color:#c02cff;background:#25123b}
+.duration{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.duration button{border:1px solid #33253f;background:#110d19;color:#c8bfce;padding:18px;border-radius:18px;font-weight:bold}.duration button.selected{background:linear-gradient(100deg,#7829dc,#c827d6);color:white}
+.generate{width:100%;margin-top:30px;padding:20px;border:0;border-radius:22px;color:white;font-size:22px;font-weight:bold;background:linear-gradient(100deg,#7928dc,#d128d7)}
+.status{display:none;margin-top:20px;padding:18px;border-radius:18px;background:#181020;border:1px solid #432650;text-align:center}
+.history{margin-top:25px}.item{padding:15px;border:1px solid #30203b;border-radius:16px;margin-top:10px;color:#a99faf;line-height:1.5;word-break:break-word}.empty{text-align:center;padding:25px;color:#746b7d;border:1px dashed #34253e;border-radius:16px}
+#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0b0714;color:#d7b6ff;font-size:18px;z-index:9999}
+@media(max-width:600px){
+.top{padding:18px 14px 10px}.brand{gap:10px}.brand h1{font-size:25px}.brand p{font-size:16px}.logo{width:58px;height:58px;font-size:32px}
+.credits{font-size:12px;padding:9px 10px}.userName{display:none}.logout{padding:9px 11px;font-size:12px}
+.wrap{padding:8px 12px 35px}.card{padding:20px 15px;border-radius:23px}.magic{width:68px;height:68px;font-size:33px}h2{font-size:30px}.sub{font-size:17px}
+.tab{font-size:17px;padding:15px 8px}textarea{height:190px;font-size:17px;padding:20px}.grid2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
 
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+<div id="loading">Checking login...</div>
 
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  updateProfile,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+<header class="top">
+  <div class="brand">
+    <div class="logo">✦</div>
+    <div><h1>FlowAI</h1><p>Studio</p></div>
+  </div>
+  <div class="userArea">
+    <span class="credits">⚡ <span id="credits">50</span> credits</span>
+    <span class="userName" id="userName"></span>
+    <button class="logout" id="logoutBtn">Logout</button>
+  </div>
+</header>
 
+<main class="wrap">
+<section class="card">
 
-/* =========================
-   FIREBASE CONFIG
-========================= */
+  <div class="create">
+    <div class="magic">🪄</div>
+    <div><h2>Create</h2><div class="sub">Describe your vision</div></div>
+  </div>
 
-const firebaseConfig = {
+  <div class="tabs">
+    <button class="tab active" id="videoTab">🎞️ Video</button>
+    <button class="tab" id="audioTab">♪ Audio</button>
+  </div>
 
-  apiKey:
-    "AIzaSyBp_2OzwhX39EP6GIYpSR6WbFBqHNGKwqY",
+  <div class="label">PROMPT</div>
+  <textarea id="prompt" maxlength="500" placeholder="A cinematic shot of..."></textarea>
+  <div class="counter"><span id="count">0</span>/500</div>
 
-  authDomain:
-    "flowai-studio.firebaseapp.com",
+  <div class="ideas">
+    <button class="idea" data-idea="1">✦ Idea 1</button>
+    <button class="idea" data-idea="2">✦ Idea 2</button>
+    <button class="idea" data-idea="3">✦ Idea 3</button>
+  </div>
 
-  projectId:
-    "flowai-studio",
+  <div class="label">ASPECT RATIO</div>
+  <div class="grid2">
+    <button class="option selected" id="r169"><strong>▭ 16:9</strong><span>Landscape</span></button>
+    <button class="option" id="r916"><strong>▯ 9:16</strong><span>Portrait</span></button>
+  </div>
 
-  storageBucket:
-    "flowai-studio.firebasestorage.app",
+  <div class="label">DURATION</div>
+  <div class="duration">
+    <button id="d5">5s</button>
+    <button id="d10" class="selected">10s</button>
+    <button id="d15">15s</button>
+  </div>
 
-  messagingSenderId:
-    "990645093332",
+  <button class="generate" id="generateBtn">⚡ Generate Video</button>
+  <div class="status" id="status"></div>
 
-  appId:
-    "1:990645093332:web:27b88ffc3ee92d8b248c41",
+  <div class="history">
+    <h3>🕘 Recent Generations</h3>
+    <div id="historyList"><div class="empty">No generations yet</div></div>
+  </div>
 
-  measurementId:
-    "G-X3Z5XL1QLK"
+</section>
+</main>
 
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-auth-compat.js"></script>
+
+<script>
+const firebaseConfig={
+  apiKey:"AIzaSyBp_2OzwhX39EP6GIYpSR6WbFBqHNGKwqY",
+  authDomain:"flowai-studio.firebaseapp.com",
+  projectId:"flowai-studio",
+  storageBucket:"flowai-studio.firebasestorage.app",
+  messagingSenderId:"990645093332",
+  appId:"1:990645093332:web:27b88ffc3ee92d8b248c41",
+  measurementId:"G-X3Z5XL1QLK"
 };
 
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
 
-/* =========================
-   INITIALIZE FIREBASE
-========================= */
+let mode="Video";
+let selectedRatio="16:9";
+let selectedDuration=10;
+let credits=50;
 
-const app =
-  initializeApp(firebaseConfig);
+const loading=document.getElementById("loading");
+const userName=document.getElementById("userName");
+const creditsEl=document.getElementById("credits");
+const promptEl=document.getElementById("prompt");
+const countEl=document.getElementById("count");
+const statusEl=document.getElementById("status");
+const historyEl=document.getElementById("historyList");
+const generateBtn=document.getElementById("generateBtn");
 
-const auth =
-  getAuth(app);
-
-const googleProvider =
-  new GoogleAuthProvider();
-
-
-/* =========================
-   VARIABLES
-========================= */
-
-let signupMode = false;
-let currentMode = "image";
-
-
-/* =========================
-   ERROR MESSAGE
-========================= */
-
-function showAuthError(message){
-
-  const box =
-    document.getElementById("authError");
-
-  if(!box) return;
-
-  box.innerText = message;
-
-  box.style.display = "block";
+function setMode(x){
+  mode=x;
+  document.getElementById("videoTab").classList.toggle("active",x==="Video");
+  document.getElementById("audioTab").classList.toggle("active",x==="Audio");
+  generateBtn.textContent=x==="Video"?"⚡ Generate Video":"🎵 Generate Audio";
 }
 
-
-function hideAuthError(){
-
-  const box =
-    document.getElementById("authError");
-
-  if(!box) return;
-
-  box.style.display = "none";
+function countText(){
+  countEl.textContent=promptEl.value.length;
 }
 
-
-/* =========================
-   FIREBASE ERROR
-========================= */
-
-function firebaseError(error){
-
-  switch(error.code){
-
-    case "auth/invalid-credential":
-      return "Email or password is incorrect.";
-
-    case "auth/invalid-email":
-      return "Please enter a valid email address.";
-
-    case "auth/user-not-found":
-      return "No account found with this email.";
-
-    case "auth/wrong-password":
-      return "Incorrect password.";
-
-    case "auth/email-already-in-use":
-      return "An account already exists with this email.";
-
-    case "auth/weak-password":
-      return "Password must be at least 6 characters.";
-
-    case "auth/too-many-requests":
-      return "Too many attempts. Please try again later.";
-
-    case "auth/unauthorized-domain":
-      return "This website domain is not authorized in Firebase.";
-
-    case "auth/network-request-failed":
-      return "Network error. Check your internet connection.";
-
-    case "auth/popup-blocked":
-      return "Google login was blocked by the browser.";
-
-    case "auth/operation-not-allowed":
-      return "This login method is not enabled in Firebase.";
-
-    default:
-      return error.message ||
-        "Something went wrong. Please try again.";
-  }
-
+function idea(n){
+  const ideas=[
+    "A cinematic drone shot over a futuristic city at sunset, ultra realistic, dramatic lighting",
+    "A mysterious ancient temple hidden inside a beautiful jungle, cinematic atmosphere, realistic details",
+    "A magical night sky above the mountains with glowing stars, epic cinematic scene, ultra realistic"
+  ];
+  promptEl.value=ideas[n-1];
+  countText();
 }
 
-
-/* =========================
-   SAVE USER
-========================= */
-
-function saveUser(user){
-
-  if(!user) return;
-
-  const userData = {
-
-    uid:
-      user.uid || "",
-
-    name:
-      user.displayName ||
-      (user.email
-        ? user.email.split("@")[0]
-        : "User"),
-
-    email:
-      user.email || ""
-
-  };
-
-
-  localStorage.setItem(
-    "flowai_user",
-    JSON.stringify(userData)
-  );
-
+function ratio(x){
+  selectedRatio=x;
+  document.getElementById("r169").classList.toggle("selected",x==="16:9");
+  document.getElementById("r916").classList.toggle("selected",x==="9:16");
 }
 
-
-/* =========================
-   GOOGLE LOGIN
-========================= */
-
-window.googleLogin =
-  async function(){
-
-    hideAuthError();
-
-    const button =
-      document.querySelector(
-        ".google-btn"
-      );
-
-    if(button){
-
-      button.disabled = true;
-
-      button.innerText =
-        "Connecting to Google...";
-
-    }
-
-
-    try{
-
-      await signInWithRedirect(
-        auth,
-        googleProvider
-      );
-
-    }catch(error){
-
-      console.error(
-        "GOOGLE LOGIN ERROR:",
-        error
-      );
-
-      showAuthError(
-        firebaseError(error)
-      );
-
-
-      if(button){
-
-        button.disabled = false;
-
-        button.innerText =
-          "🔵 Continue with Google";
-
-      }
-
-    }
-
-  };
-
-
-/* =========================
-   GOOGLE REDIRECT RESULT
-========================= */
-
-getRedirectResult(auth)
-  .then(function(result){
-
-    if(
-      result &&
-      result.user
-    ){
-
-      saveUser(
-        result.user
-      );
-
-      openApp(
-        result.user
-      );
-
-    }
-
-  })
-  .catch(function(error){
-
-    console.error(
-      "REDIRECT ERROR:",
-      error
-    );
-
-    showAuthError(
-      firebaseError(error)
-    );
-
+function duration(x){
+  selectedDuration=x;
+  [5,10,15].forEach(n=>{
+    document.getElementById("d"+n).classList.toggle("selected",n===x);
   });
-
-
-/* =========================
-   EMAIL LOGIN / SIGNUP
-========================= */
-
-window.emailAuth =
-  async function(){
-
-    hideAuthError();
-
-
-    const email =
-      document
-        .getElementById("emailInput")
-        .value
-        .trim();
-
-
-    const password =
-      document
-        .getElementById("passwordInput")
-        .value;
-
-
-    const name =
-      document
-        .getElementById("nameInput")
-        .value
-        .trim();
-
-
-    const button =
-      document
-        .getElementById("authButton");
-
-
-    /* VALIDATION */
-
-    if(!email){
-
-      showAuthError(
-        "Please enter your email address."
-      );
-
-      return;
-
-    }
-
-
-    if(!password){
-
-      showAuthError(
-        "Please enter your password."
-      );
-
-      return;
-
-    }
-
-
-    if(
-      signupMode &&
-      !name
-    ){
-
-      showAuthError(
-        "Please enter your name."
-      );
-
-      return;
-
-    }
-
-
-    if(
-      signupMode &&
-      password.length < 6
-    ){
-
-      showAuthError(
-        "Password must be at least 6 characters."
-      );
-
-      return;
-
-    }
-
-
-    button.disabled = true;
-
-    button.innerText =
-      signupMode
-      ? "Creating account..."
-      : "Logging in...";
-
-
-    try{
-
-      let user;
-
-
-      /* =====================
-         SIGN UP
-      ===================== */
-
-      if(signupMode){
-
-        const result =
-          await createUserWithEmailAndPassword(
-            auth,
-            email,
-            password
-          );
-
-
-        user =
-          result.user;
-
-
-        await updateProfile(
-          user,
-          {
-            displayName:
-              name
-          }
-        );
-
-      }
-
-
-      /* =====================
-         LOGIN
-      ===================== */
-
-      else{
-
-        const result =
-          await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-          );
-
-
-        user =
-          result.user;
-
-      }
-
-
-      /* SAVE */
-
-      saveUser(user);
-
-
-      /* OPEN APP */
-
-      openApp(user);
-
-
-    }catch(error){
-
-      console.error(
-        "EMAIL AUTH ERROR:",
-        error
-      );
-
-      showAuthError(
-        firebaseError(error)
-      );
-
-
-      button.disabled = false;
-
-      button.innerText =
-        signupMode
-        ? "Sign up"
-        : "Login";
-
-    }
-
-  };
-
-
-/* =========================
-   SHOW SIGNUP
-========================= */
-
-window.showSignup =
-  function(){
-
-    signupMode = true;
-
-    hideAuthError();
-
-
-    document
-      .getElementById("authTitle")
-      .innerText =
-      "Create your account";
-
-
-    document
-      .getElementById("authSubtitle")
-      .innerText =
-      "Join FlowAI Studio and start creating";
-
-
-    document
-      .getElementById("signupNameBox")
-      .style.display =
-      "block";
-
-
-    document
-      .getElementById("authButton")
-      .innerText =
-      "Sign up";
-
-
-    document
-      .getElementById("switchText")
-      .innerHTML =
-      'Already have an account? <span onclick="showLogin()">Login</span>';
-
-  };
-
-
-/* =========================
-   SHOW LOGIN
-========================= */
-
-window.showLogin =
-  function(){
-
-    signupMode = false;
-
-    hideAuthError();
-
-
-    document
-      .getElementById("authTitle")
-      .innerText =
-      "Welcome back";
-
-
-    document
-      .getElementById("authSubtitle")
-      .innerText =
-      "Sign in to continue to FlowAI Studio";
-
-
-    document
-      .getElementById("signupNameBox")
-      .style.display =
-      "none";
-
-
-    document
-      .getElementById("authButton")
-      .innerText =
-      "Login";
-
-
-    document
-      .getElementById("switchText")
-      .innerHTML =
-      'Don\'t have an account? <span onclick="showSignup()">Create account</span>';
-
-  };
-
-
-/* =========================
-   OPEN APP
-========================= */
-
-function openApp(user){
-
-  if(!user){
-
-    return;
-
-  }
-
-
-  const authPage =
-    document.getElementById(
-      "authPage"
-    );
-
-
-  const appPage =
-    document.getElementById(
-      "app"
-    );
-
-
-  const userEmail =
-    document.getElementById(
-      "userEmail"
-    );
-
-
-  if(authPage){
-
-    authPage.style.display =
-      "none";
-
-  }
-
-
-  if(appPage){
-
-    appPage.style.display =
-      "block";
-
-  }
-
-
-  if(userEmail){
-
-    userEmail.innerText =
-      user.email || "User";
-
-  }
-
-
-  showDashboard();
-
 }
 
-
-/* =========================
-   DASHBOARD
-========================= */
-
-window.showDashboard =
-  function(){
-
-    const dashboard =
-      document.getElementById(
-        "dashboard"
-      );
-
-
-    const studio =
-      document.getElementById(
-        "studio"
-      );
-
-
-    if(dashboard){
-
-      dashboard.style.display =
-        "block";
-
-    }
-
-
-    if(studio){
-
-      studio.style.display =
-        "none";
-
-    }
-
-  };
-
-
-/* =========================
-   NEW PROJECT
-========================= */
-
-window.newProject =
-  function(){
-
-    const dashboard =
-      document.getElementById(
-        "dashboard"
-      );
-
-
-    const studio =
-      document.getElementById(
-        "studio"
-      );
-
-
-    if(dashboard){
-
-      dashboard.style.display =
-        "none";
-
-    }
-
-
-    if(studio){
-
-      studio.style.display =
-        "block";
-
-    }
-
-  };
-
-
-/* =========================
-   MODE
-========================= */
-
-window.setMode =
-  function(mode){
-
-    currentMode =
-      mode;
-
-
-    const imageMode =
-      document.getElementById(
-        "imageMode"
-      );
-
-
-    const videoMode =
-      document.getElementById(
-        "videoMode"
-      );
-
-
-    if(imageMode){
-
-      imageMode.classList.toggle(
-        "active",
-        mode === "image"
-      );
-
-    }
-
-
-    if(videoMode){
-
-      videoMode.classList.toggle(
-        "active",
-        mode === "video"
-      );
-
-    }
-
-  };
-
-
-/* =========================
-   GENERATE MEDIA
-========================= */
-
-window.generateMedia =
-  async function(){
-
-    const prompt =
-      document
-        .getElementById("prompt")
-        .value
-        .trim();
-
-
-    if(!prompt){
-
-      alert(
-        "Please enter a prompt."
-      );
-
-      return;
-
-    }
-
-
-    const placeholder =
-      document.getElementById(
-        "placeholder"
-      );
-
-
-    const output =
-      document.getElementById(
-        "output"
-      );
-
-
-    placeholder.innerText =
-      currentMode === "video"
-      ? "Generating your video..."
-      : "Generating your image...";
-
-
-    output.innerHTML = "";
-
-
-    try{
-
-      const response =
-        await fetch(
-          "/api/generate",
-          {
-
-            method:
-              "POST",
-
-            headers:{
-              "Content-Type":
-                "application/json"
-            },
-
-            body:
-              JSON.stringify({
-
-                prompt:
-                  prompt,
-
-                mode:
-                  currentMode
-
-              })
-
-          }
-        );
-
-
-      const data =
-        await response.json();
-
-
-      if(!response.ok){
-
-        throw new Error(
-          data.error ||
-          "Generation failed"
-        );
-
-      }
-
-
-      if(data.type === "image"){
-
-        output.innerHTML = `
-
-          <img
-            src="${data.url}"
-            style="
-              width:100%;
-              border-radius:10px;
-              display:block;
-            "
-          >
-
-          <br>
-
-          <a
-            href="${data.url}"
-            target="_blank"
-            style="color:white"
-          >
-            ⬇ Download Image
-          </a>
-
-        `;
-
-      }
-
-
-      if(data.type === "video"){
-
-        output.innerHTML = `
-
-          <video
-            src="${data.url}"
-            controls
-            playsinline
-            style="
-              width:100%;
-              border-radius:10px;
-              display:block;
-            "
-          ></video>
-
-          <br>
-
-          <a
-            href="${data.url}"
-            target="_blank"
-            style="color:white"
-          >
-            ⬇ Download Video
-          </a>
-
-        `;
-
-      }
-
-
-      placeholder.innerText =
-        "Generation complete.";
-
-
-    }catch(error){
-
-      console.error(
-        "GENERATION ERROR:",
-        error
-      );
-
-
-      placeholder.innerText =
-        "Generation failed: " +
-        error.message;
-
-    }
-
-  };
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-window.logout =
-  async function(){
-
-    try{
-
-      await signOut(auth);
-
-    }catch(error){
-
-      console.error(
-        "LOGOUT ERROR:",
-        error
-      );
-
-    }
-
-
-    localStorage.removeItem(
-      "flowai_user"
-    );
-
-
-    location.reload();
-
-  };
-
-
-/* =========================
-   AUTH STATE
-========================= */
-
-onAuthStateChanged(
-  auth,
-  function(user){
-
-    if(user){
-
-      saveUser(user);
-
-      openApp(user);
-
-    }
-
+function showStatus(text){
+  statusEl.style.display="block";
+  statusEl.textContent=text;
+}
+
+async function generate(){
+  const p=promptEl.value.trim();
+
+  if(!p){
+    showStatus("⚠️ Please enter a prompt first.");
+    return;
   }
-);
 
+  if(credits<=0){
+    showStatus("❌ Not enough credits.");
+    return;
+  }
+
+  credits--;
+  creditsEl.textContent=credits;
+  showStatus("⏳ Creating your "+mode.toLowerCase()+" request...");
+
+  try{
+    const response=await fetch("/api/generate",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        prompt:p,
+        mode:mode.toLowerCase(),
+        ratio:selectedRatio,
+        duration:selectedDuration
+      })
+    });
+
+    const data=await response.json();
+
+    if(!response.ok){
+      throw new Error(data.error||"Generation failed");
+    }
+
+    if(data.url){
+      if(data.type==="video"){
+        showStatus("✅ Video generated successfully.");
+        historyEl.querySelector(".empty")?.remove();
+        const v=document.createElement("video");
+        v.src=data.url;
+        v.controls=true;
+        v.playsInline=true;
+        v.style="width:100%;border-radius:16px;margin-top:12px";
+        historyEl.prepend(v);
+      }else if(data.type==="image"){
+        showStatus("✅ Image generated successfully.");
+        historyEl.querySelector(".empty")?.remove();
+        const img=document.createElement("img");
+        img.src=data.url;
+        img.style="width:100%;border-radius:16px;margin-top:12px";
+        historyEl.prepend(img);
+      }
+    }else{
+      showStatus("✅ Request completed.");
+    }
+
+  }catch(error){
+    credits++;
+    creditsEl.textContent=credits;
+    console.error(error);
+    showStatus("❌ Generation failed: "+error.message);
+  }
+}
+
+document.getElementById("videoTab").onclick=()=>setMode("Video");
+document.getElementById("audioTab").onclick=()=>setMode("Audio");
+document.getElementById("r169").onclick=()=>ratio("16:9");
+document.getElementById("r916").onclick=()=>ratio("9:16");
+document.getElementById("d5").onclick=()=>duration(5);
+document.getElementById("d10").onclick=()=>duration(10);
+document.getElementById("d15").onclick=()=>duration(15);
+document.querySelectorAll(".idea").forEach(btn=>{
+  btn.onclick=()=>idea(Number(btn.dataset.idea));
+});
+promptEl.addEventListener("input",countText);
+generateBtn.onclick=generate;
+
+document.getElementById("logoutBtn").onclick=async()=>{
+  try{
+    await auth.signOut();
+    window.location.replace("/login.html");
+  }catch(error){
+    console.error(error);
+    window.location.replace("/login.html");
+  }
+};
+
+/* AUTH GUARD
+   No guest mode. If Firebase has no logged-in user,
+   return to login.html. */
+auth.onAuthStateChanged(user=>{
+  if(user){
+    const name=user.displayName || (user.email?user.email.split("@")[0]:"User");
+    userName.textContent="👤 "+name;
+    loading.style.display="none";
+  }else{
+    window.location.replace("/login.html");
+  }
+});
 </script>
+
+</body>
+</html>
