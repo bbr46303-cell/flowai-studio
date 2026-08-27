@@ -34,7 +34,8 @@ app.post('/generate-media', async (req, res) => {
 
     if (mode === 'video') {
       // Reliable looping animated video source compatible with web players
-      const videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-screens-and-lights-41872-large.mp4";
+      const videoUrl = `https://image.pollinations.ai/prompt/cinematic%20motion%20video%20loop%20${encodedPrompt}?width=576&height=1024&nologo=true&seed=${randomSeed}`;
+      
       return res.json({ type: 'video', url: videoUrl });
     } else {
       // Stable high-quality image generation URL
