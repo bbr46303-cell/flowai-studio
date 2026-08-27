@@ -12,18 +12,14 @@ const PORT = process.env.PORT || 3000;
 
 const HF_TOKEN = process.env.HF_TOKEN;
 
-if (!HF_TOKEN) {
-  console.warn("WARNING: HF_TOKEN is not configured.");
-}
-
 const hf = HF_TOKEN
   ? new InferenceClient(HF_TOKEN)
   : null;
 
 
-/* =========================================
+/* =========================
    BASIC SETUP
-========================================= */
+========================= */
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -43,15 +39,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "12mb" }));
 
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, "public")));
 
 
-/* =========================================
-   GENERATED MEDIA STORAGE
-========================================= */
+/* =========================
+   GENERATED FILES
+========================= */
 
 const generatedDir = path.join(__dirname, "generated");
 
@@ -59,26 +55,21 @@ if (!fs.existsSync(generatedDir)) {
   fs.mkdirSync(generatedDir, { recursive: true });
 }
 
-app.use(
-  "/generated",
-  express.static(generatedDir, {
-    maxAge: "1h"
-  })
-);
+app.use("/generated", express.static(generatedDir));
 
 
-/* =========================================
+/* =========================
    HOME
-========================================= */
+========================= */
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
 
-/* =========================================
-   HEALTH CHECK
-========================================= */
+/* =========================
+   HEALTH
+========================= */
 
 app.get("/api/health", (req, res) => {
   res.json({
@@ -89,27 +80,24 @@ app.get("/api/health", (req, res) => {
 });
 
 
-/* =========================================
-   SAVE BLOB TO SERVER
-========================================= */
+/* =========================
+   SAVE GENERATED FILE
+========================= */
 
 async function saveBlob(blob, extension) {
 
   const id =
     Date.now() +
     "-" +
-    Math.random().toString(36).slice(2, 10);
+    Math.random().toString(36).substring(2, 10);
 
   const filename = `${id}.${extension}`;
 
-  const filepath = path.join(
-    generatedDir,
-    filename
-  );
+  const filepath =
+    path.join(generatedDir, filename);
 
-  const buffer = Buffer.from(
-    await blob.arrayBuffer()
-  );
+  const buffer =
+    Buffer.from(await blob.arrayBuffer());
 
   fs.writeFileSync(filepath, buffer);
 
@@ -117,151 +105,267 @@ async function saveBlob(blob, extension) {
 }
 
 
-/* =========================================
+/* =========================
    IMAGE GENERATION
-========================================= */
+========================= */
 
 async function generateImage(prompt) {
 
   if (!hf) {
     throw new Error(
-      "HF_TOKEN is not configured on Render."
+      "HF_TOKEN is not configured."
     );
   }
 
-  /*
-    Current HF Inference Providers model.
-    Provider is automatically selected.
-  */
-
   const imageBlob = await hf.textToImage({
-    model: "black-forest-labs/FLUX.1-Krea-dev",
+    model:
+      "black-forest-labs/FLUX.1-Krea-dev",
+    provider: "fal-ai",
     inputs: prompt,
+
     parameters: {
       num_inference_steps: 28
     }
   });
 
-  const mime =
-    imageBlob.type || "image/png";
-
-  const extension =
-    mime.includes("jpeg")
-      ? "jpg"
-      : "png";
-
-  const url = await saveBlob(
+  return await saveBlob(
     imageBlob,
-    extension
+    "png"
   );
-
-  return url;
 }
 
 
-/* =========================================
-   VIDEO GENERATION
-========================================= */
+/* =========================
+   TEXT → VIDEO
+========================= */
 
-async function generateVideo(prompt) {
+async function generateTextVideo(prompt) {
 
   if (!hf) {
     throw new Error(
-      "HF_TOKEN is not configured on Render."
+      "HF_TOKEN is not configured."
     );
   }
 
-  /*
-    Primary model:
-    Wan 2.2 text/image-to-video model.
-
-    Hugging Face Inference Providers
-    handles the provider routing.
-  */
-
   const videoBlob = await hf.textToVideo({
-    model: "Wan-AI/Wan2.2-TI2V-5B",
+    model:
+      "Wan-AI/Wan2.2-TI2V-5B",
+
+    provider: "fal-ai",
+
     inputs: prompt
   });
 
-  const url = await saveBlob(
+  return await saveBlob(
     videoBlob,
     "mp4"
   );
-
-  return url;
 }
 
 
-/* =========================================
-   MAIN GENERATION API
-========================================= */
+/* =========================
+   IMAGE → VIDEO
+========================= */
+
+async function generateImageVideo(
+  imageData,
+  prompt
+) {
+
+  if (!hf) {
+    throw new Error(
+      "HF_TOKEN is not configured."
+    );
+  }
+
+  if (!imageData) {
+    throw new Error(
+      "Please upload an image."
+    );
+  }
+
+
+  /*
+    Expected:
+
+    data:image/jpeg;base64,...
+    data:image/png;base64,...
+    data:image/webp;base64,...
+  */
+
+  const match =
+    imageData.match(
+      /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/
+    );
+
+  if (!match) {
+    throw new Error(
+      "Invalid image format."
+    );
+  }
+
+  const mimeType = match[1];
+  const base64 = match[2];
+
+  const imageBuffer =
+    Buffer.from(base64, "base64");
+
+  if (!imageBuffer.length) {
+    throw new Error(
+      "Uploaded image is empty."
+    );
+  }
+
+
+  /*
+    Convert uploaded image into Blob
+    for Hugging Face image-to-video.
+  */
+
+  const imageBlob =
+    new Blob(
+      [imageBuffer],
+      { type: mimeType }
+    );
+
+
+  /*
+    Wan 2.2 Image-to-Video
+
+    Current Hugging Face model:
+    Wan-AI/Wan2.2-I2V-A14B
+
+    Provider:
+    fal-ai
+  */
+
+  const videoBlob =
+    await hf.imageToVideo({
+
+      model:
+        "Wan-AI/Wan2.2-I2V-A14B",
+
+      provider:
+        "fal-ai",
+
+      inputs:
+        imageBlob,
+
+      parameters: {
+        prompt:
+          prompt ||
+          "Cinematic natural motion, realistic camera movement, high detail"
+      }
+    });
+
+
+  return await saveBlob(
+    videoBlob,
+    "mp4"
+  );
+}
+
+
+/* =========================
+   MAIN GENERATE API
+========================= */
 
 async function generateMedia(req, res) {
 
-  const { prompt, mode } = req.body || {};
+  const {
+    prompt,
+    mode,
+    imageData
+  } = req.body || {};
+
 
   if (
     !prompt ||
     typeof prompt !== "string" ||
     !prompt.trim()
   ) {
+
     return res.status(400).json({
       success: false,
       error: "Prompt is required."
     });
   }
 
-  const cleanPrompt = prompt.trim();
+
+  const cleanPrompt =
+    prompt.trim();
+
 
   try {
 
     console.log(
-      `Generation started: ${mode || "image"}`
+      "Generation:",
+      mode,
+      imageData
+        ? "with reference image"
+        : "text only"
     );
 
-    console.log(
-      `Prompt: ${cleanPrompt}`
-    );
 
+    /* =====================
+       IMAGE
+    ===================== */
 
-    /* =====================================
-       VIDEO
-    ===================================== */
+    if (mode !== "video") {
 
-    if (mode === "video") {
-
-      const videoUrl =
-        await generateVideo(cleanPrompt);
-
-      console.log(
-        "Video generation completed."
-      );
+      const url =
+        await generateImage(
+          cleanPrompt
+        );
 
       return res.json({
         success: true,
-        type: "video",
-        url: videoUrl,
+        type: "image",
+        url,
         prompt: cleanPrompt
       });
     }
 
 
-    /* =====================================
-       IMAGE
-    ===================================== */
+    /* =====================
+       VIDEO + IMAGE
+    ===================== */
 
-    const imageUrl =
-      await generateImage(cleanPrompt);
+    if (
+      mode === "video" &&
+      imageData
+    ) {
 
-    console.log(
-      "Image generation completed."
-    );
+      const url =
+        await generateImageVideo(
+          imageData,
+          cleanPrompt
+        );
+
+      return res.json({
+        success: true,
+        type: "video",
+        source: "image-to-video",
+        url,
+        prompt: cleanPrompt
+      });
+    }
+
+
+    /* =====================
+       TEXT → VIDEO
+    ===================== */
+
+    const url =
+      await generateTextVideo(
+        cleanPrompt
+      );
 
     return res.json({
       success: true,
-      type: "image",
-      url: imageUrl,
+      type: "video",
+      source: "text-to-video",
+      url,
       prompt: cleanPrompt
     });
 
@@ -269,7 +373,7 @@ async function generateMedia(req, res) {
   } catch (error) {
 
     console.error(
-      "AI GENERATION ERROR:",
+      "GENERATION ERROR:",
       error
     );
 
@@ -283,9 +387,9 @@ async function generateMedia(req, res) {
 }
 
 
-/* =========================================
-   API ROUTES
-========================================= */
+/* =========================
+   ROUTES
+========================= */
 
 app.post(
   "/api/generate",
@@ -298,74 +402,9 @@ app.post(
 );
 
 
-/* =========================================
-   SIMPLE TEST
-========================================= */
-
-app.get("/api/test", (req, res) => {
-
-  res.json({
-    success: true,
-    message: "FlowAI Studio API is working."
-  });
-
-});
-
-
-/* =========================================
-   CLEAN OLD GENERATED FILES
-========================================= */
-
-setInterval(() => {
-
-  try {
-
-    const files =
-      fs.readdirSync(generatedDir);
-
-    const now = Date.now();
-
-    for (const file of files) {
-
-      const filepath =
-        path.join(generatedDir, file);
-
-      const stats =
-        fs.statSync(filepath);
-
-      const age =
-        now - stats.mtimeMs;
-
-      /*
-        Delete files older than 1 hour.
-      */
-
-      if (age > 60 * 60 * 1000) {
-
-        fs.unlinkSync(filepath);
-
-        console.log(
-          "Deleted old generated file:",
-          file
-        );
-      }
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Cleanup error:",
-      error.message
-    );
-
-  }
-
-}, 15 * 60 * 1000);
-
-
-/* =========================================
-   START SERVER
-========================================= */
+/* =========================
+   START
+========================= */
 
 app.listen(PORT, () => {
 
