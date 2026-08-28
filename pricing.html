@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>FlowAI Studio - Pricing</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#fff;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 15% 0%,#6410a8 0,transparent 30%),
+    radial-gradient(circle at 100% 30%,#32005e 0,transparent 35%),
+    #0b0714;
+}
+
+button{
+  font:inherit;
+  cursor:pointer;
+}
+
+.top{
+  max-width:1100px;
+  margin:auto;
+  padding:22px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo{
+  width:52px;
+  height:52px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  background:linear-gradient(135deg,#9b24ff,#d82be9);
+  box-shadow:0 0 25px #9b24ff55;
+}
+
+.brand strong{
+  display:block;
+  font-size:22px;
+}
+
+.brand span{
+  color:#c38cff;
+  font-size:14px;
+}
+
+.back{
+  border:1px solid #54316c;
+  background:#171020;
+  color:#ddd;
+  padding:10px 17px;
+  border-radius:22px;
+}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:25px 20px 60px;
+}
+
+.hero{
+  text-align:center;
+  margin-bottom:35px;
+}
+
+.hero h1{
+  font-size:42px;
+  margin:10px 0;
+}
+
+.hero p{
+  color:#a9a0b3;
+  font-size:17px;
+  margin:0;
+}
+
+.plans{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+}
+
+.plan{
+  position:relative;
+  background:#100b1b;
+  border:1px solid #362442;
+  border-radius:22px;
+  padding:24px;
+  display:flex;
+  flex-direction:column;
+  min-height:430px;
+  box-shadow:0 15px 45px #0005;
+}
+
+.plan:hover{
+  border-color:#8e35c8;
+  transform:translateY(-3px);
+  transition:.2s;
+}
+
+.plan.featured{
+  border:2px solid #c02cff;
+  background:
+    linear-gradient(180deg,#241034,#100b1b 45%);
+  box-shadow:0 0 35px #a72cff33;
+}
+
+.badge{
+  position:absolute;
+  top:-13px;
+  left:50%;
+  transform:translateX(-50%);
+  white-space:nowrap;
+  padding:6px 14px;
+  border-radius:20px;
+  background:linear-gradient(90deg,#7928dc,#d128d7);
+  font-size:11px;
+  font-weight:bold;
+}
+
+.planIcon{
+  font-size:30px;
+  margin-bottom:10px;
+}
+
+.plan h2{
+  margin:0;
+  font-size:23px;
+}
+
+.description{
+  color:#968ca0;
+  font-size:13px;
+  min-height:38px;
+  margin:8px 0 15px;
+}
+
+.price{
+  font-size:34px;
+  font-weight:bold;
+}
+
+.price small{
+  font-size:12px;
+  color:#8f8499;
+  font-weight:normal;
+}
+
+.features{
+  list-style:none;
+  padding:0;
+  margin:22px 0;
+  flex:1;
+}
+
+.features li{
+  padding:8px 0;
+  color:#d6cedc;
+  font-size:13px;
+}
+
+.buy{
+  width:100%;
+  border:1px solid #683c80;
+  border-radius:12px;
+  padding:13px;
+  background:#1a1122;
+  color:white;
+  font-weight:bold;
+}
+
+.buy:hover{
+  background:#2a1738;
+}
+
+.featured .buy{
+  border:0;
+  background:linear-gradient(100deg,#7928dc,#d128d7);
+}
+
+.note{
+  text-align:center;
+  color:#746b7d;
+  font-size:11px;
+  margin-top:25px;
+  line-height:1.5;
+}
+
+#message{
+  display:none;
+  max-width:500px;
+  margin:20px auto 0;
+  padding:13px;
+  border-radius:12px;
+  text-align:center;
+  background:#181020;
+  border:1px solid #58336b;
+  color:#d9b7ff;
+  font-size:13px;
+}
+
+@media(max-width:900px){
+
+  .plans{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+@media(max-width:600px){
+
+  .top{
+    padding:16px 13px;
+  }
+
+  .logo{
+    width:45px;
+    height:45px;
+    font-size:23px;
+  }
+
+  .brand strong{
+    font-size:18px;
+  }
+
+  .hero h1{
+    font-size:31px;
+  }
+
+  .hero p{
+    font-size:14px;
+  }
+
+  .container{
+    padding:20px 12px 40px;
+  }
+
+  .plans{
+    grid-template-columns:1fr;
+  }
+
+  .plan{
+    min-height:0;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<header class="top">
+
+  <div class="brand">
+
+    <div class="logo">
+      ✦
+    </div>
+
+    <div>
+      <strong>FlowAI</strong>
+      <span>Studio</span>
+    </div>
+
+  </div>
+
+  <button
+    class="back"
+    onclick="goBack()">
+    ← Back
+  </button>
+
+</header>
+
+
+<main class="container">
+
+  <section class="hero">
+
+    <h1>
+      Choose Your Plan
+    </h1>
+
+    <p>
+      Create more videos with FlowAI Studio
+    </p>
+
+    <div id="message"></div>
+
+  </section>
+
+
+  <section class="plans">
+
+
+    <!-- BASIC -->
+
+    <div class="plan">
+
+      <div class="planIcon">
+        ⭐
+      </div>
+
+      <h2>
+        Basic
+      </h2>
+
+      <div class="description">
+        For casual creators
+      </div>
+
+      <div class="price">
+        ₹99
+        <small>/ month</small>
+      </div>
+
+      <ul class="features">
+
+        <li>✓ 150 video credits</li>
+
+        <li>✓ 5s / 10s / 15s videos</li>
+
+        <li>✓ AI image generation</li>
+
+        <li>✓ 16:9 + 9:16</li>
+
+        <li>✓ Generation history</li>
+
+        <li>✓ Ads included</li>
+
+      </ul>
+
+      <button
+        class="buy"
+        onclick="buyPlan('Basic','₹99/month')">
+
+        Get Basic
+
+      </button>
+
+    </div>
+
+
+    <!-- PRO -->
+
+    <div class="plan">
+
+      <div class="planIcon">
+        🚀
+      </div>
+
+      <h2>
+        Pro
+      </h2>
+
+      <div class="description">
+        For regular creators
+      </div>
+
+      <div class="price">
+        ₹299
+        <small>/ month</small>
+      </div>
+
+      <ul class="features">
+
+        <li>✓ 600 video credits</li>
+
+        <li>✓ 5s / 10s / 15s videos</li>
+
+        <li>✓ AI image generation</li>
+
+        <li>✓ 16:9 + 9:16</li>
+
+        <li>✓ Priority generation</li>
+
+        <li>✓ No ads</li>
+
+      </ul>
+
+      <button
+        class="buy"
+        onclick="buyPlan('Pro','₹299/month')">
+
+        Get Pro
+
+      </button>
+
+    </div>
+
+
+    <!-- PREMIUM -->
+
+    <div class="plan">
+
+      <div class="planIcon">
+        💎
+      </div>
+
+      <h2>
+        Premium
+      </h2>
+
+      <div class="description">
+        For serious creators
+      </div>
+
+      <div class="price">
+        ₹599
+        <small>/ month</small>
+      </div>
+
+      <ul class="features">
+
+        <li>✓ 1,500 video credits</li>
+
+        <li>✓ 5s / 10s / 15s videos</li>
+
+        <li>✓ AI image generation</li>
+
+        <li>✓ 16:9 + 9:16</li>
+
+        <li>✓ Priority generation</li>
+
+        <li>✓ No ads</li>
+
+      </ul>
+
+      <button
+        class="buy"
+        onclick="buyPlan('Premium','₹599/month')">
+
+        Get Premium
+
+      </button>
+
+    </div>
+
+
+    <!-- ULTRA -->
+
+    <div class="plan featured">
+
+      <div class="badge">
+        🔥 BEST VALUE
+      </div>
+
+      <div class="planIcon">
+        👑
+      </div>
+
+      <h2>
+        Ultra
+      </h2>
+
+      <div class="description">
+        Maximum creation for a full year
+      </div>
+
+      <div class="price">
+        ₹899
+        <small>/ 12 months</small>
+      </div>
+
+      <ul class="features">
+
+        <li>✓ ♾️ Unlimited video*</li>
+
+        <li>✓ 5s / 10s / 15s videos</li>
+
+        <li>✓ AI image generation</li>
+
+        <li>✓ 16:9 + 9:16</li>
+
+        <li>✓ Priority generation</li>
+
+        <li>✓ No ads</li>
+
+        <li>✓ Valid for 12 months</li>
+
+      </ul>
+
+      <button
+        class="buy"
+        onclick="buyPlan('Ultra','₹899/12 months')">
+
+        Get Ultra
+
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <div class="note">
+
+    * Unlimited video is subject to FlowAI Studio's
+    fair-use policy and anti-abuse protection.<br>
+
+    Plans and prices may change in the future.
+
+  </div>
+
+</main>
+
+
+<script>
+
+function goBack(){
+
+  if(
+    document.referrer &&
+    document.referrer.includes(
+      window.location.host
+    )
+  ){
+
+    history.back();
+
+  }else{
+
+    window.location.href="/";
+
+  }
+
+}
+
+
+function buyPlan(
+  plan,
+  price
+){
+
+  const message =
+    document.getElementById(
+      "message"
+    );
+
+  message.style.display =
+    "block";
+
+  message.innerHTML =
+    "💳 <b>" +
+    plan +
+    "</b> — " +
+    price +
+    "<br><br>" +
+    "Payment system will be connected next.";
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+</script>
+
+</body>
+</html>
