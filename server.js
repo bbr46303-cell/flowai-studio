@@ -21,18 +21,14 @@ const hf = HF_TOKEN
    BASIC SETUP
 ========================= */
 
+app.use(express.json({ limit: "15mb" }));
+
 app.use((req, res, next) => {
-
-  res.header(
-    "Access-Control-Allow-Origin",
-    "*"
-  );
-
+  res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
   );
-
   res.header(
     "Access-Control-Allow-Methods",
     "GET, POST, OPTIONS"
@@ -43,54 +39,26 @@ app.use((req, res, next) => {
   }
 
   next();
-
 });
 
-
-app.use(
-  express.json({
-    limit: "20mb"
-  })
-);
-
-
-/* =========================
-   STATIC FILES
-========================= */
-
-app.use(
-  express.static(__dirname)
-);
-
-app.use(
-  express.static(
-    path.join(__dirname, "public")
-  )
-);
+app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, "public")));
 
 
 /* =========================
    GENERATED FILES
 ========================= */
 
-const generatedDir =
-  path.join(
-    __dirname,
-    "generated"
-  );
-
+const generatedDir = path.join(
+  __dirname,
+  "generated"
+);
 
 if (!fs.existsSync(generatedDir)) {
-
-  fs.mkdirSync(
-    generatedDir,
-    {
-      recursive: true
-    }
-  );
-
+  fs.mkdirSync(generatedDir, {
+    recursive: true
+  });
 }
-
 
 app.use(
   "/generated",
@@ -102,87 +70,31 @@ app.use(
    HOME
 ========================= */
 
-app.get(
-  "/",
-  (req, res) => {
-
-    res.sendFile(
-      path.join(
-        __dirname,
-        "index.html"
-      )
-    );
-
-  }
-);
-
-
-/* =========================
-   LOGIN PAGE
-========================= */
-
-app.get(
-  "/login",
-  (req, res) => {
-
-    const loginPath =
-      path.join(
-        __dirname,
-        "login.html"
-      );
-
-    if (fs.existsSync(loginPath)) {
-
-      return res.sendFile(
-        loginPath
-      );
-
-    }
-
-    res.redirect("/");
-
-  }
-);
+app.get("/", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "index.html")
+  );
+});
 
 
 /* =========================
    HEALTH
 ========================= */
 
-app.get(
-  "/api/health",
-  (req, res) => {
-
-    res.json({
-
-      success: true,
-
-      service:
-        "FlowAI Studio",
-
-      hfConfigured:
-        Boolean(HF_TOKEN),
-
-      image:
-        "FREE",
-
-      videoDurations:
-        [5, 10, 15]
-
-    });
-
-  }
-);
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    service: "FlowAI Studio",
+    hfConfigured: Boolean(HF_TOKEN)
+  });
+});
 
 
 /* =========================
-   SAVE BLOB
+   SAVE FILE
 ========================= */
 
-async function saveBlob(
-  blob,
-  extension
-) {
+async function saveBlob(blob, extension) {
 
   const id =
     Date.now() +
@@ -191,10 +103,8 @@ async function saveBlob(
       .toString(36)
       .substring(2, 10);
 
-
   const filename =
     `${id}.${extension}`;
-
 
   const filepath =
     path.join(
@@ -202,51 +112,42 @@ async function saveBlob(
       filename
     );
 
-
   const buffer =
     Buffer.from(
       await blob.arrayBuffer()
     );
-
 
   fs.writeFileSync(
     filepath,
     buffer
   );
 
-
   return `/generated/${filename}`;
-
 }
 
 
 /* =========================
-   IMAGE GENERATION
-   FREE / UNLIMITED
+   IMAGE
 ========================= */
 
 async function generateImage(
   prompt,
-  aspect
+  ratio
 ) {
 
   if (!hf) {
-
     throw new Error(
-      "HF_TOKEN is not configured on Render."
+      "HF_TOKEN is not configured on the server."
     );
-
   }
 
+  let width = 1024;
+  let height = 576;
 
-  console.log(
-    "IMAGE GENERATION:",
-    {
-      prompt,
-      aspect
-    }
-  );
-
+  if (ratio === "9:16") {
+    width = 576;
+    height = 1024;
+  }
 
   const imageBlob =
     await hf.textToImage({
@@ -261,95 +162,58 @@ async function generateImage(
         prompt,
 
       parameters: {
-
-        num_inference_steps:
-          28
-
+        width,
+        height,
+        num_inference_steps: 28
       }
-
     });
-
 
   return await saveBlob(
     imageBlob,
     "png"
   );
-
 }
 
 
 /* =========================
-   TEXT → VIDEO
+   VIDEO
 ========================= */
 
-async function generateTextVideo(
+async function generateVideo(
   prompt,
-  duration,
-  aspect
+  ratio,
+  duration
 ) {
 
   if (!hf) {
-
     throw new Error(
-      "HF_TOKEN is not configured on Render."
+      "HF_TOKEN is not configured on the server."
     );
-
   }
 
-
-  console.log(
-    "VIDEO GENERATION:",
-    {
-      prompt,
-      duration,
-      aspect
-    }
-  );
-
-
   /*
-    Wan2.2 TI2V
+    Supported website durations:
+    5 / 10 / 15 seconds
 
-    NOTE:
-    The exact supported duration /
-    resolution parameters depend on
-    the selected provider/model.
-
-    We send the requested duration
-    when supported by the provider.
+    The selected duration is included
+    in the prompt because the selected
+    provider/model may have its own
+    native duration constraints.
   */
 
+  const durationText =
+    `${duration} second cinematic video`;
 
-  const parameters = {};
+  let aspectText =
+    "16:9 landscape";
 
-
-  /*
-    16:9 / 9:16
-
-    These values are kept available
-    for the provider/backend.
-  */
-
-  if (aspect === "9:16") {
-
-    parameters.aspect_ratio =
-      "9:16";
-
-  } else {
-
-    parameters.aspect_ratio =
-      "16:9";
-
+  if (ratio === "9:16") {
+    aspectText =
+      "9:16 vertical portrait";
   }
 
-
-  /*
-    Requested duration.
-  */
-
-  parameters.duration =
-    duration;
-
+  const finalPrompt =
+    `${prompt}. ${durationText}, ${aspectText}, smooth natural motion, cinematic camera movement, realistic lighting, high detail.`;
 
   const videoBlob =
     await hf.textToVideo({
@@ -361,19 +225,13 @@ async function generateTextVideo(
         "fal-ai",
 
       inputs:
-        prompt,
-
-      parameters:
-        parameters
-
+        finalPrompt
     });
-
 
   return await saveBlob(
     videoBlob,
     "mp4"
   );
-
 }
 
 
@@ -383,51 +241,37 @@ async function generateTextVideo(
 
 async function generateImageVideo(
   imageData,
-  prompt,
-  duration,
-  aspect
+  prompt
 ) {
 
   if (!hf) {
-
     throw new Error(
-      "HF_TOKEN is not configured on Render."
+      "HF_TOKEN is not configured on the server."
     );
-
   }
 
-
   if (!imageData) {
-
     throw new Error(
       "Please upload an image."
     );
-
   }
-
 
   const match =
     imageData.match(
       /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/
     );
 
-
   if (!match) {
-
     throw new Error(
       "Invalid image format."
     );
-
   }
-
 
   const mimeType =
     match[1];
 
-
   const base64 =
     match[2];
-
 
   const imageBuffer =
     Buffer.from(
@@ -435,51 +279,19 @@ async function generateImageVideo(
       "base64"
     );
 
-
   if (!imageBuffer.length) {
-
     throw new Error(
       "Uploaded image is empty."
     );
-
   }
-
 
   const imageBlob =
     new Blob(
       [imageBuffer],
       {
-        type:
-          mimeType
+        type: mimeType
       }
     );
-
-
-  const parameters = {
-
-    prompt:
-      prompt ||
-      "Cinematic natural motion, realistic camera movement, high detail",
-
-    duration:
-      duration,
-
-    aspect_ratio:
-      aspect === "9:16"
-        ? "9:16"
-        : "16:9"
-
-  };
-
-
-  console.log(
-    "IMAGE TO VIDEO:",
-    {
-      duration,
-      aspect
-    }
-  );
-
 
   const videoBlob =
     await hf.imageToVideo({
@@ -493,22 +305,22 @@ async function generateImageVideo(
       inputs:
         imageBlob,
 
-      parameters:
-        parameters
-
+      parameters: {
+        prompt:
+          prompt ||
+          "Cinematic natural movement, realistic camera motion, high detail."
+      }
     });
-
 
   return await saveBlob(
     videoBlob,
     "mp4"
   );
-
 }
 
 
 /* =========================
-   MAIN GENERATE API
+   MAIN API
 ========================= */
 
 async function generateMedia(
@@ -517,24 +329,12 @@ async function generateMedia(
 ) {
 
   const {
-
     prompt,
-
     mode,
-
-    imageData,
-
-    aspect,
-
-    duration
-
-  } =
-    req.body || {};
-
-
-  /* =====================
-     PROMPT CHECK
-  ===================== */
+    ratio,
+    duration,
+    imageData
+  } = req.body || {};
 
   if (
     !prompt ||
@@ -543,184 +343,107 @@ async function generateMedia(
   ) {
 
     return res.status(400).json({
-
-      success:
-        false,
-
+      success: false,
       error:
         "Prompt is required."
-
     });
-
   }
-
 
   const cleanPrompt =
     prompt.trim();
 
-
-  /* =====================
-     MODE
-  ===================== */
-
-  const cleanMode =
-    mode === "video"
-      ? "video"
-      : "image";
-
-
-  /* =====================
-     ASPECT
-  ===================== */
-
-  const cleanAspect =
-    aspect === "9:16"
+  const selectedRatio =
+    ratio === "9:16"
       ? "9:16"
       : "16:9";
 
-
-  /* =====================
-     DURATION
-  ===================== */
-
-  let cleanDuration =
-    Number(duration || 10);
-
-
-  if (
-    ![5, 10, 15]
-      .includes(cleanDuration)
-  ) {
-
-    cleanDuration =
-      10;
-
-  }
-
-
-  console.log(
-    "=========================="
-  );
-
-  console.log(
-    "FLOWAI GENERATION"
-  );
-
-  console.log(
-    "Mode:",
-    cleanMode
-  );
-
-  console.log(
-    "Aspect:",
-    cleanAspect
-  );
-
-  console.log(
-    "Duration:",
-    cleanDuration
-  );
-
-  console.log(
-    "=========================="
-  );
-
+  const selectedDuration =
+    [5, 10, 15].includes(
+      Number(duration)
+    )
+      ? Number(duration)
+      : 10;
 
   try {
+
+    console.log(
+      "FLOWAI GENERATION",
+      {
+        mode,
+        ratio: selectedRatio,
+        duration:
+          selectedDuration
+      }
+    );
 
 
     /* =====================
        IMAGE
-       FREE
     ===================== */
 
-    if (
-      cleanMode === "image"
-    ) {
+    if (mode === "image") {
 
       const url =
         await generateImage(
           cleanPrompt,
-          cleanAspect
+          selectedRatio
         );
-
 
       return res.json({
 
-        success:
-          true,
+        success: true,
 
-        type:
-          "image",
+        type: "image",
 
-        url:
-          url,
+        url,
 
-        creditsUsed:
-          0,
+        free: true,
 
-        prompt:
-          cleanPrompt,
+        prompt: cleanPrompt,
 
-        aspect:
-          cleanAspect
+        ratio:
+          selectedRatio
 
       });
-
     }
 
 
     /* =====================
-       VIDEO
        IMAGE → VIDEO
     ===================== */
 
     if (
-      cleanMode === "video" &&
+      mode === "video" &&
       imageData
     ) {
 
       const url =
         await generateImageVideo(
           imageData,
-          cleanPrompt,
-          cleanDuration,
-          cleanAspect
+          cleanPrompt
         );
-
 
       return res.json({
 
-        success:
-          true,
+        success: true,
 
-        type:
-          "video",
+        type: "video",
 
         source:
           "image-to-video",
 
-        url:
-          url,
-
-        creditsUsed:
-          cleanDuration === 5
-            ? 5
-            : cleanDuration === 10
-            ? 10
-            : 15,
+        url,
 
         duration:
-          cleanDuration,
+          selectedDuration,
 
-        aspect:
-          cleanAspect,
+        ratio:
+          selectedRatio,
 
         prompt:
           cleanPrompt
 
       });
-
     }
 
 
@@ -728,43 +451,45 @@ async function generateMedia(
        TEXT → VIDEO
     ===================== */
 
-    const url =
-      await generateTextVideo(
-        cleanPrompt,
-        cleanDuration,
-        cleanAspect
-      );
+    if (mode === "video") {
 
+      const url =
+        await generateVideo(
+          cleanPrompt,
+          selectedRatio,
+          selectedDuration
+        );
 
-    return res.json({
+      return res.json({
 
-      success:
-        true,
+        success: true,
 
-      type:
-        "video",
+        type: "video",
 
-      source:
-        "text-to-video",
+        source:
+          "text-to-video",
 
-      url:
         url,
 
-      creditsUsed:
-        cleanDuration === 5
-          ? 5
-          : cleanDuration === 10
-          ? 10
-          : 15,
+        duration:
+          selectedDuration,
 
-      duration:
-        cleanDuration,
+        ratio:
+          selectedRatio,
 
-      aspect:
-        cleanAspect,
+        prompt:
+          cleanPrompt
 
-      prompt:
-        cleanPrompt
+      });
+    }
+
+
+    return res.status(400).json({
+
+      success: false,
+
+      error:
+        "Invalid generation mode."
 
     });
 
@@ -772,35 +497,35 @@ async function generateMedia(
   } catch (error) {
 
     console.error(
-      "=========================="
-    );
-
-    console.error(
-      "GENERATION ERROR"
-    );
-
-    console.error(
+      "FLOWAI GENERATION ERROR:",
       error
     );
 
-    console.error(
-      "=========================="
-    );
+    let message =
+      error?.message ||
+      "AI generation failed.";
 
+    const lower =
+      message.toLowerCase();
+
+    if (
+      lower.includes("depleted") ||
+      lower.includes("monthly") ||
+      lower.includes("credits")
+    ) {
+
+      message =
+        "Hugging Face Inference Provider credits are exhausted. Please add provider credits or use a provider API key.";
+    }
 
     return res.status(500).json({
 
-      success:
-        false,
+      success: false,
 
-      error:
-        error?.message ||
-        "AI generation failed."
+      error: message
 
     });
-
   }
-
 }
 
 
@@ -813,7 +538,6 @@ app.post(
   generateMedia
 );
 
-
 app.post(
   "/generate-media",
   generateMedia
@@ -821,7 +545,7 @@ app.post(
 
 
 /* =========================
-   START SERVER
+   START
 ========================= */
 
 app.listen(
@@ -829,35 +553,11 @@ app.listen(
   () => {
 
     console.log(
-      "================================"
-    );
-
-    console.log(
       `FlowAI Studio running on port ${PORT}`
     );
 
     console.log(
       `HF configured: ${Boolean(HF_TOKEN)}`
-    );
-
-    console.log(
-      "Image: FREE / Unlimited"
-    );
-
-    console.log(
-      "Video: 5s = 5 credits"
-    );
-
-    console.log(
-      "Video: 10s = 10 credits"
-    );
-
-    console.log(
-      "Video: 15s = 15 credits"
-    );
-
-    console.log(
-      "================================"
     );
 
   }
