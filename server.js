@@ -85,7 +85,9 @@ app.get("/api/health", (req, res) => {
   res.json({
     success: true,
     service: "FlowAI Studio",
-    hfConfigured: Boolean(HF_TOKEN)
+    hfConfigured: Boolean(HF_TOKEN),
+    videoProvider: "fal-ai",
+    videoModel: "Wan-AI/Wan2.2-TI2V-5B"
   });
 });
 
@@ -176,7 +178,7 @@ async function generateImage(
 
 
 /* =========================
-   VIDEO
+   TEXT → VIDEO
 ========================= */
 
 async function generateVideo(
@@ -192,28 +194,45 @@ async function generateVideo(
   }
 
   /*
-    Supported website durations:
-    5 / 10 / 15 seconds
+    Wan 2.2 5B / Fal currently supports
+    up to approximately 5 seconds.
 
-    The selected duration is included
-    in the prompt because the selected
-    provider/model may have its own
-    native duration constraints.
+    24 FPS × 120 frames = 5 seconds.
   */
 
-  const durationText =
-    `${duration} second cinematic video`;
+  const framesPerSecond = 24;
+  const numFrames = 120;
 
-  let aspectText =
-    "16:9 landscape";
-
-  if (ratio === "9:16") {
-    aspectText =
-      "9:16 vertical portrait";
-  }
+  const aspectRatio =
+    ratio === "9:16"
+      ? "9:16"
+      : "16:9";
 
   const finalPrompt =
-    `${prompt}. ${durationText}, ${aspectText}, smooth natural motion, cinematic camera movement, realistic lighting, high detail.`;
+    `${prompt.trim()}. Cinematic video, smooth natural motion, realistic movement, realistic lighting, high detail, professional camera movement.`;
+
+  console.log(
+    "FLOWAI TEXT TO VIDEO",
+    {
+      model:
+        "Wan-AI/Wan2.2-TI2V-5B",
+
+      provider:
+        "fal-ai",
+
+      requestedDuration:
+        duration,
+
+      actualDuration:
+        "5 seconds",
+
+      numFrames,
+
+      framesPerSecond,
+
+      aspectRatio
+    }
+  );
 
   const videoBlob =
     await hf.textToVideo({
@@ -225,7 +244,37 @@ async function generateVideo(
         "fal-ai",
 
       inputs:
-        finalPrompt
+        finalPrompt,
+
+      parameters: {
+
+        num_frames:
+          numFrames,
+
+        frames_per_second:
+          framesPerSecond,
+
+        resolution:
+          "720p",
+
+        aspect_ratio:
+          aspectRatio,
+
+        num_inference_steps:
+          40,
+
+        enable_safety_checker:
+          true,
+
+        enable_output_safety_checker:
+          true,
+
+        enable_prompt_expansion:
+          false,
+
+        video_write_mode:
+          "balanced"
+      }
     });
 
   return await saveBlob(
@@ -241,7 +290,8 @@ async function generateVideo(
 
 async function generateImageVideo(
   imageData,
-  prompt
+  prompt,
+  ratio
 ) {
 
   if (!hf) {
@@ -293,6 +343,24 @@ async function generateImageVideo(
       }
     );
 
+  const aspectRatio =
+    ratio === "9:16"
+      ? "9:16"
+      : "16:9";
+
+  console.log(
+    "FLOWAI IMAGE TO VIDEO",
+    {
+      model:
+        "Wan-AI/Wan2.2-I2V-A14B",
+
+      provider:
+        "fal-ai",
+
+      aspectRatio
+    }
+  );
+
   const videoBlob =
     await hf.imageToVideo({
 
@@ -306,9 +374,31 @@ async function generateImageVideo(
         imageBlob,
 
       parameters: {
+
         prompt:
           prompt ||
-          "Cinematic natural movement, realistic camera motion, high detail."
+          "Cinematic natural movement, realistic camera motion, smooth motion, high detail.",
+
+        num_frames:
+          120,
+
+        frames_per_second:
+          24,
+
+        aspect_ratio:
+          aspectRatio,
+
+        resolution:
+          "720p",
+
+        num_inference_steps:
+          27,
+
+        enable_safety_checker:
+          true,
+
+        enable_output_safety_checker:
+          true
       }
     });
 
@@ -362,7 +452,7 @@ async function generateMedia(
       Number(duration)
     )
       ? Number(duration)
-      : 10;
+      : 5;
 
   try {
 
@@ -370,9 +460,12 @@ async function generateMedia(
       "FLOWAI GENERATION",
       {
         mode,
-        ratio: selectedRatio,
+        ratio:
+          selectedRatio,
         duration:
-          selectedDuration
+          selectedDuration,
+        hasImage:
+          Boolean(imageData)
       }
     );
 
@@ -393,13 +486,16 @@ async function generateMedia(
 
         success: true,
 
-        type: "image",
+        type:
+          "image",
 
         url,
 
-        free: true,
+        free:
+          true,
 
-        prompt: cleanPrompt,
+        prompt:
+          cleanPrompt,
 
         ratio:
           selectedRatio
@@ -420,14 +516,17 @@ async function generateMedia(
       const url =
         await generateImageVideo(
           imageData,
-          cleanPrompt
+          cleanPrompt,
+          selectedRatio
         );
 
       return res.json({
 
-        success: true,
+        success:
+          true,
 
-        type: "video",
+        type:
+          "video",
 
         source:
           "image-to-video",
@@ -435,6 +534,9 @@ async function generateMedia(
         url,
 
         duration:
+          5,
+
+        requestedDuration:
           selectedDuration,
 
         ratio:
@@ -462,9 +564,11 @@ async function generateMedia(
 
       return res.json({
 
-        success: true,
+        success:
+          true,
 
-        type: "video",
+        type:
+          "video",
 
         source:
           "text-to-video",
@@ -472,6 +576,9 @@ async function generateMedia(
         url,
 
         duration:
+          5,
+
+        requestedDuration:
           selectedDuration,
 
         ratio:
@@ -486,7 +593,8 @@ async function generateMedia(
 
     return res.status(400).json({
 
-      success: false,
+      success:
+        false,
 
       error:
         "Invalid generation mode."
@@ -518,11 +626,32 @@ async function generateMedia(
         "Hugging Face Inference Provider credits are exhausted. Please add provider credits or use a provider API key.";
     }
 
+    if (
+      lower.includes("unauthorized") ||
+      lower.includes("401") ||
+      lower.includes("403")
+    ) {
+
+      message =
+        "Hugging Face authentication failed. Check that HF_TOKEN is valid and has Inference Providers permission.";
+    }
+
+    if (
+      lower.includes("not found") ||
+      lower.includes("404")
+    ) {
+
+      message =
+        "The selected video model/provider is unavailable. Please check the Hugging Face Fal provider configuration.";
+    }
+
     return res.status(500).json({
 
-      success: false,
+      success:
+        false,
 
-      error: message
+      error:
+        message
 
     });
   }
