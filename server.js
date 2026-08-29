@@ -2,32 +2,37 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
-import { fal } from "@fal-ai/client";
+import Replicate from "replicate";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 
-const FAL_KEY = process.env.FAL_KEY;
+const REPLICATE_API_TOKEN =
+  process.env.REPLICATE_API_TOKEN;
 
-if (FAL_KEY) {
-  fal.config({
-    credentials: FAL_KEY
-  });
-}
+const replicate = REPLICATE_API_TOKEN
+  ? new Replicate({
+      auth: REPLICATE_API_TOKEN
+    })
+  : null;
 
 
 /* =========================
    BASIC SETUP
 ========================= */
 
-app.use(express.json({
-  limit: "15mb"
-}));
+app.use(
+  express.json({
+    limit: "15mb"
+  })
+);
 
 app.use((req, res, next) => {
+
   res.header(
     "Access-Control-Allow-Origin",
     "*"
@@ -48,9 +53,13 @@ app.use((req, res, next) => {
   }
 
   next();
+
 });
 
-app.use(express.static(__dirname));
+
+app.use(
+  express.static(__dirname)
+);
 
 app.use(
   express.static(
@@ -60,7 +69,7 @@ app.use(
 
 
 /* =========================
-   GENERATED FILES
+   GENERATED
 ========================= */
 
 const generatedDir =
@@ -72,12 +81,14 @@ const generatedDir =
 if (
   !fs.existsSync(generatedDir)
 ) {
+
   fs.mkdirSync(
     generatedDir,
     {
       recursive: true
     }
   );
+
 }
 
 app.use(
@@ -93,12 +104,14 @@ app.use(
 app.get(
   "/",
   (req, res) => {
+
     res.sendFile(
       path.join(
         __dirname,
         "index.html"
       )
     );
+
   }
 );
 
@@ -112,13 +125,23 @@ app.get(
   (req, res) => {
 
     res.json({
+
       success: true,
-      service: "FlowAI Studio",
-      falConfigured:
-        Boolean(FAL_KEY),
-      provider: "fal-ai",
+
+      service:
+        "FlowAI Studio",
+
+      provider:
+        "Replicate",
+
       model:
-        "fal-ai/wan/v2.2-5b/text-to-video"
+        "wan-video/wan-2.2-t2v-fast",
+
+      replicateConfigured:
+        Boolean(
+          REPLICATE_API_TOKEN
+        )
+
     });
 
   }
@@ -126,38 +149,96 @@ app.get(
 
 
 /* =========================
-   SAVE FAL VIDEO
+   SAVE VIDEO
 ========================= */
 
-async function saveVideoFromUrl(
-  videoUrl
+async function saveVideo(
+  video
 ) {
 
-  if (!videoUrl) {
+  if (!video) {
+
     throw new Error(
-      "Fal did not return a video URL."
+      "Replicate did not return a video."
     );
+
   }
+
+  let videoUrl = null;
+
+  /*
+    Replicate FileOutput normally
+    provides url()
+  */
+
+  if (
+    typeof video.url ===
+    "function"
+  ) {
+
+    videoUrl =
+      video.url();
+
+  }
+
+  /*
+    Some responses may already
+    be strings or URL objects.
+  */
+
+  if (
+    !videoUrl &&
+    typeof video ===
+      "string"
+  ) {
+
+    videoUrl =
+      video;
+
+  }
+
+  if (!videoUrl) {
+
+    throw new Error(
+      "Unable to read generated video URL."
+    );
+
+  }
+
+  console.log(
+    "Downloading video:",
+    videoUrl
+  );
+
 
   const response =
-    await fetch(videoUrl);
+    await fetch(
+      videoUrl
+    );
 
   if (!response.ok) {
+
     throw new Error(
-      `Unable to download generated video. HTTP ${response.status}`
+      `Video download failed: HTTP ${response.status}`
     );
+
   }
+
 
   const buffer =
     Buffer.from(
       await response.arrayBuffer()
     );
 
+
   if (!buffer.length) {
+
     throw new Error(
-      "Generated video file is empty."
+      "Generated video is empty."
     );
+
   }
+
 
   const id =
     Date.now() +
@@ -166,8 +247,10 @@ async function saveVideoFromUrl(
       .toString(36)
       .substring(2, 10);
 
+
   const filename =
     `${id}.mp4`;
+
 
   const filepath =
     path.join(
@@ -175,12 +258,15 @@ async function saveVideoFromUrl(
       filename
     );
 
+
   fs.writeFileSync(
     filepath,
     buffer
   );
 
+
   return `/generated/${filename}`;
+
 }
 
 
@@ -189,154 +275,61 @@ async function saveVideoFromUrl(
 ========================= */
 
 async function generateVideo(
-  prompt,
-  ratio
+  prompt
 ) {
 
-  if (!FAL_KEY) {
+  if (!replicate) {
+
     throw new Error(
-      "FAL_KEY is not configured on the server."
+      "REPLICATE_API_TOKEN is not configured on the server."
     );
+
   }
 
-  const aspectRatio =
-    ratio === "9:16"
-      ? "9:16"
-      : "16:9";
 
   const finalPrompt =
-    `${prompt.trim()}. Cinematic video, smooth natural motion, realistic movement, realistic lighting, detailed visuals, professional camera movement.`;
+    `${prompt.trim()}. Cinematic video, smooth natural motion, realistic movement, realistic lighting, detailed visuals, professional camera movement, high quality.`;
+
 
   console.log(
-    "FLOWAI → FAL VIDEO",
-    {
-      provider:
-        "fal-ai",
-
-      model:
-        "fal-ai/wan/v2.2-5b/text-to-video",
-
-      aspectRatio,
-
-      duration:
-        "5 seconds"
-    }
+    "FLOWAI → REPLICATE"
   );
 
+  console.log({
+    model:
+      "wan-video/wan-2.2-t2v-fast",
 
-  const result =
-    await fal.subscribe(
-      "fal-ai/wan/v2.2-5b/text-to-video",
+    prompt:
+      finalPrompt
+  });
+
+
+  const output =
+    await replicate.run(
+      "wan-video/wan-2.2-t2v-fast",
       {
-
         input: {
-
           prompt:
-            finalPrompt,
-
-          negative_prompt:
-            "blurry, distorted, low quality, flickering, unnatural motion",
-
-          num_frames:
-            120,
-
-          frames_per_second:
-            24,
-
-          resolution:
-            "720p",
-
-          aspect_ratio:
-            aspectRatio,
-
-          num_inference_steps:
-            40,
-
-          enable_safety_checker:
-            true,
-
-          enable_output_safety_checker:
-            true,
-
-          enable_prompt_expansion:
-            false,
-
-          guidance_scale:
-            3.5,
-
-          shift:
-            5,
-
-          interpolator_model:
-            "none",
-
-          video_quality:
-            "high",
-
-          video_write_mode:
-            "balanced"
-        },
-
-        logs:
-          true,
-
-        onQueueUpdate:
-          (update) => {
-
-            if (
-              update.status ===
-              "IN_PROGRESS"
-            ) {
-
-              console.log(
-                "Fal generation in progress..."
-              );
-
-              if (
-                Array.isArray(
-                  update.logs
-                )
-              ) {
-
-                update.logs
-                  .forEach(
-                    (log) => {
-                      console.log(
-                        log.message
-                      );
-                    }
-                  );
-
-              }
-            }
-          }
+            finalPrompt
+        }
       }
     );
 
 
-  const videoUrl =
-    result?.data?.video?.url;
-
-  if (!videoUrl) {
-
-    console.error(
-      "Unexpected Fal response:",
-      result
-    );
-
-    throw new Error(
-      "Fal completed but no video URL was returned."
-    );
-  }
-
-  return await saveVideoFromUrl(
-    videoUrl
+  console.log(
+    "Replicate generation completed."
   );
+
+
+  return await saveVideo(
+    output
+  );
+
 }
 
 
 /* =========================
-   MAIN GENERATION API
+   MAIN API
 ========================= */
 
 async function generateMedia(
@@ -348,19 +341,41 @@ async function generateMedia(
     prompt,
     mode,
     ratio
-  } = req.body || {};
+  } =
+    req.body || {};
 
 
   if (
     !prompt ||
-    typeof prompt !== "string" ||
+    typeof prompt !==
+      "string" ||
     !prompt.trim()
   ) {
 
     return res.status(400).json({
+
       success: false,
+
       error:
         "Prompt is required."
+
+    });
+
+  }
+
+
+  if (
+    mode !==
+    "video"
+  ) {
+
+    return res.status(400).json({
+
+      success: false,
+
+      error:
+        "FlowAI currently supports Text to Video only."
+
     });
 
   }
@@ -379,70 +394,55 @@ async function generateMedia(
   try {
 
     console.log(
-      "FLOWAI GENERATION REQUEST",
-      {
-        mode,
-        ratio:
-          selectedRatio
-      }
+      "================================"
+    );
+
+    console.log(
+      "FLOWAI VIDEO REQUEST"
+    );
+
+    console.log({
+      prompt:
+        cleanPrompt,
+
+      ratio:
+        selectedRatio
+    });
+
+    console.log(
+      "================================"
     );
 
 
-    /* =====================
-       ONLY TEXT → VIDEO
-    ===================== */
-
-    if (
-      mode === "video"
-    ) {
-
-      const url =
-        await generateVideo(
-          cleanPrompt,
-          selectedRatio
-        );
+    const url =
+      await generateVideo(
+        cleanPrompt
+      );
 
 
-      return res.json({
+    return res.json({
 
-        success:
-          true,
+      success: true,
 
-        type:
-          "video",
+      type:
+        "video",
 
-        source:
-          "fal-wan-2.2",
+      source:
+        "replicate-wan-2.2",
 
-        url,
+      url,
 
-        duration:
-          5,
+      duration:
+        5,
 
-        ratio:
-          selectedRatio,
+      ratio:
+        selectedRatio,
 
-        prompt:
-          cleanPrompt
-
-      });
-
-    }
-
-
-    /* =====================
-       IMAGE MODE
-    ===================== */
-
-    return res.status(400).json({
-
-      success:
-        false,
-
-      error:
-        "FlowAI currently supports Text to Video only."
+      prompt:
+        cleanPrompt
 
     });
+
 
   } catch (error) {
 
@@ -465,41 +465,47 @@ async function generateMedia(
       lower.includes(
         "unauthorized"
       ) ||
-      lower.includes("401") ||
-      lower.includes("403") ||
       lower.includes(
-        "invalid api key"
+        "401"
+      ) ||
+      lower.includes(
+        "403"
+      ) ||
+      lower.includes(
+        "authentication"
       )
     ) {
 
       message =
-        "Fal API authentication failed. Please check FAL_KEY in Render Environment.";
+        "Replicate authentication failed. Please check REPLICATE_API_TOKEN in Render.";
 
     }
 
 
     if (
       lower.includes(
-        "insufficient"
+        "credit"
+      ) ||
+      lower.includes(
+        "billing"
+      ) ||
+      lower.includes(
+        "payment"
       ) ||
       lower.includes(
         "balance"
-      ) ||
-      lower.includes(
-        "credit"
       )
     ) {
 
       message =
-        "Fal account does not have enough balance/credits for this generation.";
+        "Replicate account requires available billing/credits for video generation.";
 
     }
 
 
     return res.status(500).json({
 
-      success:
-        false,
+      success: false,
 
       error:
         message
@@ -539,7 +545,9 @@ app.listen(
     );
 
     console.log(
-      `Fal configured: ${Boolean(FAL_KEY)}`
+      `Replicate configured: ${Boolean(
+        REPLICATE_API_TOKEN
+      )}`
     );
 
   }
