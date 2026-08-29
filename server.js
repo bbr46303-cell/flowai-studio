@@ -9,28 +9,17 @@ import admin from "firebase-admin";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const app = express();
 const PORT = process.env.PORT || 10000;
 
 app.use(express.json({ limit: "20mb" }));
 app.use(express.static(__dirname));
 
-/* =========================
-   FAL AI
-========================= */
-
 const FAL_KEY = process.env.FAL_KEY || "";
 
 if (FAL_KEY) {
-  fal.config({
-    credentials: FAL_KEY
-  });
+  fal.config({ credentials: FAL_KEY });
 }
-
-/* =========================
-   FIREBASE ADMIN
-========================= */
 
 let db = null;
 
@@ -49,15 +38,11 @@ try {
     db = admin.firestore();
     console.log("Firebase Admin connected");
   } else {
-    console.log("FIREBASE_SERVICE_ACCOUNT not configured");
+    console.log("FIREBASE_SERVICE_ACCOUNT is not configured");
   }
-} catch (error) {
-  console.error("Firebase Admin init error:", error.message);
+} catch (e) {
+  console.error("Firebase Admin init error:", e.message);
 }
-
-/* =========================
-   RAZORPAY
-========================= */
 
 const RP_ID = process.env.RAZORPAY_KEY_ID || "";
 const RP_SECRET = process.env.RAZORPAY_KEY_SECRET || "";
@@ -69,10 +54,6 @@ const razorpay =
         key_secret: RP_SECRET
       })
     : null;
-
-/* =========================
-   PLANS
-========================= */
 
 const PLANS = {
   Basic: {
@@ -101,10 +82,6 @@ const PLANS = {
   }
 };
 
-/* =========================
-   VIDEO STORAGE
-========================= */
-
 const generatedDir = path.join(__dirname, "generated");
 
 if (!fs.existsSync(generatedDir)) {
@@ -113,19 +90,10 @@ if (!fs.existsSync(generatedDir)) {
   });
 }
 
-app.use(
-  "/generated",
-  express.static(generatedDir)
-);
-
-/* =========================
-   ROUTES
-========================= */
+app.use("/generated", express.static(generatedDir));
 
 app.get("/", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "index.html")
-  );
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.get("/api/health", (req, res) => {
@@ -137,10 +105,6 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-/* =========================
-   AUTH
-========================= */
-
 async function auth(req, res, next) {
   try {
     if (!db) {
@@ -150,8 +114,7 @@ async function auth(req, res, next) {
       });
     }
 
-    const header =
-      req.headers.authorization || "";
+    const header = req.headers.authorization || "";
 
     if (!header.startsWith("Bearer ")) {
       return res.status(401).json({
@@ -161,32 +124,20 @@ async function auth(req, res, next) {
 
     const token = header.slice(7);
 
-    req.user =
-      await admin.auth().verifyIdToken(token);
+    req.user = await admin.auth().verifyIdToken(token);
 
     next();
-  } catch (error) {
-    console.error(
-      "Authentication error:",
-      error.message
-    );
+  } catch (e) {
+    console.error("Auth error:", e.message);
 
-    return res.status(401).json({
-      error:
-        "Login session invalid or expired."
+    res.status(401).json({
+      error: "Login session invalid or expired."
     });
   }
 }
 
-/* =========================
-   USER
-========================= */
-
 async function userDoc(uid) {
-  const ref = db
-    .collection("users")
-    .doc(uid);
-
+  const ref = db.collection("users").doc(uid);
   const snap = await ref.get();
 
   if (!snap.exists) {
@@ -212,15 +163,9 @@ async function userDoc(uid) {
   return snap.data();
 }
 
-/* =========================
-   SAVE VIDEO
-========================= */
-
 async function saveVideo(url) {
   if (!url) {
-    throw new Error(
-      "Generated video URL is missing."
-    );
+    throw new Error("Generated video URL is missing.");
   }
 
   const response = await fetch(url);
@@ -236,43 +181,27 @@ async function saveVideo(url) {
   );
 
   if (!buffer.length) {
-    throw new Error(
-      "Generated video is empty."
-    );
+    throw new Error("Generated video is empty.");
   }
 
   const filename =
-    Date.now() +
-    "-" +
-    crypto.randomBytes(5).toString("hex") +
-    ".mp4";
+    `${Date.now()}-` +
+    `${crypto.randomBytes(5).toString("hex")}.mp4`;
 
-  const filepath = path.join(
-    generatedDir,
-    filename
+  fs.writeFileSync(
+    path.join(generatedDir, filename),
+    buffer
   );
 
-  fs.writeFileSync(filepath, buffer);
-
-  return "/generated/" + filename;
+  return `/generated/${filename}`;
 }
 
-/* =========================
-   MAKE VIDEO
-========================= */
-
-async function makeVideo(
-  prompt,
-  ratio,
-  duration
-) {
+async function makeVideo(prompt, ratio, duration) {
   if (!FAL_KEY) {
     throw new Error(
       "FAL_KEY is not configured on the server."
     );
   }
-
-  const durationNumber = Number(duration);
 
   const framesMap = {
     5: 121,
@@ -281,7 +210,238 @@ async function makeVideo(
   };
 
   const frames =
-    framesMap[durationNumber] || 121;
+    framesMap[Number(duration)] || 121;
 
   const aspectRatio =
-    ratio ===
+    ratio === "9:16" ? "9:16" : "16:9";
+
+  const finalPrompt =
+    `${prompt.trim()}. ` +
+    `Cinematic video, smooth natural motion, ` +
+    `realistic lighting, detailed visuals, ` +
+    `professional camera movement, high quality.`;
+
+  console.log(
+    "Starting FAL generation:",
+    `${duration}s`,
+    aspectRatio
+  );
+
+  const result = await fal.subscribe(
+    "fal-ai/wan/v2.2-5b/text-to-video",
+    {
+      input: {
+        prompt: finalPrompt,
+
+        negative_prompt:
+          "blurry, distorted, low quality, " +
+          "flickering, unnatural motion",
+
+        num_frames: frames,
+
+        frames_per_second: 24,
+
+        resolution: "720p",
+
+        aspect_ratio: aspectRatio,
+
+        num_inference_steps: 27,
+
+        enable_safety_checker: true,
+
+        enable_output_safety_checker: true,
+
+        guidance_scale: 3.5,
+
+        shift: 5,
+
+        interpolator_model: "none",
+
+        video_quality: "high",
+
+        video_write_mode: "balanced"
+      },
+
+      logs: true
+    }
+  );
+
+  const videoUrl =
+    result?.data?.video?.url;
+
+  if (!videoUrl) {
+    throw new Error(
+      "FAL completed but no video URL was returned."
+    );
+  }
+
+  return saveVideo(videoUrl);
+}
+
+app.get("/api/me", auth, async (req, res) => {
+  try {
+    const user = await userDoc(
+      req.user.uid
+    );
+
+    res.json({
+      success: true,
+
+      name:
+        req.user.name ||
+        req.user.email?.split("@")[0] ||
+        "User",
+
+      email: req.user.email || "",
+
+      ...user
+    });
+  } catch (e) {
+    console.error("/api/me:", e);
+
+    res.status(500).json({
+      error: "Unable to load user data."
+    });
+  }
+});
+
+app.get(
+  "/api/history",
+  auth,
+  async (req, res) => {
+    try {
+      const snap =
+        await db
+          .collection("users")
+          .doc(req.user.uid)
+          .collection("generations")
+          .orderBy("createdAt", "desc")
+          .limit(20)
+          .get();
+
+      res.json({
+        success: true,
+
+        items: snap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+      });
+    } catch (e) {
+      console.error("/api/history:", e);
+
+      res.status(500).json({
+        error:
+          "Unable to load generation history."
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/generate",
+  auth,
+  async (req, res) => {
+    const {
+      prompt,
+      mode = "video",
+      ratio = "16:9",
+      duration = 5
+    } = req.body || {};
+
+    if (!prompt || !prompt.trim()) {
+      return res.status(400).json({
+        error: "Prompt is required."
+      });
+    }
+
+    if (mode !== "video") {
+      return res.status(400).json({
+        error:
+          "Text to Video is currently enabled."
+      });
+    }
+
+    const d =
+      [5, 10, 15].includes(
+        Number(duration)
+      )
+        ? Number(duration)
+        : 5;
+
+    const finalRatio =
+      ratio === "9:16"
+        ? "9:16"
+        : "16:9";
+
+    const cost = d;
+
+    const ref =
+      db
+        .collection("users")
+        .doc(req.user.uid);
+
+    const user =
+      await userDoc(req.user.uid);
+
+    const expires =
+      user.planExpiresAt == null
+        ? null
+        : Number(user.planExpiresAt);
+
+    const unlimited =
+      Boolean(user.unlimited) &&
+      (!expires || Date.now() < expires);
+
+    if (
+      !unlimited &&
+      Number(user.credits || 0) < cost
+    ) {
+      return res.status(402).json({
+        error:
+          `Not enough credits. ` +
+          `You need ${cost} credits.`
+      });
+    }
+
+    if (!unlimited) {
+      await ref.update({
+        credits:
+          admin.firestore.FieldValue.increment(
+            -cost
+          )
+      });
+    }
+
+    try {
+      const url =
+        await makeVideo(
+          prompt,
+          finalRatio,
+          d
+        );
+
+      await ref
+        .collection("generations")
+        .add({
+          prompt: prompt.trim(),
+
+          duration: d,
+
+          ratio: finalRatio,
+
+          cost:
+            unlimited ? 0 : cost,
+
+          url,
+
+          createdAt:
+            admin.firestore.FieldValue.serverTimestamp()
+        });
+
+      const after =
+        await userDoc(
+          req.user.uid
+        );
+
+     
