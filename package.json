@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-    "@fal-ai/client": "^1.0.0"
+    "@fal-ai/client": "^1.9.0"
   }
 }
