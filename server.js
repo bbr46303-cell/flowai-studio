@@ -444,4 +444,231 @@ app.post(
           req.user.uid
         );
 
-     
+           res.json({
+        success: true,
+        type: "video",
+        url,
+        duration: d,
+        ratio: finalRatio,
+        credits: after.credits ?? 0,
+        unlimited
+      });
+    } catch (e) {
+      console.error("Video generation error:", e);
+
+      if (!unlimited) {
+        await ref
+          .update({
+            credits:
+              admin.firestore.FieldValue.increment(cost)
+          })
+          .catch((err) => {
+            console.error("Refund error:", err.message);
+          });
+      }
+
+      res.status(500).json({
+        error:
+          e?.message ||
+          "Video generation failed."
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/create-order",
+  auth,
+  async (req, res) => {
+    try {
+      const name = req.body?.plan;
+      const plan = PLANS[name];
+
+      if (!plan) {
+        return res.status(400).json({
+          error: "Invalid plan."
+        });
+      }
+
+      if (!razorpay) {
+        return res.status(503).json({
+          error:
+            "Razorpay is not configured. Add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Render."
+        });
+      }
+
+      const order =
+        await razorpay.orders.create({
+          amount: plan.amount * 100,
+          currency: "INR",
+          receipt: `flowai_${Date.now()}`,
+          notes: {
+            uid: req.user.uid,
+            plan: name
+          }
+        });
+
+      res.json({
+        success: true,
+        keyId: RP_ID,
+        order,
+        plan: {
+          name,
+          ...plan
+        }
+      });
+    } catch (e) {
+      console.error("Create order error:", e);
+
+      res.status(500).json({
+        error:
+          e?.message ||
+          "Unable to create payment order."
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/verify-payment",
+  auth,
+  async (req, res) => {
+    try {
+      const {
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        plan: name
+      } = req.body || {};
+
+      const plan = PLANS[name];
+
+      if (
+        !plan ||
+        !razorpay_order_id ||
+        !razorpay_payment_id ||
+        !razorpay_signature
+      ) {
+        return res.status(400).json({
+          error: "Incomplete payment details."
+        });
+      }
+
+      if (!razorpay) {
+        return res.status(503).json({
+          error:
+            "Razorpay is not configured."
+        });
+      }
+
+      const expected =
+        crypto
+          .createHmac("sha256", RP_SECRET)
+          .update(
+            `${razorpay_order_id}|${razorpay_payment_id}`
+          )
+          .digest("hex");
+
+      if (expected !== razorpay_signature) {
+        return res.status(400).json({
+          error:
+            "Payment verification failed."
+        });
+      }
+
+      const payment =
+        await razorpay.payments.fetch(
+          razorpay_payment_id
+        );
+
+      if (
+        payment.status !== "captured" ||
+        Number(payment.amount) !==
+          plan.amount * 100
+      ) {
+        return res.status(400).json({
+          error:
+            "Payment is not captured or amount does not match."
+        });
+      }
+
+      const ref =
+        db
+          .collection("users")
+          .doc(req.user.uid);
+
+      const expiresAt =
+        Date.now() +
+        plan.days *
+          24 *
+          60 *
+          60 *
+          1000;
+
+      const data = {
+        plan: name,
+        planExpiresAt: expiresAt,
+        unlimited: Boolean(plan.unlimited),
+        updatedAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+        lastPaymentId: razorpay_payment_id
+      };
+
+      if (!plan.unlimited) {
+        data.credits =
+          admin.firestore.FieldValue.increment(
+            plan.credits
+          );
+      }
+
+      await ref.set(data, {
+        merge: true
+      });
+
+      await ref
+        .collection("payments")
+        .doc(razorpay_payment_id)
+        .set({
+          plan: name,
+          amount: plan.amount,
+          status: "captured",
+          orderId: razorpay_order_id,
+          createdAt:
+            admin.firestore.FieldValue.serverTimestamp()
+        });
+
+      const user =
+        await userDoc(req.user.uid);
+
+      res.json({
+        success: true,
+        message:
+          `${name} plan activated successfully.`,
+        ...user
+      });
+    } catch (e) {
+      console.error(
+        "Payment verification error:",
+        e
+      );
+
+      res.status(500).json({
+        error:
+          e?.message ||
+          "Payment verification failed."
+      });
+    }
+  }
+);
+
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    error: "API endpoint not found."
+  });
+});
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(
+    `FlowAI Studio running on port ${PORT}`
+  );
+});
